@@ -19,6 +19,19 @@ variable "use_deployer" {
   description = "Use the deployer"
 }
 
+variable "ANF_settings" {
+  description = "ANF settings"
+  default = {
+    use    = false
+    name   = ""
+    arm_id = ""
+    service_level = "Standard"
+    size_in_tb    = 4
+
+  }
+
+}
+
 locals {
   // Resources naming
   storageaccount_name         = var.naming.storageaccount_names.VNET.landscape_storageaccount_name
@@ -40,7 +53,7 @@ locals {
   vnet_mgmt_id     = try(local.deployer_tfstate.vnet_mgmt_id, try(local.deployer_tfstate.vnet_mgmt.id, ""))
   firewall_ip      = try(var.deployer_tfstate.firewall_ip, "")
 
-    // Firewall
+  // Firewall
   firewall_id     = try(var.deployer_tfstate.firewall_id, "")
   firewall_exists = length(local.firewall_id) > 0
   firewall_name   = local.firewall_exists ? try(split("/", local.firewall_id)[8], "") : ""

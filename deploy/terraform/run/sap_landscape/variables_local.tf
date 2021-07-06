@@ -30,6 +30,22 @@ variable "deployer_tfstate_key" {
 
 }
 
+variable "use_ANF" {
+  description = "Boolean flag indicating if ANF will be used"
+  default     = false
+}
+
+variable "ANF_account_arm_id" {
+  description = "The resource identifier (if any) for the NetApp account"
+  default     = ""
+}
+
+variable "ANF_account_name" {
+  description = "The NetApp account name (if any)"
+  default     = ""
+
+}
+
 locals {
 
   version_label = trimspace(file("${path.module}/../../../configs/version.txt"))
@@ -67,7 +83,7 @@ locals {
   // Retrieve the arm_id of deployer's Key Vault from deployer's terraform.tfstate
   spn_key_vault_arm_id = try(var.key_vault.kv_spn_id, try(data.terraform_remote_state.deployer[0].outputs.deployer_kv_user_arm_id, ""))
 
-   deployer_subscription_id = length(local.spn_key_vault_arm_id) > 0 ? split("/", local.spn_key_vault_arm_id)[2] : ""
+  deployer_subscription_id = length(local.spn_key_vault_arm_id) > 0 ? split("/", local.spn_key_vault_arm_id)[2] : ""
 
   spn = {
     subscription_id = data.azurerm_key_vault_secret.subscription_id.value,
@@ -82,5 +98,14 @@ locals {
     client_secret   = local.spn.client_secret,
     tenant_id       = local.spn.tenant_id,
     object_id       = data.azuread_service_principal.sp.id
+  }
+
+  ANF_settings = {
+    use           = var.use_ANF
+    name          = var.ANF_account_name
+    arm_id        = var.ANF_account_arm_id
+    service_level = "Standard"
+    size_in_tb    = 4
+
   }
 }

@@ -154,3 +154,14 @@ output "web_nsg_id" {
   )
 }
 
+output "ANF_pool_settings" {
+  value = var.ANF_settings.use ? {
+    account_name = var.ANF_settings.use && length(var.ANF_settings.arm_id) > 0 ? (
+      data.azurerm_netapp_account.workload_netapp_account[0].name) : (
+      azurerm_netapp_account.workload_netapp_account[0].name
+    )
+    pool_name     = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.netapp_pool)
+    service_level = azurerm_netapp_pool.workload_netapp_pool[0].service_level
+    size_in_tb    = azurerm_netapp_pool.workload_netapp_pool[0].size_in_tb
+  } : {}
+}

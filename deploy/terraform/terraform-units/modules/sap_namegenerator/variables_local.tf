@@ -235,6 +235,8 @@ variable "resource_suffixes" {
     "library_state"       = "_SAP-LIBRARY.terraform.tfstate"
     "kv"                  = ""
     "msi"                 = "-msi"
+    "netapp_account"      = "netapp_account"
+    "netapp_pool"         = "netapp_pool"
     "nic"                 = "-nic"
     "osdisk"              = "-OsDisk"
     "pip"                 = "-pip"
@@ -275,8 +277,8 @@ variable "resource_suffixes" {
     "web_subnet"          = "web-subnet"
     "web_subnet_nsg"      = "webSubnet-nsg"
     "witness"             = "-witness"
-    "witness_accesskey"   = "witness-accesskey"
-    "witness_name"        = "witness-name"
+    "witness_accesskey"   = "-witness-accesskey"
+    "witness_name"        = "-witness-name"
 
   }
 }
