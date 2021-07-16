@@ -6,14 +6,14 @@ resource "azurerm_network_interface" "anchor" {
   name                          = format("%s%s%s%s", local.prefix, var.naming.separator, local.anchor_virtualmachine_names[count.index], local.resource_suffixes.nic)
   resource_group_name           = local.rg_exists ? data.azurerm_resource_group.resource_group[0].name : azurerm_resource_group.resource_group[0].name
   location                      = local.rg_exists ? data.azurerm_resource_group.resource_group[0].location : azurerm_resource_group.resource_group[0].location
-  enable_accelerated_networking = local.enable_accelerated_networking
+  enable_accelerated_networking = var.infrastructure.anchor_vms.accelerated_networking
 
   ip_configuration {
     name      = "IPConfig1"
     subnet_id = local.sub_db_exists ? data.azurerm_subnet.db[0].id : azurerm_subnet.db[0].id
     private_ip_address = local.anchor_use_DHCP ? (
       null) : (
-      try(local.anchor_nic_ips[count.index], cidrhost(local.sub_db_exists ? data.azurerm_subnet.db[0].address_prefixes[0] : azurerm_subnet.db[0].address_prefixes[0], (count.index + 5)))
+      try(var.infrastructure.anchor_vms.nic_ips[count.index], cidrhost(local.sub_db_exists ? data.azurerm_subnet.db[0].address_prefixes[0] : azurerm_subnet.db[0].address_prefixes[0], (count.index + 5)))
     )
     private_ip_address_allocation = local.anchor_use_DHCP ? "Dynamic" : "Static"
   }
@@ -47,7 +47,7 @@ resource "azurerm_linux_virtual_machine" "anchor" {
     }
   }
 
-  custom_data = local.cloudinit_growpart_config
+  custom_data = var.deployment == "new" ? local.cloudinit_growpart_config : null
 
   os_disk {
     name                   = format("%s%s%s%s", local.prefix, var.naming.separator, local.anchor_virtualmachine_names[count.index], local.resource_suffixes.osdisk)
@@ -75,6 +75,8 @@ resource "azurerm_linux_virtual_machine" "anchor" {
     ultra_ssd_enabled = local.enable_anchor_ultra[count.index]
   }
 
+
+  license_type = length(var.license_type) > 0 ? var.license_type : null
 }
 
 # Create the Windows Application VM(s)
@@ -121,5 +123,7 @@ resource "azurerm_windows_virtual_machine" "anchor" {
   additional_capabilities {
     ultra_ssd_enabled = local.enable_anchor_ultra[count.index]
   }
-
+  
+  patch_mode = "Manual"
+  license_type = length(var.license_type) > 0 ? var.license_type : null
 }

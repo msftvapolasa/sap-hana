@@ -95,11 +95,19 @@ if [ $param_dirname != '.' ]; then
 fi
 
 
+ext=$(echo ${parameterfile} | cut -d. -f2)
 
+# Helper variables
+if [ "${ext}" == json ]; then
+    environment=$(jq --raw-output .infrastructure.environment "${parameterfile}")
+    region=$(jq --raw-output .infrastructure.region "${parameterfile}")
+else
 
-# Read environment
-environment=$(jq --raw-output .infrastructure.environment "${parameterfile}")
-region=$(jq --raw-output .infrastructure.region "${parameterfile}")
+    load_config_vars "${param_dirname}"/"${parameterfile}" "environment"
+    load_config_vars "${param_dirname}"/"${parameterfile}" "location"
+    region=$(echo ${location} | xargs)
+fi
+
 key=$(echo "${parameterfile}" | cut -d. -f1)
 
 if [ ! -n "${environment}" ]
@@ -304,6 +312,14 @@ then
     if [ -z "${temp}" ]
     then
         touch "${deployer_config_information}"
+        echo ""
+        echo "#########################################################################################"
+        echo "#                                                                                       #"
+        echo "#                  Keyvault to use for SPN details: $temp                     #
+        echo "#                                                                                       #"
+        echo "#########################################################################################"
+        echo ""
+
         save_config_var "keyvault" "${deployer_config_information}"
         return_value=0
     else

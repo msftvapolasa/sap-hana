@@ -231,11 +231,11 @@ resource "azurerm_lb" "web" {
   frontend_ip_configuration {
     name      = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.web_alb_feip)
     subnet_id = local.sub_web_deployed.id
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.application.use_DHCP ? (
       null) : (
       try(local.web_lb_ips[0], cidrhost(local.sub_web_deployed.address_prefixes[0], local.ip_offsets.web_lb))
     )
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.application.use_DHCP ? "Dynamic" : "Static"
   }
 }
 

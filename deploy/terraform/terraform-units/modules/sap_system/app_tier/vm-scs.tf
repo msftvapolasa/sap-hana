@@ -10,7 +10,7 @@ resource "azurerm_network_interface" "scs" {
   ip_configuration {
     name      = "IPConfig1"
     subnet_id = local.sub_app_exists ? data.azurerm_subnet.subnet_sap_app[0].id : azurerm_subnet.subnet_sap_app[0].id
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.application.use_DHCP ? (
       null) : (
       try(local.scs_nic_ips[count.index],
         cidrhost(local.sub_app_exists ?
@@ -20,7 +20,7 @@ resource "azurerm_network_interface" "scs" {
         )
       )
     )
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.application.use_DHCP ? "Dynamic" : "Static"
   }
 }
 
@@ -35,7 +35,7 @@ resource "azurerm_network_interface_application_security_group_association" "scs
 // Create Admin NICs
 resource "azurerm_network_interface" "scs_admin" {
   provider                      = azurerm.main
-  count                         = local.enable_deployment && local.apptier_dual_nics ? local.scs_server_count : 0
+  count                         = local.enable_deployment && var.application.dual_nics ? local.scs_server_count : 0
   name                          = format("%s%s%s%s", local.prefix, var.naming.separator, local.scs_virtualmachine_names[count.index], local.resource_suffixes.admin_nic)
   location                      = var.resource_group[0].location
   resource_group_name           = var.resource_group[0].name
@@ -44,7 +44,7 @@ resource "azurerm_network_interface" "scs_admin" {
   ip_configuration {
     name      = "IPConfig1"
     subnet_id = var.admin_subnet.id
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.application.use_DHCP ? (
       null) : (
       try(local.scs_admin_nic_ips[count.index],
         cidrhost(var.admin_subnet.address_prefixes[0],
@@ -52,7 +52,7 @@ resource "azurerm_network_interface" "scs_admin" {
         )
       )
     )
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.application.use_DHCP ? "Dynamic" : "Static"
   }
 }
 
@@ -82,8 +82,8 @@ resource "azurerm_linux_virtual_machine" "scs" {
 
   //If length of zones > 1 distribute servers evenly across zones
   zone = local.use_scs_avset ? null : local.scs_zones[count.index % max(local.scs_zone_count, 1)]
-  network_interface_ids = local.apptier_dual_nics ? (
-    local.legacy_nic_order ? (
+  network_interface_ids = var.application.dual_nics ? (
+    var.options.legacy_nic_order ? (
       [azurerm_network_interface.scs_admin[count.index].id, azurerm_network_interface.scs[count.index].id]) : (
       [azurerm_network_interface.scs[count.index].id, azurerm_network_interface.scs_admin[count.index].id]
     )
@@ -104,7 +104,7 @@ resource "azurerm_linux_virtual_machine" "scs" {
     }
   }
 
-  custom_data = var.cloudinit_growpart_config
+  custom_data = var.deployment == "new" ? var.cloudinit_growpart_config : null
 
   dynamic "os_disk" {
     iterator = disk
@@ -149,7 +149,9 @@ resource "azurerm_linux_virtual_machine" "scs" {
     storage_account_uri = var.storage_bootdiag_endpoint
   }
 
-  tags = local.scs_tags
+  license_type = length(var.license_type) > 0 ? var.license_type : null
+
+  tags = try(var.application.scs_tags, {})
 }
 
 # Create the SCS Windows VM(s)
@@ -170,8 +172,8 @@ resource "azurerm_windows_virtual_machine" "scs" {
   //If length of zones > 1 distribute servers evenly across zones
   zone = local.use_scs_avset ? null : local.scs_zones[count.index % max(local.scs_zone_count, 1)]
 
-  network_interface_ids = local.apptier_dual_nics ? (
-    local.legacy_nic_order ? (
+  network_interface_ids = var.application.dual_nics ? (
+    var.options.legacy_nic_order ? (
       [azurerm_network_interface.scs_admin[count.index].id, azurerm_network_interface.scs[count.index].id]) : (
       [azurerm_network_interface.scs[count.index].id, azurerm_network_interface.scs_admin[count.index].id]
     )
@@ -226,7 +228,10 @@ resource "azurerm_windows_virtual_machine" "scs" {
     storage_account_uri = var.storage_bootdiag_endpoint
   }
 
-  tags = local.scs_tags
+#ToDo: Remove once feature is GA  patch_mode = "Manual"
+  license_type = length(var.license_type) > 0 ? var.license_type : null
+
+  tags = try(var.application.scs_tags, {})
 }
 
 # Creates managed data disk
@@ -241,7 +246,7 @@ resource "azurerm_managed_disk" "scs" {
   disk_size_gb           = local.scs_data_disks[count.index].disk_size_gb
   disk_encryption_set_id = try(var.options.disk_encryption_set_id, null)
 
-  zones = local.scs_zonal_deployment && (local.scs_server_count == local.scs_zone_count) ? (
+  zones = !local.use_scs_avset  ? (
     upper(local.scs_ostype) == "LINUX" ? (
       [azurerm_linux_virtual_machine.scs[local.scs_data_disks[count.index].vm_index].zone]) : (
       [azurerm_windows_virtual_machine.scs[local.scs_data_disks[count.index].vm_index].zone]

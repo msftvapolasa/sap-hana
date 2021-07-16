@@ -1,6 +1,3 @@
-variable "infrastructure_w_defaults" {
-  description = "infrasturcture dict with default values"
-}
 
 variable "nics_dbnodes_admin" {
   description = "Admin NICs of HANA database nodes"
@@ -107,20 +104,37 @@ variable "use_local_credentials" {
   description = "SDU has unique credentials"
 }
 
+variable "authentication_type" {
+  description = "VM Authentication type"
+  default = "key"
+  
+}
+
 variable "db_ha" {
   description = "Is the DB deployment highly available"
-  default = false
+  default     = false
 }
 
 variable "scs_ha" {
   description = "Is the SCS deployment highly available"
-  default = false
+  default     = false
 }
 
 variable "ansible_user" {
   description = "The ansible remote user account to use"
-  default = "azureadm"
+  default     = "azureadm"
 }
+
+variable "db_lb_ip" {
+  description = "DB Load Balancer IP"
+  default     = ""
+}
+
+variable "scs_lb_ip" {
+  description = "SCS Load Balancer IP"
+  default     = ""
+}
+
 
 
 locals {
@@ -213,4 +227,5 @@ locals {
   ])
 
   secret_prefix = var.use_local_credentials ? var.naming.prefix.SDU : var.naming.prefix.VNET
+  dns_label     = try(var.landscape_tfstate.dns_label, "")
 }

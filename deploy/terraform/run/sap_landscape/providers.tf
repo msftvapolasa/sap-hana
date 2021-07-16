@@ -15,47 +15,47 @@
 provider "azurerm" {
   features {}
   subscription_id = local.spn.subscription_id
-  client_id       = local.spn.client_id
-  client_secret   = local.spn.client_secret
-  tenant_id       = local.spn.tenant_id
+  client_id       = local.use_spn ? local.spn.client_id : null
+  client_secret   = local.use_spn ? local.spn.client_secret : null
+  tenant_id       = local.use_spn ? local.spn.tenant_id : null
   alias           = "main"
 }
 
 provider "azurerm" {
   features {}
   subscription_id = length(local.deployer_subscription_id) > 0 ? local.deployer_subscription_id : null
-  alias = "deployer"
+  alias           = "deployer"
 }
 
 provider "azuread" {
-  client_id     = local.spn.client_id
-  client_secret = local.spn.client_secret
-  tenant_id     = local.spn.tenant_id
+  client_id     = local.use_spn ? local.spn.client_id : null
+  client_secret = local.use_spn ? local.spn.client_secret : null
+  tenant_id     = local.use_spn ? local.spn.tenant_id : null
 }
 
 terraform {
   required_version = ">= 0.14"
   required_providers {
     external = {
-      source  = "hashicorp/external"
+      source = "hashicorp/external"
     }
     local = {
-      source  = "hashicorp/local"
+      source = "hashicorp/local"
     }
     random = {
-      source  = "hashicorp/random"
+      source = "hashicorp/random"
     }
     null = {
-      source  = "hashicorp/null"
+      source = "hashicorp/null"
     }
     azuread = {
-      source  = "hashicorp/azuread"
+      source = "hashicorp/azuread"
     }
     azurerm = {
-      source  = "hashicorp/azurerm"
+      source = "hashicorp/azurerm"
     }
     tls = {
-      source  = "hashicorp/tls"
+      source = "hashicorp/tls"
     }
   }
 }

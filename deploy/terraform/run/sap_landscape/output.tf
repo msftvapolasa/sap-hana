@@ -106,3 +106,6 @@ output "ANF_pool_settings" {
 }
 
 
+output "dns_label" {
+  value = var.dns_label
+}

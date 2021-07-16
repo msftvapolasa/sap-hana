@@ -10,14 +10,14 @@ resource "azurerm_network_interface" "web" {
   ip_configuration {
     name      = "IPConfig1"
     subnet_id = local.sub_web_deployed.id
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.application.use_DHCP ? (
       null) : (
       try(local.web_nic_ips[count.index], local.sub_web_defined ?
         cidrhost(local.sub_web_prefix, (tonumber(count.index) + local.ip_offsets.web_vm)) :
         cidrhost(local.sub_app_prefix, (tonumber(count.index) * -1 + local.ip_offsets.web_vm))
       )
     )
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.application.use_DHCP ? "Dynamic" : "Static"
   }
 }
 
@@ -31,7 +31,7 @@ resource "azurerm_network_interface_application_security_group_association" "web
 # Create Application NICs
 resource "azurerm_network_interface" "web_admin" {
   provider                      = azurerm.main
-  count                         = local.enable_deployment && local.apptier_dual_nics ? local.webdispatcher_count : 0
+  count                         = local.enable_deployment && var.application.dual_nics ? local.webdispatcher_count : 0
   name                          = format("%s%s%s%s", local.prefix, var.naming.separator, local.web_virtualmachine_names[count.index], local.resource_suffixes.admin_nic)
   location                      = var.resource_group[0].location
   resource_group_name           = var.resource_group[0].name
@@ -40,13 +40,13 @@ resource "azurerm_network_interface" "web_admin" {
   ip_configuration {
     name      = "IPConfig1"
     subnet_id = var.admin_subnet.id
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.application.use_DHCP ? (
       null) : (
       try(local.web_admin_nic_ips[count.index],
         cidrhost(var.admin_subnet.address_prefixes[0], tonumber(count.index) + local.admin_ip_offsets.web_vm
         )
     ))
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.application.use_DHCP ? "Dynamic" : "Static"
   }
 }
 
@@ -68,10 +68,10 @@ resource "azurerm_linux_virtual_machine" "web" {
   //If length of zones > 1 distribute servers evenly across zones
   zone = local.use_web_avset ? null : local.web_zones[count.index % max(local.web_zone_count, 1)]
 
-  network_interface_ids = local.apptier_dual_nics ? (
-    local.legacy_nic_order ? (
-      [azurerm_network_interface.web_admin[count.index].id, azurerm_network_interface.web[count.index].id]) : (
-      [azurerm_network_interface.web[count.index].id, azurerm_network_interface.web_admin[count.index].id]
+  network_interface_ids = var.application.dual_nics ? (
+    var.options.legacy_nic_order ? (
+      [azurerm_network_interface.scs_admin[count.index].id, azurerm_network_interface.scs[count.index].id]) : (
+      [azurerm_network_interface.scs[count.index].id, azurerm_network_interface.scs_admin[count.index].id]
     )
     ) : (
     [azurerm_network_interface.web[count.index].id]
@@ -90,7 +90,7 @@ resource "azurerm_linux_virtual_machine" "web" {
     }
   }
 
-  custom_data = var.cloudinit_growpart_config
+  custom_data = var.deployment == "new" ? var.cloudinit_growpart_config : null
 
   dynamic "os_disk" {
     iterator = disk
@@ -135,7 +135,9 @@ resource "azurerm_linux_virtual_machine" "web" {
     storage_account_uri = var.storage_bootdiag_endpoint
   }
 
-  tags = local.web_tags
+  license_type = length(var.license_type) > 0 ? var.license_type : null
+
+  tags = try(var.application.web_tags, {})
 }
 
 # Create the Windows Web dispatcher VM(s)
@@ -156,8 +158,8 @@ resource "azurerm_windows_virtual_machine" "web" {
   //If length of zones > 1 distribute servers evenly across zones
   zone = local.use_web_avset ? null : local.web_zones[count.index % max(local.web_zone_count, 1)]
 
-  network_interface_ids = local.apptier_dual_nics ? (
-    local.legacy_nic_order ? (
+  network_interface_ids = var.application.dual_nics ? (
+    var.options.legacy_nic_order ? (
       [azurerm_network_interface.web_admin[count.index].id, azurerm_network_interface.web[count.index].id]) : (
       [azurerm_network_interface.web[count.index].id, azurerm_network_interface.web_admin[count.index].id]
     )
@@ -212,7 +214,11 @@ resource "azurerm_windows_virtual_machine" "web" {
     storage_account_uri = var.storage_bootdiag_endpoint
   }
 
-  tags = local.web_tags
+
+  #ToDo: Remove once feature is GA  patch_mode = "Manual"
+  license_type = length(var.license_type) > 0 ? var.license_type : null
+
+  tags = try(var.application.web_tags, {})
 }
 
 # Creates managed data disk
@@ -227,7 +233,7 @@ resource "azurerm_managed_disk" "web" {
   disk_size_gb           = local.web_data_disks[count.index].disk_size_gb
   disk_encryption_set_id = try(var.options.disk_encryption_set_id, null)
 
-  zones = local.web_zonal_deployment && (local.webdispatcher_count == local.web_zone_count) ? (
+  zones = !local.use_web_avset  ? (
     upper(local.web_ostype) == "LINUX" ? (
       [azurerm_linux_virtual_machine.web[local.web_data_disks[count.index].vm_index].zone]) : (
       [azurerm_windows_virtual_machine.web[local.web_data_disks[count.index].vm_index].zone]

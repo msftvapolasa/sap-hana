@@ -26,19 +26,6 @@ output "fileshare_sapbits_name" {
   value     = module.sap_library.fileshare_sapbits_name
 }
 
-output "library_user_key_vault_name" {
-  sensitive = true
-  value     = module.sap_library.library_user_key_vault_name
-}
-
-output "library_user_key_vault_id" {
-  value = module.sap_library.library_user_key_vault_id
-}
-
-output "library_private_key_vault_id" {
-  value = module.sap_library.library_private_key_vault_id
-}
-
 output "remote_state_storage_account_name" {
   value = module.sap_library.remote_state_storage_account_name
 }
@@ -56,12 +43,12 @@ output "deployer_tfstate_key" {
 }
 
 output "saplibrary_environment" {
-  value = var.infrastructure.environment
+  value = local.infrastructure.environment
 }
 
 output "saplibrary_subscription_id" {
   sensitive = true
-  value = local.saplib_subscription_id
+  value     = local.saplib_subscription_id
 }
 
 output "tfstate_resource_id" {

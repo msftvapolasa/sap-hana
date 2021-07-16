@@ -71,6 +71,12 @@ variable "cloudinit_growpart_config" {
   description = "A cloud-init config that configures automatic growpart expansion of root partition"
 }
 
+variable "license_type" {
+  description = "Specifies the license type for the OS"
+  default = ""
+
+}
+
 
 locals {
   // Imports database sizing information
@@ -90,7 +96,7 @@ locals {
   storageaccount_names = var.naming.storageaccount_names.SDU
   resource_suffixes    = var.naming.resource_suffixes
 
-  region    = try(var.infrastructure.region, "")
+  region    = var.infrastructure.region
   anydb_sid = (length(local.anydb_databases) > 0) ? try(local.anydb.instance.sid, lower(substr(local.anydb_platform, 0, 3))) : lower(substr(local.anydb_platform, 0, 3))
   sid       = length(var.sap_sid) > 0 ? var.sap_sid : local.anydb_sid
   prefix    = try(var.infrastructure.resource_group.name, trimspace(var.naming.prefix.SDU))
@@ -176,13 +182,13 @@ locals {
       "version"   = "latest"
     }
     DB2 = {
-      "publisher" = "suse",
+      "publisher" = "SUSE",
       "offer"     = "sles-sap-12-sp5",
       "sku"       = "gen1"
       "version"   = "latest"
     }
     ASE = {
-      "publisher" = "suse",
+      "publisher" = "SUSE",
       "offer"     = "sles-sap-12-sp5",
       "sku"       = "gen1"
       "version"   = "latest"
@@ -337,7 +343,7 @@ locals {
     [
       for storage_type in local.db_sizing : [
         for idx, disk_count in range(storage_type.count) : {
-          suffix                    = format("%s%02d", storage_type.name, disk_count + local.offset)
+          suffix                    = format("%s%02d", storage_type.name, disk_count + var.options.resource_offset)
           storage_account_type      = storage_type.disk_type,
           disk_size_gb              = storage_type.size_gb,
           disk_iops_read_write      = try(storage_type.disk-iops-read-write, null)
@@ -357,7 +363,7 @@ locals {
     [
       for storage_type in local.db_sizing : [
         for idx, disk_count in range(storage_type.count) : {
-          suffix                    = format("%s%02d", storage_type.name, storage_type.lun_start + disk_count + local.offset)
+          suffix                    = format("%s%02d", storage_type.name, storage_type.lun_start + disk_count + var.options.resource_offset)
           storage_account_type      = storage_type.disk_type,
           disk_size_gb              = storage_type.size_gb,
           disk_iops_read_write      = try(storage_type.disk-iops-read-write, null)
@@ -417,7 +423,8 @@ locals {
   zonal_deployment = local.db_zone_count > 0 || local.enable_ultradisk ? true : false
 
   //If we deploy more than one server in zone put them in an availability set
-  use_avset = !local.zonal_deployment || local.db_server_count != local.db_zone_count
+  use_avset = local.db_server_count > 0 && try(!local.anydb.no_avset, false) ? !local.zonal_deployment || (local.db_server_count != local.db_zone_count) : false
+
 
 
   full_observer_names = flatten([for vm in local.observer_virtualmachine_names :

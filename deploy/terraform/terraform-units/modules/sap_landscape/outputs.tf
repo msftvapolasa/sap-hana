@@ -17,10 +17,6 @@ output "nics_iscsi" {
   )
 }
 
-output "infrastructure_w_defaults" {
-  value = local.infrastructure
-}
-
 output "kv_user" {
   value = local.user_kv_exist ? data.azurerm_key_vault.kv_user[0].id : azurerm_key_vault.kv_user[0].id
 }
@@ -36,7 +32,6 @@ output "sid_public_key_secret_name" {
 output "sid_private_key_secret_name" {
   value = local.sid_ppk_name
 }
-
 
 output "sid_username_secret_name" {
   value = local.sid_username_secret_name
@@ -55,7 +50,7 @@ output "storageaccount_name" {
   value = length(var.diagnostics_storage_account.arm_id) > 0 ? (
     data.azurerm_storage_account.storage_bootdiag[0].name) : (
     azurerm_storage_account.storage_bootdiag[0].name
-  )
+    )
 }
 
 output "storageaccount_rg_name" {
@@ -101,28 +96,28 @@ output "witness_storage_account_key" {
 
 output "admin_subnet_id" {
   value = local.sub_admin_defined ? (
-    local.sub_admin_existing ? local.sub_admin_id : azurerm_subnet.admin[0].id) : (
+    local.sub_admin_existing ? local.sub_admin_arm_id : azurerm_subnet.admin[0].id) : (
     ""
   )
 }
 
 output "app_subnet_id" {
   value = local.sub_app_defined ? (
-    local.sub_app_existing ? local.sub_app_id : azurerm_subnet.app[0].id) : (
+    local.sub_app_existing ? local.sub_app_arm_id : azurerm_subnet.app[0].id) : (
     ""
   )
 }
 
 output "db_subnet_id" {
   value = local.sub_db_defined ? (
-    local.sub_db_existing ? local.sub_db_id : azurerm_subnet.db[0].id) : (
+    local.sub_db_existing ? local.sub_db_arm_id : azurerm_subnet.db[0].id) : (
     ""
   )
 }
 
 output "web_subnet_id" {
   value = local.sub_web_defined ? (
-    local.sub_web_existing ? local.sub_web_id : azurerm_subnet.web[0].id) : (
+    local.sub_web_existing ? local.sub_web_arm_id : azurerm_subnet.web[0].id) : (
     ""
   )
 }
