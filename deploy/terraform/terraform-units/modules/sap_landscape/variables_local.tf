@@ -29,6 +29,7 @@ variable "ANF_settings" {
     size_in_tb    = 4
 
   }
+}
 
 variable "dns_label" {
   description = "DNS label"
