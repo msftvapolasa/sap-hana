@@ -55,6 +55,13 @@ variable "enable_purge_control_for_keyvaults" {
   description = "Allow the deployment to control the purge protection"
 }
 
+variable "anf_shared_volume_size" {
+  description = "The volume size in GB for shared"
+}
+
+variable "anf_sapmnt_volume_size" {
+  description = "The volume size in GB for sapmnt"
+}
 
 locals {
   // Resources naming
@@ -236,7 +243,7 @@ locals {
   */
 
   //SAP vnet
-  vnet_sap_arm_id              = try(var.landscape_tfstate.vnet_sap_arm_id, "")
+  vnet_sap_arm_id              = try(var.landscape_tfstate.vnet_sap_arm_id, "") 
   vnet_sap_name                = split("/", local.vnet_sap_arm_id)[8]
   vnet_sap_resource_group_name = split("/", local.vnet_sap_arm_id)[4]
 
@@ -382,6 +389,8 @@ locals {
 
   // Current service principal
   service_principal = try(var.service_principal, {})
+
+  ANF_pool_settings              = try(var.landscape_tfstate.ANF_pool_settings, {use_ANF = false}) 
 
 }
 

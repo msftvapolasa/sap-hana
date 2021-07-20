@@ -498,3 +498,14 @@ variable "legacy_nic_order" {
 variable "enable_purge_control_for_keyvaults" {
   default = true
 }
+
+#ANF Settings
+
+variable "anf_sapmnt_volume_size" {
+  default = 512
+}
+
+
+variable "anf_shared_volume_size" {
+  default = 512
+}

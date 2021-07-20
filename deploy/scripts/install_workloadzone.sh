@@ -309,7 +309,7 @@ then
     echo ""
     echo "#########################################################################################"
     echo "#                                                                                       #"
-    echo "#                   Changing the subscription to: $STATE_SUBSCRIPTION                   #"
+    echo "#          Changing the subscription to: $STATE_SUBSCRIPTION           #"
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""

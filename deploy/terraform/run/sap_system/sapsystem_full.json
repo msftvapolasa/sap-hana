@@ -1,7 +1,4 @@
 {
-  "tfstate_resource_id"                    : "",
-  "deployer_tfstate_key"                   : "",
-  "landscape_tfstate_key"                  : "",
   "infrastructure": {
     "environment"                          : "NP",
     "region"                               : "westeurope",
@@ -178,5 +175,11 @@
     "resource_offset"                      : 0,
     "disk_encryption_set_id"               : "",
     "nsg_asg_with_vnet"                    : false
-  }
+  },
+  "tfstate_resource_id"                    : "",
+  "deployer_tfstate_key"                   : "",
+  "landscape_tfstate_key"                  : "",
+  "anf_sapmnt_volume_size"                 : 512,
+  "anf_shared_volume_size"                 : 512
+
 }
