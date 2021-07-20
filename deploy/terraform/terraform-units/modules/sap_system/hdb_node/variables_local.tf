@@ -117,7 +117,7 @@ locals {
   enable_deployment = (length(local.hdb_list) > 0) ? true : false
 
   // Filter the list of databases to only HANA platform entries
-  hdb = try(local.hdb_list[0], {})
+  hdb = var.databases[0]
 
   //ANF support
   use_ANF = try(local.hdb.use_ANF, false)
@@ -391,6 +391,8 @@ locals {
   //If we deploy more than one server in zone put them in an availability set
   use_avset = local.db_server_count > 0 && !try(local.hdb.no_avset, false) ? !local.zonal_deployment || (local.db_server_count != local.db_zone_count) : false
 
+  //PPG control flag
+  no_ppg = var.databases[0].no_ppg
 
 
 }

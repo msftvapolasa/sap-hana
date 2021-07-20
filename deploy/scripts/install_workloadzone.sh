@@ -134,6 +134,9 @@ landscape_tfstate_key_exists=false
 
 deployment_system=sap_landscape
 
+echo "Deployer environment: $deployer_environment"
+echo "Terraform state storge account: $REMOTE_STATE_SA"
+
 workload_dirname=$(dirname "${parameterfile}")
 workload_file_parametername=$(basename "${parameterfile}")
 
@@ -314,13 +317,11 @@ then
     account_set=1
 fi
 
-echo "1"
 
-if [ -n $REMOTE_STATE_SA ]
+if [ -z $REMOTE_STATE_SA ]
 then
     # Ask for deployer environment name and try to read the deployer state file and resource group details from the configuration file
-    echo "2"
-    if [ -n $deployer_environment ]
+    if [ -z $deployer_environment ]
     then
         read -p "Deployer environment name: " deployer_environment
     fi

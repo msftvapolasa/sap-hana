@@ -495,3 +495,6 @@ variable "legacy_nic_order" {
   default = false
 }
 
+variable "enable_purge_control_for_keyvaults" {
+  default = true
+}
