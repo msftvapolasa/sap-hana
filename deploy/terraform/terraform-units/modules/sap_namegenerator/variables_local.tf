@@ -247,7 +247,7 @@ variable "resource_suffixes" {
     "routetable"          = "route-table"
     "sapbits"             = "sapbits"
     "sapmnt"              = "-sapmnt"
-    "shared_volume"       = "-shared"
+    "shared_volume"       = "shared"
     "storage_nic"         = "-storage-nic"
     "storage_subnet"      = "_storage-subnet"
     "storage_subnet_nsg"  = "_storageSubnet-nsg"

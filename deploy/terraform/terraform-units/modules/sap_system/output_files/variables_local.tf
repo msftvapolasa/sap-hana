@@ -135,6 +135,10 @@ variable "scs_lb_ip" {
   default     = ""
 }
 
+variable "sap_mnt" {
+  description= "ANF Volume"
+  default = ""
+}
 
 
 locals {

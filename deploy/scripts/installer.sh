@@ -635,7 +635,7 @@ if [ 2 == $return_value ] ; then
         echo "#                                                                                       #"
         echo "#########################################################################################"
         echo ""
-        if [ 1 == $ado ] ; then
+        if [ 1 == "$ado" ]; then
             unset TF_DATA_DIR
             exit 1
         fi

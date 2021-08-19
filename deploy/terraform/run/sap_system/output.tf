@@ -91,7 +91,7 @@ output "sapmnt_path" {
   value = module.common_infrastructure.sapmnt_path
 }
 
-output "shared_path" {
-  value = module.common_infrastructure.shared_path
-}
+# output "shared_path" {
+#   value = module.common_infrastructure.shared_path
+# }
 

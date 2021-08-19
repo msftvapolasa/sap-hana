@@ -204,6 +204,7 @@ resource "local_file" "sap-parameters_yml" {
     sapbits       = local.sapbits
     pass          = local.pass
     token         = local.token
+    sap_mnt       = var.sap_mnt
     }
   )
   filename             = format("%s/sap-parameters.yaml", path.cwd)

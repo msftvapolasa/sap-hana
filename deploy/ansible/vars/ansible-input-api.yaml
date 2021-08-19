@@ -46,6 +46,7 @@ scs_instance_number:          "00"                                              
 sidadm_uid:                   2000
 scs_lb_ip:                    ""                                                        # SAP HA   
 db_lb_ip:                     ""                                                        # SAP HA
+sap_mnt:                      ""                                                        # ANF  
 
 orchestration_ansible_user:   azureadm
 

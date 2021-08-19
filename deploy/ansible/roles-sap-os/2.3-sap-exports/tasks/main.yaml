@@ -8,8 +8,27 @@
     - { tier: 'preparation', path: '/usr/sap/install' }
     - { tier: 'preparation', path: '/usr/sap/trans' }
     - { tier: 'preparation', path: '/sapmnt/{{ sap_sid|upper }}' }
-  when:     item.tier == "all" or
-            item.tier == tier
+  when:     (item.tier == "all" or item.tier == tier) and sap_mnt is undefined
+
+
+# Mount Filesystem on ANF
+- name:     "Mount Filesystems on ANF"
+  mount:
+    src:    "{{ sap_mnt }}"
+    path:   "sapmnt"
+    fstype: "nfs4"
+    opts:   "rw,hard,rsize=1048576,wsize=1048576,sec=sys,vers=4.1,tcp"
+    state:  mounted
+  when:     sap_mnt is defined
+
+- name: "Exports: Create SAP Directories (ANF)"
+  ansible.builtin.file:
+    path:   "{{ item.path }}"
+    state:  directory
+    mode:   0755
+  loop:
+    - { tier: 'preparation', path: '/sapmnt/{{ sap_sid|upper }}' }
+  when:     (item.tier == "all" or item.tier == tier) and sap_mnt is defined
 
 
 - name: "Exports: NFS Server Config on Suse"

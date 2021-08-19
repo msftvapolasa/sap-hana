@@ -14,6 +14,7 @@ scs_high_availability:         ${scs_ha}
 scs_lb_ip:                     ${scs_lb_ip}
 db_high_availability:          ${db_ha}
 db_lb_ip:                      ${db_lb_ip}
+sap_mnt:                       $(sap_mnt)
 disks: 
 %{~ for disk in disks }
   - ${disk} 
