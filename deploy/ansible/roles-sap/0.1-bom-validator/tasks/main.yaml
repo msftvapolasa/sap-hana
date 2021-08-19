@@ -44,7 +44,7 @@
 #
 
 - name:     "BOM: Create BOM download directories"
-  file:
+  ansible.builtin.file:
     path:   "{{ item.path }}"
     state:  directory
     mode:   0755

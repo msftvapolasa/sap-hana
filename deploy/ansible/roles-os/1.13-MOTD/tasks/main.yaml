@@ -74,7 +74,7 @@
 # Update sshd
 # -------------------------------------+---------------------------------------8
 - name:                 Update PrintMotd when commented 
-  lineinfile:
+  ansible.builtin.lineinfile:
     state:              present
     dest:               /etc/ssh/sshd_config
     regexp:             '#PrintMotd'
@@ -84,7 +84,7 @@
     - restart sshd service
 
 - name:                 Update default Banner path 
-  lineinfile:
+  ansible.builtin.lineinfile:
     state:              present
     dest:               /etc/ssh/sshd_config
     regexp:             '#Banner'

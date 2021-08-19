@@ -15,14 +15,14 @@
 ---
 
 - name:  
-  set_fact:
+  ansible.builtin.set_fact:
     dir_params:                   "{{ target_media_location }}/.params"
 
 
 
 #   0x) Create hidden directory for parameter files
 - name:     "Create hidden directory"
-  file:
+  ansible.builtin.file:
     path:   "{{ item.path }}"
     state:  directory
     mode:   0755
@@ -30,7 +30,7 @@
     - { state: 'directory', mode: '0755', path: '{{ dir_params }}' }
 
 - name:     "Create run flag directory"
-  file:
+  ansible.builtin.file:
     path:   /etc/sap_deployment_automation
     state:  directory
     mode:   0755
@@ -38,7 +38,7 @@
 # TODO: Move the template to the BOM Directory
 #   SAP HANA: deploy hdblcm password file
 - name:               "SAP HANA: deploy hdblcm password file"
-  template:
+  ansible.builtin.template:
     src:              HANA_2_00_055_v1_install.rsp.xml.j2
     dest:             "{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_passwords.xml"
     mode:             0644
@@ -63,7 +63,7 @@
 # TODO: Analyze file in more detail
 #   SAP HANA: deploy hdblcm install response file
 - name:               "SAP HANA: deploy hdblcm install response file"
-  template:
+  ansible.builtin.template:
     src:              HANA_2_00_055_v1_install.rsp.j2
     dest:             "{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_install.rsp"
     mode:             0644
@@ -84,8 +84,8 @@
 
 #ToDo make the code more robust
 - name:               "Execute hdblcm"
-  # shell:              "pwd=$(<../hdbserver_{{ sap_sid }}_passwords.xml); rm ../hdbserver_{{ sap_sid }}_passwords.xml; echo $pwd | ./hdblcm --batch --action=install --configfile='../hdbserver_{{ sap_sid }}_install.cfg' --read_password_from_stdin=xml"
-  shell: |
+  # ansible.builtin.shell:              "pwd=$(<../hdbserver_{{ sap_sid }}_passwords.xml); rm ../hdbserver_{{ sap_sid }}_passwords.xml; echo $pwd | ./hdblcm --batch --action=install --configfile='../hdbserver_{{ sap_sid }}_install.cfg' --read_password_from_stdin=xml"
+  ansible.builtin.shell: |
                       pwd=$(<{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_passwords.xml)
                       echo $pwd | \
                         ./hdblcm --batch --action=install --configfile='{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_install.rsp' --read_password_from_stdin=xml
@@ -103,7 +103,7 @@
 
 # #   0x) remove hidden directory for parameter files
 # - name:     "remove hidden directory"
-#   file:
+#   ansible.builtin.file:
 #     path:   "{{ item.path }}"
 #     state:  "{{ item.state }}"
 #     mode:   "{{ item.mode }}"

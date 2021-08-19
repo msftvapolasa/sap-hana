@@ -48,7 +48,7 @@
 
 
 - name:  
-  set_fact:
+  ansible.builtin.set_fact:
     bom_base:                     "{{ bom }}"
 
 # # -------------------------------------+---------------------------------------8
@@ -64,7 +64,7 @@
 # # If Microsoft supplied BOM found
 # - name:             Register Microsoft Supplied BOM {{ bom_base_name }}
 #   include_vars:
-#     file:           "{{ microsoft_supplied_bom.stat.path }}"
+#     ansible.builtin.file:           "{{ microsoft_supplied_bom.stat.path }}"
 #     name:           bom_base
 #   when:             microsoft_supplied_bom.stat.exists == true
 
@@ -72,7 +72,7 @@
 # - name:             Retrieve BOM ({{ bom_base_name }}) from Storage Account
 #   block:
 #     - name:             Download BOM ({{ bom_base_name }}) from Storage Account
-#       get_url:
+#       ansible.builtin.get_url:
 #         url:            "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/boms/{{ bom_base_name }}/{{ bom_base_name }}.yaml{{ sapbits_sas_token }}"
 #         dest:           "{{ inventory_dir }}/{{ bom_base_name }}.yaml"
 #         mode:           0644
@@ -85,7 +85,7 @@
 
 #     - name:             Register downloaded BOM ({{ bom_base_name }})
 #       include_vars:
-#         file:           "{{ inventory_dir }}/{{ bom_base_name }}.yaml"
+#         ansible.builtin.file:           "{{ inventory_dir }}/{{ bom_base_name }}.yaml"
 #         name:           bom_base
 #   when:             microsoft_supplied_bom.stat.exists != true
 # # -------------------------------------+---------------------------------------8

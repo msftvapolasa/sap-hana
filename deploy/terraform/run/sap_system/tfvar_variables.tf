@@ -279,6 +279,9 @@ variable "database_no_ppg" {
   default = false
 }
 
+variable "database_loadbalancer_ip" {
+  default = ""
+}
 
 variable "database_vm_nodes" {
   default = [{
@@ -509,3 +512,7 @@ variable "anf_sapmnt_volume_size" {
 variable "anf_shared_volume_size" {
   default = 512
 }
+variable "use_loadbalancers_for_standalone_deployments" {
+  default = true
+}
+

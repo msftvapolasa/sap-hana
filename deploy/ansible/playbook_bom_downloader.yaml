@@ -1,6 +1,6 @@
 # /*----------------------------------------------------------------------------8
 # |                                                                            |
-# |                         PLAYBOOK FOR BOM DOWNLOADER                        |
+# |                         PLAYBOOK FOR BOM VALIDATION                         |
 # |                                                                            |
 # +------------------------------------4--------------------------------------*/
 ---
@@ -11,7 +11,7 @@
 
 - hosts:          localhost
 
-  name:           BOM Downloader
+  name:           BOM Validator
   gather_facts:   false
   connection:     local
   become:         yes
@@ -28,8 +28,8 @@
 #
 # -------------------------------------+---------------------------------------8
 
-  - set_fact:
-      tier:     "uploader"
+  - ansible.builtin.set_fact:
+      tier:     preparation
 
   - include_role:
       name:     roles-sap/0.1-bom-validator

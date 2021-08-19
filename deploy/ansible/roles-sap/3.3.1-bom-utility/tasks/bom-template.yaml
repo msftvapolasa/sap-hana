@@ -11,8 +11,8 @@
 #       adjust logic to handle BOMS same way 
 #       use an ansible temp dir on controler
 #
-# - name:             "Download BOM Template: {{ bom_base_name }}"
-#   get_url:
+# - name:             "Download BOM ansible.builtin.template: {{ bom_base_name }}"
+#   ansible.builtin.get_url:
 #     url:            "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/boms/{{ bom_base_name }}/templates/{{ sap_inifile }}{{ sapbits_sas_token }}"
 #     dest:           "{{ inventory_dir }}/{{ bom_base_name }}-scs-inifile-param.j2"
 #     mode:           0644
@@ -64,7 +64,7 @@
 
 #------------------<DEBUGGING>-------------------
 - name:       Parameters
-  debug:  
+  ansible.builtin.debug:  
     msg:
       - "SAP SID              : {{ sap_sid }}"
       - "Instance Number - SCS: {{ scs_instance_number }}"
@@ -85,7 +85,7 @@
 
 # If Microsoft supplied BOM template found
 - name:             "SAP SCS: deploy SCS Parameter file install template"
-  template:
+  ansible.builtin.template:
     src:            "{{ microsoft_supplied_bom_template.stat.path }}"
     dest:           /usr/sap/install/downloads/{{ sap_inifile }}
     mode:           0644
@@ -96,7 +96,7 @@
 - name:             Retrieve BOM ({{ bom_base_name }}) template from Storage Account
   block:
     - name:             Download BOM ({{ bom_base_name }}) template from Storage Account
-      get_url:
+      ansible.builtin.get_url:
         url:            "{{ sapbits_location_base_path }}/{{ sapbits_bom_files }}/boms/{{ bom_base_name }}/templates/{{ sap_inifile_template }}{{ sapbits_sas_token }}"
         dest:           "{{ inventory_dir }}/{{ sap_inifile_template }}"
         mode:           0644
@@ -108,7 +108,7 @@
       become:           no
 
     - name:             "SAP SCS: deploy SCS Parameter file install template"
-      template:
+      ansible.builtin.template:
         src:            "{{ inventory_dir }}/{{ sap_inifile_template }}"
         dest:           /usr/sap/install/downloads/{{ sap_inifile }}
         mode:           0644

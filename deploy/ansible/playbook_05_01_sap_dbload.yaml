@@ -24,7 +24,7 @@
 # Build the list of tasks to be executed in order here. 
 #
 # -------------------------------------+---------------------------------------8
-  - set_fact:
+  - ansible.builtin.set_fact:
       tier:     dbload                                                          # SAP Install phase: DBLOAD
     tags:
       - always
@@ -36,7 +36,7 @@
 #              Mount NFS Filesystems
 #
   - include_role:
-      name:     roles-sap-os/sap-mounts
+      name:     roles-sap-os/2.6-sap-mounts
 # -------------------------------------+---------------------------------------8
 
 

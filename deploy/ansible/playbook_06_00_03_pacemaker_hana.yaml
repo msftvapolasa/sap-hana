@@ -60,7 +60,7 @@
 #   pre_tasks:
 #     - name: Include SAP HANA DB sizes
 #       include_vars:
-#         file: "{{ configs_path }}/hdb_sizes.json"
+#         ansible.builtin.file: "{{ configs_path }}/hdb_sizes.json"
 #         name: hdb_sizes
 #   roles:
 #     - role: hana-system-replication

@@ -90,14 +90,28 @@ variable "license_type" {
 
 }
 
+variable "use_loadbalancers_for_standalone_deployments" {
+  description = "Defines if load balancers are used even for standalone deployments"
+  default     = true
+}
+
 locals {
   // Imports Disk sizing sizing information
 
+  default_filepath = format("%s%s", path.module, "/../../../../../configs/app_sizes.json")
   custom_sizing = length(var.custom_disk_sizes_filename) > 0
-  sizes = jsondecode(file(length(var.custom_disk_sizes_filename) > 0 ? (
-    format("%s/%s", path.cwd, var.custom_disk_sizes_filename)) : (
-    format("%s%s", path.module, "/../../../../../configs/app_sizes.json")))
+
+  // Imports application tier sizing information
+  file_name = local.custom_sizing ? (
+    fileexists(var.custom_disk_sizes_filename) ? (
+      var.custom_disk_sizes_filename) : (
+      format("%s/%s", path.cwd, var.custom_disk_sizes_filename)
+    )) : (
+    local.default_filepath
+
   )
+
+  sizes = jsondecode(file(local.file_name))
 
   faults = jsondecode(file(format("%s%s", path.module, "/../../../../../configs/max_fault_domain_count.json")))
 
@@ -219,7 +233,10 @@ locals {
   scs_high_availability    = var.application.scs_high_availability
   application_server_count = var.application.application_server_count
   scs_server_count         = var.application.scs_server_count * (local.scs_high_availability ? 2 : 1)
+  enable_scs_lb_deployment = local.scs_server_count > 0 && (var.use_loadbalancers_for_standalone_deployments || local.scs_server_count > 1)
+  
   webdispatcher_count      = var.application.webdispatcher_count
+  enable_web_lb_deployment = local.webdispatcher_count > 0 && (var.use_loadbalancers_for_standalone_deployments || local.webdispatcher_count > 1)
 
   app_nic_ips       = try(var.application.app_nic_ips, [])
   app_admin_nic_ips = try(var.application.app_admin_nic_ips, [])
@@ -577,17 +594,17 @@ locals {
   //Disks for Ansible
   // host: xxx, LUN: #, type: sapusr, size: #
 
-  app_disks_ansible = distinct(flatten([for vm in local.app_virtualmachine_names : [
+  app_disks_ansible = distinct(flatten([for vm in local.app_computer_names : [
     for idx, datadisk in local.app_data_disk_per_dbnode :
     format("{ host: '%s', LUN: %d, type: '%s' }", vm, idx, local.custom_sizing ? datadisk.type : "sap")
   ]]))
 
-  scs_disks_ansible = distinct(flatten([for vm in local.scs_virtualmachine_names : [
+  scs_disks_ansible = distinct(flatten([for vm in local.scs_computer_names : [
     for idx, datadisk in local.scs_data_disk_per_dbnode :
     format("{ host: '%s', LUN: %d, type: '%s' }", vm, idx, local.custom_sizing ? datadisk.type : "sap")
   ]]))
 
-  web_disks_ansible = distinct(flatten([for vm in local.web_virtualmachine_names : [
+  web_disks_ansible = distinct(flatten([for vm in local.web_computer_names : [
     for idx, datadisk in local.web_data_disk_per_dbnode :
     format("{ host: '%s', LUN: %d, type: '%s' }", vm, idx, local.custom_sizing ? datadisk.type : "sap")
   ]]))

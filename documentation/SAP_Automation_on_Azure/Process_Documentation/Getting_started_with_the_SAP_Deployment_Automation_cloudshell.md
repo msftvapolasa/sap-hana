@@ -41,7 +41,7 @@ Open the cloud shell and use bash.
 
     ```bash
     cd ~/Azure_SAP_Automated_Deployment
-    cp -R sap-hana/documentation/SAP_Automation_on_Azure/Process_Documentation/WORKSPACES WORKSPACES
+    cp -R sap-hana/deploy/samples/WORKSPACES WORKSPACES
 
     cd ~/Azure_SAP_Automated_Deployment/WORKSPACES
     ```

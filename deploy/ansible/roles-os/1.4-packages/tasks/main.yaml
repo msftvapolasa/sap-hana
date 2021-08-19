@@ -11,13 +11,13 @@
 # Analyse the package list for this distribution selecting only those
 # packages assigned to the active tier or 'all'.
 - name:             Determine packages appropriate for tier
-  set_fact:
+  ansible.builtin.set_fact:
     packages_for_tier: "{{ packages[distro_id] |
                            selectattr('tier', 'in', ['all', tier]) |
                            list }}"
 
 # Print list of matching packages if verbosity it 1 or greater
-- debug:
+- ansible.builtin.debug:
     var: packages_for_tier
     verbosity: 1
 

@@ -13,7 +13,7 @@
 
 
 - name:                           "Ensure /mnt/resource directory exists"
-  file:
+  ansible.builtin.file:
     path:                         "/mnt/resource"
     state:                        directory
     mode:                         "0755"
@@ -22,7 +22,7 @@
 
 
 - name:                           "Ensure waagent file is configured with proper parameters"
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest:                         /etc/waagent.conf  
     state:                        "{{ item.state }}"
     regexp:                       "{{ item.regexp }}"

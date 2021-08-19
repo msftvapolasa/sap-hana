@@ -53,17 +53,26 @@
 
 ### Logical SAP Workload VNET
 
+Logon to the deployer using the ssh key downloaded in the previous step.
 <br/>
 
-1. Create Working Directory.
-    <br/>*`Observe Naming Convention`*<br/>
-    ```bash
-    mkdir -p ~/Azure_SAP_Automated_Deployment/WORKSPACES/LANDSCAPE/NP-EUS2-SAP00-INFRASTRUCTURE; cd $_
-    ```
-    <br/>
+1. Logon to the deployer. Use the sshkey and the ipaddress from the previous step.
 
+2. Navigate to the ~/Azure_SAP_Automated_Deployment/sap-hana folder
 
-2. Create input parameter 
+  1. (*Optional*) Checkout Branch (beta branch is recommended)
+        ```bash
+        git checkout <branch_name>
+        ```
+        Do nothing if using **master** branch.<br/>
+        Otherwise, use the appropriate
+        - Tag         (*ex. v2.1.0-1*)
+        - Branch Name (*ex. feature/remote-tfstate2*)
+        - Commit Hash (*ex. 6d7539d02be007da769e97b6af6b3e511765d7f7*)
+        <br/><br/>
+    
+
+3. Create input parameter 
     <br/>*`Observe Naming Convention`*<br/>
     ```bash
     mkdir -p ~/Azure_SAP_Automated_Deployment/WORKSPACES/LANDSCAPE/DEMO-SCUS-SAP00-INFRASTRUCTURE; cd $_
@@ -90,10 +99,7 @@
      ```bash
      $DEPLOYMENT_REPO_PATH/deploy/scripts/install_workloadzone.sh            \
      --parameterfile DEMO-SCUS-SAP00-INFRASTRUCTURE.json                     \
-     --deployer_tfstate_key DEMO-SCUS-DEP00-INFRASTRUCTURE.terraform.tfstate \
-     --storageaccountname demoscustfstate###                                 \
-     --deployer_environment DEMO                                             \
-     --vault DEMOSCUSDEP00user###                                            \
+     --auto-approve
      ```
 
 

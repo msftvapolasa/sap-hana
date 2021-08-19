@@ -41,13 +41,13 @@
     inventory_dir:                "{{ download_directory }}/bom"
 
 #------------------<DEBUGGING>-------------------
-# - debug:  
+# - ansible.builtin.debug:  
 #     msg:      "Archive: {{ item.archive }} Url: {{ item.url }} Dest: {{ download_directory }}/{{ item.archive }}"
 #   loop:       "{{ bom.materials.media|flatten(levels=1) }}"
 #   when:       item.url is defined
 
 - name: "BOM: {{ bom_name }} Files without URLS"
-  debug:  
+  ansible.builtin.debug:  
     msg:      "Archive: {{ item.archive }} Dest: {{ download_directory }}/{{ item.archive }}"
   loop:       "{{ bom.materials.media|flatten(levels=1) }}"
   when:       item.url is not defined
@@ -58,7 +58,7 @@
 # Files to download
 #------------------<DEBUGGING>-------------------
 # - name: "BOM: {{ bom_name }} Files to download"
-#   debug:  
+#   ansible.builtin.debug:  
 #     msg:      
 #       - "URL: {{ item.url }} Destination: {{ download_directory }}/files/{{ item.archive }}"
 #   loop:       "{{ bom.materials.media|flatten(levels=1) }}"
@@ -68,7 +68,7 @@
 #   02) Validate media from SAP
 #   Loop through BOM media URLs
 - name: "BOM: {{ bom_name }} Check and Download Files"
-  get_url:
+  ansible.builtin.get_url:
     url:              "{{ item.url }}"
     dest:             "{{ download_directory }}/files/{{ item.archive }}"
     tmp_dest:         "{{ download_directory }}/tmp"
@@ -88,7 +88,7 @@
 # Files to download
 #------------------<DEBUGGING>-------------------
 - name: "BOM:{{ bom_name }} Upload files"
-  debug:  
+  ansible.builtin.debug:  
     msg:      
       - "Account: {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0]}} Key: {{ sapbits_access_key }} Container: {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1]}}/{{ sapbits_bom_files }}/archives"
 #------------------</DEBUGGING>------------------
@@ -97,7 +97,7 @@
 #   03) Upload files to Azure
 #   Loop through BOM media files  
 - name: "BOM:{{ bom_name }} Upload files"
-  command: >-
+  ansible.builtin.command: >-
     az storage blob upload 
       --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0]}} 
       --account-key {{ sapbits_access_key }} 
@@ -115,7 +115,7 @@
 
 #------------------<DEBUGGING>-------------------
 # - name: "List error codes"
-#   debug:
+#   ansible.builtin.debug:
 #     var: azresult
 #------------------</DEBUGGING>-------------------
 

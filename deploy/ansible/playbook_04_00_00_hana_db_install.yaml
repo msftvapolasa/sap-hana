@@ -27,7 +27,7 @@
 #
 # -------------------------------------+---------------------------------------8
 
-  - set_fact:
+  - ansible.builtin.set_fact:
       tier:     hdb                                                             # Actions for HANA DB Servers
     tags:
       - always
@@ -39,7 +39,7 @@
 #              Mount NFS Filesystems
 #
   - include_role:
-      name:     roles-sap-os/sap-mounts
+      name:     roles-sap-os/2.6-sap-mounts
 # -------------------------------------+---------------------------------------8
 
 
@@ -77,7 +77,7 @@
 #   pre_tasks:
 #     - name: Include SAP HANA DB sizes
 #       include_vars:
-#         file: "{{ configs_path }}/hdb_sizes.json"
+#         ansible.builtin.file: "{{ configs_path }}/hdb_sizes.json"
 #         name: hdb_sizes
 #   roles:
 #     - role: hdb-server-install

@@ -77,13 +77,28 @@ variable "license_type" {
 
 }
 
+variable "use_loadbalancers_for_standalone_deployments" {
+  description = "Defines if load balancers are used even for standalone deployments"
+  default     = true
+}
 
 locals {
   // Imports database sizing information
 
+  default_filepath = format("%s%s", path.module, "/../../../../../configs/anydb_sizes.json")
+  custom_sizing    = length(var.custom_disk_sizes_filename) > 0
 
-  sizes         = jsondecode(file(length(var.custom_disk_sizes_filename) > 0 ? format("%s/%s", path.cwd, var.custom_disk_sizes_filename) : format("%s%s", path.module, "/../../../../../configs/anydb_sizes.json")))
-  custom_sizing = length(var.custom_disk_sizes_filename) > 0
+  // Imports database sizing information
+  file_name = local.custom_sizing ? (
+    fileexists(var.custom_disk_sizes_filename) ? (
+      var.custom_disk_sizes_filename) : (
+      format("%s/%s", path.cwd, var.custom_disk_sizes_filename)
+    )) : (
+    local.default_filepath
+
+  )
+
+  sizes = jsondecode(file(local.file_name))
 
   faults = jsondecode(file(format("%s%s", path.module, "/../../../../../configs/max_fault_domain_count.json")))
 
@@ -155,8 +170,9 @@ locals {
   db_sid       = lower(substr(local.anydb_platform, 0, 3))
   loadbalancer = try(local.anydb.loadbalancer, {})
 
-  node_count      = try(length(var.databases[0].dbnodes), 1)
+  node_count      = local.enable_deployment ? try(length(var.databases[0].dbnodes), 1) : 0
   db_server_count = local.anydb_ha ? local.node_count * 2 : local.node_count
+  enable_db_lb_deployment = local.db_server_count > 0 && (var.use_loadbalancers_for_standalone_deployments || local.db_server_count >  1)
 
   anydb_cred = try(local.anydb.credentials, {})
 

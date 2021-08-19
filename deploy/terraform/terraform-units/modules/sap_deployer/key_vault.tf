@@ -2,8 +2,8 @@
 data "azurerm_client_config" "deployer" {}
 
 data "azuread_service_principal" "deployer" {
-  count          = data.azurerm_client_config.deployer.object_id == "" ? 1 : 0
-  application_id = data.azurerm_client_config.deployer.client_id
+  count          = try(data.azurerm_client_config.deployer.client_id, "") != "" ? 1 : 0
+  application_id = try(data.azurerm_client_config.deployer.client_id, data.azurerm_client_config.deployer.object_id)
 }
 
 
