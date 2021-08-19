@@ -283,6 +283,10 @@ variable "database_loadbalancer_ip" {
   default = ""
 }
 
+variable "database_tags" {
+  default = {}
+}
+
 variable "database_vm_nodes" {
   default = [{
     "name"            = ""

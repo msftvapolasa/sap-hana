@@ -26,7 +26,7 @@ deployer_tfstate_key  = null
 environment = "DEV"
 
 # The location valus is a mandatory field, it is used to control where the resources are deployed
-location      = "westeurope"
+location      = "northeurope"
 
 # RESOURCEGROUP
 # The two resource group name and arm_id can be used to control the naming and the creation of the resource group
@@ -51,13 +51,13 @@ location      = "westeurope"
 # for the brownfield scenario the Azure resource identifier for the subnet must be specified
 
 # The network logical name is mandatory - it is used in the naming convention and should map to the workload virtual network logical name 
-network_name="SAP01"
+network_name="SAP02"
 
 # network_arm_id is an optional parameter that if provided specifies Azure resource identifier for the existing Virtual Network
 #network_arm_id=""
 
 # network_address_space is a mandatory parameter when an existing Virtual network is not used
-network_address_space="10.110.0.0/16"
+network_address_space="10.111.0.0/16"
 
 # ADMIN subnet
 # If defined these parameters control the subnet name and the subnet prefix
@@ -65,7 +65,7 @@ network_address_space="10.110.0.0/16"
 #admin_subnet_name=""
 
 # admin_subnet_prefix is a mandatory parameter if the subnets are not defined in the workload or if existing subnets are not used
-admin_subnet_address_prefix="10.110.0.0/19"
+admin_subnet_address_prefix="10.111.0.0/19"
 # admin_subnet_arm_id is an optional parameter that if provided specifies Azure resource identifier for the existing subnet to use
 #admin_subnet_arm_id="/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/DEV-WEEU-SAP01-INFRASTRUCTURE/providers/Microsoft.Network/virtualNetworks/DEV-WEEU-SAP01-vnet/subnets/DEV-WEEU-SAP01-subnet_admin"
 
@@ -80,7 +80,7 @@ admin_subnet_address_prefix="10.110.0.0/19"
 #db_subnet_name=""
 
 # db_subnet_prefix is a mandatory parameter if the subnets are not defined in the workload or if existing subnets are not used
-db_subnet_address_prefix="10.110.96.0/19"
+db_subnet_address_prefix="10.111.96.0/19"
 
 # db_subnet_arm_id is an optional parameter that if provided specifies Azure resource identifier for the existing subnet to use
 #db_subnet_arm_id="/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/DEV-WEEU-SAP01-INFRASTRUCTURE/providers/Microsoft.Network/virtualNetworks/DEV-WEEU-SAP01-vnet/subnets/DEV-WEEU-SAP01-subnet_db"
@@ -98,7 +98,7 @@ db_subnet_address_prefix="10.110.96.0/19"
 #app_subnet_name=""
 
 # app_subnet_address_prefix is a mandatory parameter if the subnets are not defined in the workload or if existing subnets are not used
-app_subnet_address_prefix="10.110.32.0/19"
+app_subnet_address_prefix="10.111.32.0/19"
 
 # app_subnet_arm_id is an optional parameter that if provided specifies Azure resource identifier for the existing subnet to use
 #app_subnet_arm_id="/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/DEV-WEEU-SAP01-INFRASTRUCTURE/providers/Microsoft.Network/virtualNetworks/DEV-WEEU-SAP01-vnet/subnets/DEV-WEEU-SAP01-subnet_app"
@@ -115,7 +115,7 @@ app_subnet_address_prefix="10.110.32.0/19"
 #web_subnet_name=""
 
 # web_subnet_address_prefix is a mandatory parameter if the subnets are not defined in the workload or if existing subnets are not used
-web_subnet_address_prefix="10.110.128.0/19"
+web_subnet_address_prefix="10.111.128.0/19"
 
 # web_subnet_arm_id is an optional parameter that if provided specifies Azure resource identifier for the existing subnet to use
 #web_subnet_arm_id="/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/DEV-WEEU-SAP01-INFRASTRUCTURE/providers/Microsoft.Network/virtualNetworks/DEV-WEEU-SAP01-vnet/subnets/DEV-WEEU-SAP01-subnet_web"
@@ -179,36 +179,6 @@ web_subnet_address_prefix="10.110.128.0/19"
 # The automation keyvault is designed to host secrets for the automation solution
 # automation_keyvault_id is an optional parameter that if provided specifies the Azure resource identifier for an existing keyvault
 #automation_keyvault_id=""
-
-# The SPN keyvault is designed to host the SPN credentials used by the automation
-# spn_keyvault_id is an optional parameter that if provided specifies the Azure resource identifier for an existing keyvault
-#spn_keyvault_id=""
-
-#########################################################################################
-#                                                                                       #
-#  Credentials                                                                          #
-#                                                                                       #
-#########################################################################################
-
-# The automation_username defines the user account used by the automation
-automation_username="azureadm"
-
-# The automation_password is an optional parameter that can be used to provide a password for the automation user
-# If empty Terraform will create a password and persist it in keyvault
-#automation_password=""
-
-# The automation_path_to_public_key is an optional parameter that can be used to provide a path to an existing ssh public key file
-# If empty Terraform will create the ssh key and persist it in keyvault
-#automation_path_to_public_key=""
-
-# The automation_path_to_private_key is an optional parameter that can be used to provide a path to an existing ssh private key file
-# If empty Terraform will create the ssh key and persist it in keyvault
-#automation_path_to_private_key=""
-
-#diagnostics_storage_account_arm_id=""
-#witness_storage_account_arm_id=""
-
-enable_purge_control_for_keyvaults=false
 
 # The SPN keyvault is designed to host the SPN credentials used by the automation
 # spn_keyvault_id is an optional parameter that if provided specifies the Azure resource identifier for an existing keyvault

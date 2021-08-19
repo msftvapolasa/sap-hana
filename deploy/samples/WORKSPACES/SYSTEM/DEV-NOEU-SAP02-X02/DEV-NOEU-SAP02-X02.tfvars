@@ -14,9 +14,9 @@
 # - landscape_tfstate_key is the state file name for the workload deployment
 # These are required parameters, if using the deployment scripts they will be auto populated otherwise they need to be entered
 
-tfstate_resource_id=null
-deployer_tfstate_key=null
-landscape_tfstate_key=null
+tfstate_resource_id   = null
+deployer_tfstate_key  = null
+landscape_tfstate_key = null
 
 #########################################################################################
 #                                                                                       #
@@ -25,10 +25,10 @@ landscape_tfstate_key=null
 #########################################################################################
 
 # The environment value is a mandatory field, it is used for partitioning the environments, for example (PROD and NP)
-environment="DEV"
+environment = "DEV"
 
 # The location valus is a mandatory field, it is used to control where the resources are deployed
-location="westeurope"
+location      = "northeurope"
 
 # RESOURCEGROUP
 # The two resource group name and arm_id can be used to control the naming and the creation of the resource group
@@ -60,7 +60,7 @@ location="westeurope"
 # for the brownfield scenario the Azure resource identifier for the subnet must be specified
 
 # The network logical name is mandatory - it is used in the naming convention and should map to the workload virtual network logical name 
-network_name="SAP01"
+network_name="SAP02"
 
 # ADMIN subnet
 # If defined these parameters control the subnet name and the subnet prefix
@@ -135,28 +135,6 @@ network_name="SAP01"
 #                                                                                       #
 #########################################################################################
 
-# database_platform defines the database backend, supported values are
-# - HANA
-# - DB2
-# - ORACLE
-# - ASE
-# - SQLSERVER
-# - NONE (in this case no database tier is deployed)
-database_platform="HANA"
-
-# database_high_availability is a boolean flag controlling if the database tier is deployed highly available (more than 1 node)
-#database_high_availability=false
-
-# For M series VMs use the SKU name for instance "M32ts"
-# If using a custom disk sizing populate with the node name for Database you have used in the file db_disk_sizes_filename
-database_size="S4Demo"
-
-#If you want to customise the disk sizes for database VMs use the following parameter to specify the custom sizing file.
-#db_disk_sizes_filename="custom-sizing.json"
-
-# database_vm_use_DHCP is a boolean flag controlling if Azure subnet provided IP addresses should be used (true)
-database_vm_use_DHCP=true
-
 # The vm_image defines the Virtual machine image to use, 
 # if source_image_id is specified the deployment will use the custom image provided, 
 # in this case os_type must also be specified
@@ -192,6 +170,28 @@ database_vm_image={
 #   version="8.2.2021040902"
 # }
 
+# database_platform defines the database backend, supported values are
+# - HANA
+# - DB2
+# - ORACLE
+# - ASE
+# - SQLSERVER
+# - NONE (in this case no database tier is deployed)
+database_platform="HANA"
+
+# database_high_availability is a boolean flag controlling if the database tier is deployed highly available (more than 1 node)
+#database_high_availability=false
+
+# If using a custom disk sizing populate with the node name for Database you have used in the file db_disk_sizes_filename
+# For M series VMs use the SKU name for instance "M32ts"
+database_size="S4Demo"
+
+#If you want to customise the disk sizes for database VMs use the following parameter to specify the custom sizing file.
+#db_disk_sizes_filename="custom-sizing.json"
+
+# database_vm_use_DHCP is a boolean flag controlling if Azure subnet provided IP addresses should be used (true)
+database_vm_use_DHCP=true
+
 # database_vm_zones is an optional list defining the availability zones to deploy the database servers
 #database_vm_zones=["1"]
 
@@ -216,21 +216,15 @@ database_vm_image={
 #database_vm_authentication_type="key"
 
 # Optional, Defines the list of availability sets to deployt the Database VMs in
-#database_vm_avset_arm_ids=[/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/DEV-WEEU-SAP01-X00/providers/Microsoft.Compute/availabilitySets/DEV-WEEU-X00_db_avset"
-
-# Optional, Defines the that the database virtual machines will not be placed in a proximity placement group
-#database_no_ppg=false
-
-# Optional, Defines the that the database virtual machines will not be placed in an availability set
-#database_no_avset=false
+#database_vm_avsest_arm_ids=[/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/DEV-WEEU-SAP01-X00/providers/Microsoft.Compute/availabilitySets/DEV-WEEU-X00_db_avset"
 
 #########################################################################################
 #                                                                                       #
-#  Application tier                                                                        #                                                                                       #
+#  Database tier                                                                        #                                                                                       #
 #                                                                                       #
 #########################################################################################
 # sid is a mandatory field that defines the SAP Application SID
-sid="X00"
+sid="X02"
 
 #app_tier_vm_sizing="New"
 
@@ -255,19 +249,10 @@ app_tier_use_DHCP=true
 # Application Servers
 
 # application_server_count defines how many application servers to deploy
-application_server_count=3
+application_server_count=2
 
 # application_server_zones is an optional list defining the availability zones to which deploy the application servers
 #application_server_zones=["1","2","3"]
-
-# application_server_sku, if defined provides the SKU to use for the application servers
-#application_server_sku="Standard_D4s_v3"
-
-# application_server_no_ppg defines the that the application server virtual machines will not be placed in a proximity placement group
-#application_server_no_ppg=false
-
-# application_server_no_avset defines the that the application server virtual machines will not be placed in an availability set
-#application_server_no_avset=false
 
 # application_server_app_nic_ips, if provided provides the static IP addresses 
 # for the network interface cars connected to the application subnet
@@ -276,6 +261,9 @@ application_server_count=3
 # application_server_app_admin_nic_ips, if provided provides the static IP addresses 
 # for the network interface cars connected to the admin subnet
 #application_server_app_admin_nic_ips=[]
+
+# application_server_sku, if defined provides the SKU to use for the application servers
+#application_server_sku="Standard_D4s_v3"
 
 # application_server_tags, if defined provides the tags to be associated to the application servers
 #application_server_tags={},
@@ -295,15 +283,6 @@ application_server_image= {
 
 # scs_server_count defines how many SCS servers to deploy
 scs_server_count=1
-
-# scs_server_sku, if defined provides the SKU to use for the SCS servers
-#scs_server_sku="Standard_D4s_v3"
-
-# scs_server_no_ppg defines the that the SCS virtual machines will not be placed in a proximity placement group
-#scs_server_no_ppg=false
-
-# scs_server_no_avset defines the that the SCS virtual machines will not be placed in an availability set
-#scs_server_no_avset=false
 
 # scs_high_availability is a boolean flag controlling if SCS should be highly available
 scs_high_availability=false
@@ -326,6 +305,8 @@ ers_instance_number="02"
 # for the network interface cars connected to the application subnet
 #scs_server_loadbalancer_ips=[]
 
+# scs_server_sku, if defined provides the SKU to use for the SCS servers
+#scs_server_sku="Standard_D4s_v3"
 
 # scs_server_tags, if defined provides the tags to be associated to the application servers
 #scs_server_tags={},
@@ -363,12 +344,6 @@ webdispatcher_server_count=0
 
 # webdispatcher_server_sku, if defined provides the SKU to use for the web dispatchers
 #webdispatcher_server_sku="Standard_D4s_v3"
-
-# webdispatcher_server_no_ppg defines the that the Web dispatcher virtual machines will not be placed in a proximity placement group
-#webdispatcher_server_no_ppg=false
-
-#webdispatcher_server_no_avset defines the that the Web dispatcher virtual machines will not be placed in an availability set
-#webdispatcher_server_no_avset=false
 
 # webdispatcher_server_tags, if defined provides the tags to be associated to the web dispatchers
 #webdispatcher_server_tags={},
@@ -410,7 +385,7 @@ webdispatcher_server_count=0
 
 # resource_offset can be used to provide an offset for resource naming
 # server#, disk# 
-#resource_offset=1
+resource_offset=1
 
 # vm_disk_encryption_set_id if defined defines the custom encryption key 
 #vm_disk_encryption_set_id=""

@@ -69,6 +69,7 @@ locals {
   avset_arm_ids             = distinct(concat(var.database_vm_avset_arm_ids, try(var.databases[0].avset_arm_ids, [])))
   db_avset_arm_ids_defined  = length(local.avset_arm_ids) > 0
   frontend_ip               = try(coalesce(var.database_loadbalancer_ip, try(var.databases[0].loadbalancer.frontend_ip, "")), "")
+  db_tags = try(coalesce(var.database_tags, try(var.databases[0].tags, {})), {})
 
   databases_temp = {
     high_availability = var.database_high_availability || try(var.databases[0].high_availability, false)
@@ -312,7 +313,8 @@ locals {
     local.db_avset_arm_ids_defined ? { avset_arm_ids = local.avset_arm_ids } : null), (
     length(local.dbnodes) > 0 ? { dbnodes = local.dbnodes } : null), (
     length(local.db_zones_temp) > 0 ? { zones = local.db_zones_temp } : null), (
-    length(local.frontend_ip) > 0 ? { loadbalancer = { frontend_ip = local.frontend_ip } } : { loadbalancer = {} })
+    length(local.frontend_ip) > 0 ? { loadbalancer = { frontend_ip = local.frontend_ip } } : { loadbalancer = {} }), (
+    length(local.db_tags) > 0 ? { tags = local.db_tags } : null)
     )
   ]
 

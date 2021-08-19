@@ -3,8 +3,8 @@ deployer_tfstate_key  = null
 landscape_tfstate_key = null
 # Infrastructure block
 
-environment = "NP"
-region      = "westeurope"
+environment="NP"
+location="westeurope"
 #resource_group_name=""
 #resource_group_arm_id=""
 #proximityplacementgroup_names=[]
