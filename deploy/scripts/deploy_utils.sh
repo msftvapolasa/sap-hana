@@ -188,11 +188,7 @@ function set_executing_user_environment_variables() {
         # if you are executing as user, we do not want to set any exports for terraform
         echo -e "\t[set_executing_user_environment_variables]: Identified login type as 'user'"
 
-        echo -e "\t[set_executing_user_environment_variables]: unsetting ARM_* environment variables"
-        unset ARM_TENANT_ID
-        unset ARM_SUBSCRIPTION_ID
-        unset ARM_CLIENT_ID
-        unset ARM_CLIENT_SECRET
+        unset_executing_user_environment_variables
 
         az_user_obj_id=$(az ad signed-in-user show --query objectId -o tsv)
         az_user_name=$(az ad signed-in-user show --query userPrincipalName -o tsv)
@@ -213,10 +209,13 @@ function set_executing_user_environment_variables() {
 
         case "${az_client_id}" in
         "systemAssignedIdentity")
-            echo -e "\t[set_executing_user_environment_variables]: logged in using System Assigned Identity"
+            az_user_name=$(az ad signed-in-user show --query userPrincipalName -o tsv)
+            echo -e "\t[set_executing_user_environment_variables]: logged in using '${az_exec_user_type}'"
+            echo -e "\t[set_executing_user_environment_variables]: Nothing to do"
             ;;
         "userAssignedIdentity")
             echo -e "\t[set_executing_user_environment_variables]: logged in using User Assigned Identity: ($(az account))"
+            echo -e "\t[set_executing_user_environment_variables]: Nothing to do"
             ;;
         *)
             if is_valid_guid "${az_exec_user_name}"; then
@@ -256,7 +255,7 @@ function set_executing_user_environment_variables() {
 }
 
 function unset_executing_user_environment_variables() {
-    echo -e "\t[unset_executing_user_environment_variables]: unsetting ARM_* environment variables"
+    echo -e "\t\t[unset_executing_user_environment_variables]: unsetting ARM_* environment variables"
     
     unset ARM_SUBSCRIPTION_ID
     unset ARM_TENANT_ID
