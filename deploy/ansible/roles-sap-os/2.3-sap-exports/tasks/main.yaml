@@ -10,27 +10,6 @@
     - { tier: 'preparation', path: '/sapmnt/{{ sap_sid|upper }}' }
   when:     (item.tier == "all" or item.tier == tier) and sap_mnt is undefined
 
-
-# Mount Filesystem on ANF
-- name:     "Mount Filesystems on ANF"
-  mount:
-    src:    "{{ sap_mnt }}"
-    path:   "sapmnt"
-    fstype: "nfs4"
-    opts:   "rw,hard,rsize=1048576,wsize=1048576,sec=sys,vers=4.1,tcp"
-    state:  mounted
-  when:     sap_mnt is defined
-
-- name: "Exports: Create SAP Directories (ANF)"
-  ansible.builtin.file:
-    path:   "{{ item.path }}"
-    state:  directory
-    mode:   0755
-  loop:
-    - { tier: 'preparation', path: '/sapmnt/{{ sap_sid|upper }}' }
-  when:     (item.tier == "all" or item.tier == tier) and sap_mnt is defined
-
-
 - name: "Exports: NFS Server Config on Suse"
   ansible.builtin.lineinfile:
     path:   "{{ item.path }}"
@@ -48,7 +27,7 @@
   when:     (ansible_os_family|upper == "SUSE" or (ansible_os_family|lower ~ ansible_distribution_major_version) == "redhat7") and (item.tier == "all" or item.tier == tier)
 
 
-- name: "Exports: NFS Server Config on RHEL8"
+- name: "Exports: NFS Server Config on  : {{ ansible_os_family|lower ~ ansible_distribution_major_version }}"
   ansible.builtin.lineinfile:
     path:   "{{ item.path }}"
     regexp: "{{ item.regexp }}"

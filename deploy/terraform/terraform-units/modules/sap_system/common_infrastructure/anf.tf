@@ -20,6 +20,7 @@ resource "azurerm_netapp_volume" "shared" {
     rule_index        = 1
     unix_read_only    = false
     unix_read_write   = true
+    root_access_enabled = true
   }
   storage_quota_in_gb = var.anf_shared_volume_size
 

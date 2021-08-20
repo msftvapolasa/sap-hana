@@ -1,5 +1,44 @@
 ---
 
+- name: "Mount: Disable ID mapping (ANF)"
+  ansible.builtin.lineinfile:
+    path:   /etc/idmapd.conf
+    regexp: '^[ #]*Domain = localdomain'
+    line:   'Domain = defaultv4iddomain.com'
+    insertafter: '[General]'
+  loop: 
+    - { tier: 'dbload' }
+    - { tier: 'app' }
+  when:     (item.tier == "all" or item.tier == tier) and sap_mnt is defined
+  
+- name: "Mount: Clear the cache of the nfsidmap daemon (ANF)"
+  ansible.builtin.shell: |
+                      nfsidmap -c
+  loop: 
+    - { tier: 'dbload' }
+    - { tier: 'app' }
+  when:     (item.tier == "all" or item.tier == tier) and sap_mnt is defined
+  
+  # Mount Filesystem on ANF
+  # This is needed so that we can create the correct directory
+- name:     "Mount: Filesystems on ANF"
+  ansible.builtin.mount:
+    src:    "{{ sap_mnt }}"
+    path:   "sapmnt"
+    fstype: "nfs4"
+    opts:   "rw,hard,rsize=1048576,wsize=1048576,sec=sys,vers=4.1,tcp"
+    state:  mounted
+  when:     sap_mnt is defined
+
+- name: "Mount: Create SAP Directories (ANF)"
+  ansible.builtin.file:
+    path:   "{{ item.path }}"
+    state:  directory
+    mode:   0755
+  loop:
+    - { tier: 'preparation', path: '/sapmnt/{{ sap_sid|upper }}' }
+  when:     (item.tier == "all" or item.tier == tier) and sap_mnt is defined
+
 # Mount Filesystems
 - name:     "Mount Filesystems"
   mount:
@@ -10,7 +49,7 @@
     state:  mounted
   vars:
     # Get all the hostnames in <SID>_SCS group and return only the first hostname
-    nfs_server:   "{% if sap_mnt is undefined %}{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}{% else %} {{ sap_mnt }} {% endif %}"
+    nfs_server:   "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"
     sap_mntpath:  "{% if sap_mnt is undefined %}{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}{% else %}{{ sap_mnt }}/{{ sap_sid|upper }}{% endif %}"
   loop: 
     - { tier: 'all',          type: 'xfs',   src: '/dev/vg_sap/lv_usrsap',                         path: '/usr/sap' }
