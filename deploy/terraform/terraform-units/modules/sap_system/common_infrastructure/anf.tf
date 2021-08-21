@@ -1,7 +1,4 @@
 resource "azurerm_netapp_volume" "shared" {
-  lifecycle {
-    prevent_destroy = true
-  }
 
   count = local.ANF_pool_settings.use_ANF ? 0 : 0
   name  = format("%s%s", local.prefix, local.resource_suffixes.shared_volume)
@@ -27,9 +24,6 @@ resource "azurerm_netapp_volume" "shared" {
 }
 
 resource "azurerm_netapp_volume" "sapmnt" {
-  lifecycle {
-    prevent_destroy = true
-  }
 
   count = local.ANF_pool_settings.use_ANF ? 1 : 0
   name  = format("%s%s", local.prefix, local.resource_suffixes.sapmnt)
