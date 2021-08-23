@@ -93,6 +93,7 @@ options=(
         "PAS Install"
         "APP Install"
         "WebDisp Install"
+        "HSR Setup"
         "Pacemaker Setup"
         "Pacemaker SCS Setup"
         "Pacemaker HANA Setup"
@@ -120,11 +121,10 @@ all_playbooks=(
         # Post SAP Install Steps
         ${cmd_dir}/playbook_05_03_sap_app_install.yaml
         ${cmd_dir}/playbook_05_04_sap_web_install.yaml
+        ${cmd_dir}/playbook_04_00_01_hana_hsr.yaml
         ${cmd_dir}/playbook_06_00_00_pacemaker.yaml
         ${cmd_dir}/playbook_06_00_01_pacemaker_scs.yaml
         ${cmd_dir}/playbook_06_00_03_pacemaker_hana.yaml
-        ${cmd_dir}/playbook_bom_validator.yaml
-        ${cmd_dir}/playbook_bom_downloader.yaml
 )
 
 # Set of options that will be passed to the ansible-playbook command
@@ -151,9 +151,9 @@ do
                 break;;
         "${options[-2]}")   # Run through all playbooks
                 playbooks+=( "${all_playbooks[@]}" );;
-        "${options[-3]}")   # Run through last 5 playbooks
-                playbooks+=( "${all_playbooks[@]:7:5}" );;
-        "${options[-4]}")   # Run through first 7 playbooks
+        "${options[-3]}")   # Run through post installation playbooks
+                playbooks+=( "${all_playbooks[@]:7:6}" );;
+        "${options[-4]}")   # Run through first 7 playbooks i.e.  SAP installation
                 playbooks+=( "${all_playbooks[@]:0:7}" );;
         *)
                 # If not a numeric reply

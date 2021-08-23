@@ -101,6 +101,12 @@
       - 1.16-services
 
   - include_role:
+      name:     roles-os/1.16-services
+
+  - include_role:
+      name:     roles-os/1.16-services
+
+  - include_role:
       name:     roles-os/1.20-prometheus
     tags:
       - 1.20-prometheus

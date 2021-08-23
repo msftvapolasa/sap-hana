@@ -188,24 +188,13 @@
 
     4. Answer Input
        1. Do you want to specify the SPN Details Y/N?
+          - Environment name:
+          - Keyvault name:
           - SPN App ID:
           - SPN App Password:
           - SPN Tenant ID:
           - SPN Subscription:
-          
-    Alternatively the two previous steps can be combined to one.
-    
-    Execute
-    ```bash
-    ${DEPLOYMENT_REPO_PATH}/deploy/scripts/prepare_region.sh                                                   \
-        --deployer_parameter_file DEPLOYER/DEMO-SCUS-DEP00-INFRASTRUCTURE/DEMO-SCUS-DEP00-INFRASTRUCTURE.json  \
-        --library_parameter_file LIBRARY/DEMO-SCUS-SAP_LIBRARY/DEMO-SCUS-SAP_LIBRARY.json                      \
-        --subscription xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx                                                    \ 
-        --spn_id yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy                                                          \
-        --spn_secret "zzzzzzzzzzzzzzz"                                                                         \
-        --tenant_id ttttttttt-tttt-tttt-tttt-ttttttttttt                                                       \
-        --auto-approve
-    ```
+
 
 7.  Post Processing
     1. In Output Section make note of the following 

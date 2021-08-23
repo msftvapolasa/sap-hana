@@ -25,7 +25,7 @@
 # Need to create groups first, if they are going to be referenced
 # by the following user actions
 - name:            Create specified admin groups if needed
-  group:
+  ansible.builtin.group:
     name:          "{{ item.name }}"
     gid:           "{{ item.gid }}"
     state:         "{{ item.state | default('present') }}"
@@ -39,7 +39,7 @@
 
 # Create or delete users as needed
 - name:            Manage specified admin users
-  user:
+  ansible.builtin.user:
     name:          "{{ item.name }}"
     comment:       "{{ item.comment | default('') }}"
     uid:           "{{ item.uid }}"
@@ -81,7 +81,7 @@
 # Remove groups after user action has removed the users that may have
 # referenced them
 - name:            Remove specified admin groups
-  group:
+  ansible.builtin.group:
     name:          "{{ item.name }}"
     state:         "{{ item.state | default('present') }}"
   loop:            "{{ admin_groups }}"

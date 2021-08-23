@@ -60,7 +60,7 @@
 #     state: present
 
 # - name: Ensure NFS Server is running
-#   systemd:
+#   ansible.builtin.systemd
 #     name: nfsserver
 #     state: started
 #     enabled: yes
@@ -87,7 +87,7 @@
 #   loop: "{{ nfs_exports }}"
 
 # - name: Ensure nfsserver is running
-#   systemd:
+#   ansible.builtin.systemd
 #     state: started
 #     name: nfsserver
 #     daemon_reload: yes

@@ -32,7 +32,7 @@
 #   can be depracated. 
 # 
 - name:       "SAP: Create SAP Groups"
-  group:
+  ansible.builtin.group:
     name:         "{{ item.group }}"
     gid:          "{{ item.gid }}"
     state:        present

@@ -58,23 +58,14 @@
 
 <br/>
 
-1. Logon to the deployer.
-
-2. Navigate to the ~/Azure_SAP_Automated_Deployment/sap-hana folder
-
-3. (*Optional*) Checkout Branch (beta branch is recommended)
+1. Create Working Directory.
+    <br/>*`Observe Naming Convention`*<br/>
     ```bash
-    git checkout <branch_name>
+    mkdir -p ~/Azure_SAP_Automated_Deployment/WORKSPACES/SYSTEM/DEMO-SCUS-SAP00-X00; cd $_
     ```
-    Do nothing if using **master** branch.<br/>
-    Otherwise, use the appropriate
-    - Tag         (*ex. v2.1.0-1*)
-    - Branch Name (*ex. feature/remote-tfstate2*)
-    - Commit Hash (*ex. 6d7539d02be007da769e97b6af6b3e511765d7f7*)
-    <br/><br/>
-    
+    <br/>
 
-4. Create input parameter
+2. Create input parameter
     <br/>*`Observe Naming Convention`*<br/>
     ```bash
     mkdir -p ~/Azure_SAP_Automated_Deployment/WORKSPACES/SYSTEM/DEMO-SCUS-SAP00-X00; cd $_
@@ -132,7 +123,12 @@
      ```bash
      $DEPLOYMENT_REPO_PATH/deploy/scripts/installer.sh            \
      --parameterfile DEMO-SCUS-SAP00-X00.json                     \
-     --type sap_system                                            \
-     --auto-approve
+     --type sap_system
      ```
 
+
+<br/><br/><br/><br/>
+
+
+
+<br/><br/><br/><br/>

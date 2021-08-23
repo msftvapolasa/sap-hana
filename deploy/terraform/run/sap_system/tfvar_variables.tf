@@ -263,6 +263,15 @@ variable "database_size" {
   default = ""
 }
 
+variable "database_sid" {
+  default = ""
+}
+
+variable "database_instance_number" {
+  default = "01"
+}
+
+
 variable "database_vm_zones" {
   default = []
 }
@@ -408,7 +417,6 @@ variable "webdispatcher_server_no_avset" {
 variable "webdispatcher_server_no_ppg" {
   default = false
 }
-
 
 variable "webdispatcher_server_image" {
   default = {
