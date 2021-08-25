@@ -16,7 +16,7 @@
   include_tasks: "{{ ansible_os_family }}/SLES-{{ ansible_distribution_major_version }}/os_config.yml"
   when:  ansible_os_family == "Suse"
 
-# Currently we only support Oracle Enterprise Linux
-- name: Manual preparation for Suse
-  include_tasks: "{{ ansible_istribution }}/SLES-{{ ansible_distribution_major_version }}/os_config.yml"
-  when:  ansible_os_family == "OracleLinux"
+# Oracle Linux
+- name: Manual preparation for Oracle Linux
+  include_tasks: "{{ ansible_os_family }}/OEL-{{ ansible_distribution_major_version }}/os_config.yml"
+  when:  ansible_os_family == "RedHat"

@@ -36,6 +36,14 @@ services:
         - { tier: 'os',          service: 'nfs-server',   node_tier: 'scs',     state: 'started'   }
         - { tier: 'preparation', service: 'nfs-server',   node_tier: 'scs',     state: 'restarted' }
 
+    oracle-linux8:
+        - { tier: 'os',          service: 'auditd',       node_tier: 'all',     state: 'started'   }
+        - { tier: 'os',          service: 'oddjobd',      node_tier: 'all',     state: 'disabled'  }
+        - { tier: 'os',          service: 'firewalld',    node_tier: 'all',     state: 'stopped'   }
+        - { tier: 'os',          service: 'firewalld',    node_tier: 'all',     state: 'disabled'  }
+        - { tier: 'os',          service: 'nfs-server',   node_tier: 'scs',     state: 'started'   }
+        - { tier: 'preparation', service: 'nfs-server',   node_tier: 'scs',     state: 'restarted' }
+
     suse12:
         - { tier: 'preparation', service: 'nfsserver',      node_tier: 'scs',     state: 'restarted'  }
 
