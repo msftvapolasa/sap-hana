@@ -107,7 +107,44 @@ logical_volumes:
     size:       '100%FREE'
     fstype:     'xfs'
 
+#Adding Tier and disk types for Oracle installation non-ASM.
+  - tier:       'sapos'
+    node_tier:  'oracle'
+    vg:         'vg_oracle_data'
+    lv:         'lv_oracle_data'
+    size:       '100%FREE'
+    stripesize: 256
+    fstype:     'xfs'
+  
+  - tier:       'sapos'
+    node_tier:  'oracle'
+    vg:         'vg_oracle_origlog'
+    lv:         'lv_oracle_origlog'
+    size:       '100%FREE'
+    stripesize: 64
+    fstype:     'xfs'
 
+  - tier:       'sapos'
+    node_tier:  'oracle'
+    vg:         'vg_oracle_mirlog'
+    lv:         'lv_oracle_mirlog'
+    size:       '100%FREE'
+    stripesize: 64
+    fstype:     'xfs'
+
+  - tier:       'sapos'
+    node_tier:  'oracle'
+    vg:         'vg_oracle_archlog'
+    lv:         'lv_oracle_archlog'
+    size:       '100%FREE'
+    fstype:     'xfs'
+
+  - tier:       'sapos'
+    node_tier:  'oracle'
+    vg:         'vg_oracle'
+    lv:         'lv_oracle'
+    size:       '100%FREE'
+    fstype:     'xfs'
 
 # Define a dynamic expression based upon the 'item' fact that can
 # only be used within a loop, that determines the number of PVs

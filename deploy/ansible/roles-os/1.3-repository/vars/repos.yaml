@@ -15,6 +15,13 @@ repos:
 
     redhat8.2:
 # we do not have any repos that are needed for RedHat at the moment.
+# Adding entries for Oracle linux as a placeholder, we do not have any repos that are needed for Oracle Linux at the moment.
+    oraclelinux8.2:
+
+    oraclelinux8.3:
+
+    oraclelinux8.4:
+
     suse15.1:
       - { tier: 'ha', repo: 'https://download.opensuse.org/repositories/home:ngncc/SLE_15_SP1/home:ngncc.repo',           state: 'present'}
     
