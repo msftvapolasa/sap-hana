@@ -44,8 +44,25 @@
     - { tier: 'preparation', path: '/etc/nfs.conf',      regexp: '^# vers3=',                    line: ' vers3=n'                                                        }
     - { tier: 'preparation', path: '/etc/nfs.conf',      regexp: '^# vers4.1=',                  line: ' vers4.1=y'                                                      }
     - { tier: 'preparation', path: '/etc/nfs.conf',      regexp: '^# vers4.2=',                  line: ' vers4.2=y'                                                      }
-  when:     (ansible_os_family|lower ~ ansible_distribution_major_version) == "redhat8" and (item.tier == "all" or item.tier == tier)
+  when:     (ansible_distribution|lower ~ ansible_distribution_major_version) == "redhat8" and (item.tier == "all" or item.tier == tier)
  
+
+- name: "Exports: NFS Server Config on Oracle Linux 8"
+  ansible.builtin.lineinfile:
+    path:   "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    line:   "{{ item.line }}"
+    owner:  root
+    group:  root
+    mode:   0644
+  loop:
+    - { tier: 'preparation', path: '/etc/exports',       regexp: '^/sapmnt/{{ sap_sid|upper }}', line: '/sapmnt/{{ sap_sid|upper }} *(rw,sync,no_wdelay,no_root_squash)' }
+    - { tier: 'preparation', path: '/etc/exports',       regexp: '^/usr/sap/trans',              line: '/usr/sap/trans *(rw,sync,no_wdelay,no_root_squash)'              }
+    - { tier: 'preparation', path: '/etc/exports',       regexp: '^/usr/sap/install',            line: '/usr/sap/install *(rw,sync,no_wdelay,no_root_squash)'            }
+    - { tier: 'preparation', path: '/etc/nfs.conf',      regexp: '^# vers3=',                    line: ' vers3=n'                                                        }
+    - { tier: 'preparation', path: '/etc/nfs.conf',      regexp: '^# vers4.1=',                  line: ' vers4.1=y'                                                      }
+    - { tier: 'preparation', path: '/etc/nfs.conf',      regexp: '^# vers4.2=',                  line: ' vers4.2=y'                                                      }
+  when:     (ansible_distribution|lower ~ ansible_distribution_major_version) == "oraclelinux8" and (item.tier == "all" or item.tier == tier)
 
 # Leveraging functionality from the 1.16-serices role
 # - name: "Exports: Enable NFS Service on Suse"
