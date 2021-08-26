@@ -129,7 +129,7 @@ logical_volumes:
     vg:         'vg_oracle_origlogA'
     lv:         'lv_oracle_origlogA'
     size:       '100%FREE'
-    stripesize: 64
+    stripesize: 128
     fstype:     'xfs'
 
   - tier:       'sapos'
@@ -137,7 +137,7 @@ logical_volumes:
     vg:         'vg_oracle_mirrlogA'
     lv:         'lv_oracle_mirrlogA'
     size:       '100%FREE'
-    stripesize: 64
+    stripesize: 128
     fstype:     'xfs'
 
   - tier:       'sapos'
@@ -151,7 +151,7 @@ logical_volumes:
     node_tier:  'oracle'
     vg:         'vg_oracle'
     lv:         'lv_oracle'
-    size:       '100%FREE'
+    size:       '64g'
     fstype:     'xfs'
 
 # Define a dynamic expression based upon the 'item' fact that can
