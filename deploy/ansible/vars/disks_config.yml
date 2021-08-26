@@ -17,9 +17,9 @@ disk_type_to_name_map:
   data:   '{{ node_tier | lower }}_data'
   log:    '{{ node_tier | lower }}_log'
   backup: '{{ node_tier | lower }}_backup'
-  sapdata1: '{{ node_tier | lower }}_sapdat1'
-  sapdata2: '{{ node_tier | lower }}_sapdat2'
-  sapdata3: '{{ node_tier | lower }}_sapdat3'
+  sapdata1: '{{ node_tier | lower }}_sapdata1'
+  sapdata2: '{{ node_tier | lower }}_sapdata2'
+  sapdata3: '{{ node_tier | lower }}_sapdata3'
   origloga: '{{ node_tier | lower }}_origlogA'
   origlogb: '{{ node_tier | lower }}_origlogB'
   mirrloga:  '{{ node_tier | lower }}_mirrlogA'
@@ -126,16 +126,16 @@ logical_volumes:
   
   - tier:       'sapos'
     node_tier:  'oracle'
-    vg:         'vg_oracle_origloga'
-    lv:         'lv_oracle_origloga'
+    vg:         'vg_oracle_origlogA'
+    lv:         'lv_oracle_origlogA'
     size:       '100%FREE'
     stripesize: 64
     fstype:     'xfs'
 
   - tier:       'sapos'
     node_tier:  'oracle'
-    vg:         'vg_oracle_mirrloga'
-    lv:         'lv_oracle_mirrloga'
+    vg:         'vg_oracle_mirrlogA'
+    lv:         'lv_oracle_mirrlogA'
     size:       '100%FREE'
     stripesize: 64
     fstype:     'xfs'
