@@ -20,7 +20,7 @@
     - { tier: 'hdb',          type: 'xfs',   src: '/dev/vg_hana_log/lv_hana_log',                  path: '/hana/log' }
     - { tier: 'hdb',          type: 'xfs',   src: '/dev/vg_hana_backup/lv_hana_backup',            path: '/hana/backup' }
     - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle/lv_oracle',                      path: '/oracle' }
-    - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_data'/lv_oracle_data',           path: '/oracle/{{ sap_sid|upper }}/sapdata1' }
+    - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_data/lv_oracle_data',           path: '/oracle/{{ sap_sid|upper }}/sapdata1' }
     - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_origlog/lv_oracle_origlog',      path: '/oracle/{{ sap_sid|upper }}/origlogA' }
     - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_mirlog/lv_oracle_mirlog',        path: '/oracle/{{ sap_sid|upper }}/mirlogA' }
     - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_archlog/lv_oracle_archlog',      path: '/oracle/{{ sap_sid|upper }}/oraarch' }
