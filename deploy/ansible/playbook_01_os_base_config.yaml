@@ -105,7 +105,7 @@
     tags:
       - 1.20-prometheus
     when:   prometheus
-            and             ansible_os_family|upper == "SUSE"
+            and             ansible_distribution|upper == "SUSE"
             and (     (     ansible_distribution_major_version == '12'
                         and ansible_distribution_release is search('[3-5]' ) )
                   or  (     ansible_distribution_major_version == '15' ) )

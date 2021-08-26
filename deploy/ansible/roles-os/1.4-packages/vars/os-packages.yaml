@@ -129,7 +129,7 @@ packages:
 
       #Adding packages for Oracle linux 8.4 to start with, copied the list from RHEL. 
       #Adding additional Oracle linux packages as per SAP Note 2069760 - Oracle Linux 7.x SAP Installation and Upgrade. Need to add the groupinstall command.
-    oracle-linux8:
+    oraclelinux8:
       - { tier: 'os',    package: '@base',                  state: 'present' }
       - { tier: 'os',    package: 'gtk2',                   state: 'present' }
       - { tier: 'os',    package: 'libicu',                 state: 'present' }
@@ -161,14 +161,14 @@ packages:
       - { tier: 'os',    package: 'lvm2',                   state: 'present' }
       - { tier: 'os',    package: 'numad',                  state: 'present' }
       - { tier: 'os',    package: 'cifs-utils',             state: 'present' }
-      - { tier: 'sapos', package: 'tuned-profiles-sap*',    state: 'present' } 
-      - { tier: 'sapos', package: 'compat-sap-c++-*',       state: 'present' }
+    #  - { tier: 'sapos', package: 'tuned-profiles-sap*',    state: 'present' } 
+    #  - { tier: 'sapos', package: 'compat-sap-c++-*',       state: 'present' }
       - { tier: 'sapos', package: 'libatomic',              state: 'present' }
       - { tier: 'sapos', package: 'uuidd',                  state: 'present' }
       - { tier: 'sapos', package: 'csh',                    state: 'present' } 
-      - { tier: 'sapos', package: 'large-systems',          state: 'present' }  
-      - { tier: 'sapos', package: 'network-file-system-client', state: 'present' }  
-      - { tier: 'sapos', package: 'performance',            state: 'present' }     
+      #- { tier: 'sapos', package: 'large-systems',          state: 'present' }  
+      #- { tier: 'sapos', package: 'network-file-system-client', state: 'present' }  
+      #- { tier: 'sapos', package: 'performance',            state: 'present' }     
       - { tier: 'ha',    package: 'jq',                     state: 'present' }
 
 

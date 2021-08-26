@@ -17,6 +17,9 @@ disk_type_to_name_map:
   data:   '{{ node_tier | lower }}_data'
   log:    '{{ node_tier | lower }}_log'
   backup: '{{ node_tier | lower }}_backup'
+  origlog: '{{ node_tier | lower }}_origlog'
+  mirlog:  '{{ node_tier | lower }}_mirlog'
+  archlog: '{{ node_tier | lower }}_archlog'
 
 #
 # Table of possible logical volumes that need to be managed.

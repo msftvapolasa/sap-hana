@@ -18,5 +18,5 @@
 
 # Oracle Linux
 - name: Manual preparation for Oracle Linux
-  include_tasks: "{{ ansible_os_family }}/OEL-{{ ansible_distribution_major_version }}/os_config.yml"
-  when:  ansible_os_family == "RedHat"
+  include_tasks: "{{ ansible_distribution }}/OEL-{{ ansible_distribution_major_version }}/os_config.yml"
+  when:  ansible_distribution == "OracleLinux"
