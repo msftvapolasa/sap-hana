@@ -113,32 +113,32 @@ logical_volumes:
 #Adding Tier and disk types for Oracle installation non-ASM.
   - tier:       'sapos'
     node_tier:  'oracle'
-    vg:         'vg_oracle_data'
-    lv:         'lv_oracle_data'
+    vg:         'vg_oracle_sapdata'
+    lv:         'lv_oracle_sapdata'
     size:       '100%FREE'
     stripesize: 256
     fstype:     'xfs'
   
   - tier:       'sapos'
     node_tier:  'oracle'
-    vg:         'vg_oracle_origlog'
-    lv:         'lv_oracle_origlog'
+    vg:         'vg_oracle_origloga'
+    lv:         'lv_oracle_origloga'
     size:       '100%FREE'
     stripesize: 64
     fstype:     'xfs'
 
   - tier:       'sapos'
     node_tier:  'oracle'
-    vg:         'vg_oracle_mirlog'
-    lv:         'lv_oracle_mirlog'
+    vg:         'vg_oracle_mirrloga'
+    lv:         'lv_oracle_mirrloga'
     size:       '100%FREE'
     stripesize: 64
     fstype:     'xfs'
 
   - tier:       'sapos'
     node_tier:  'oracle'
-    vg:         'vg_oracle_archlog'
-    lv:         'lv_oracle_archlog'
+    vg:         'vg_oracle_oraarch'
+    lv:         'lv_oracle_oraarch'
     size:       '100%FREE'
     fstype:     'xfs'
 
