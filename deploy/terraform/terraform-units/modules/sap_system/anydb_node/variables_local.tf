@@ -148,7 +148,7 @@ locals {
 
   enable_deployment = (length(local.anydb_databases) > 0) ? true : false
 
-  anydb          = local.enable_deployment ? local.anydb_databases[0] : {}
+  anydb          = local.anydb_databases[0] 
   anydb_platform = local.enable_deployment ? try(local.anydb.platform, "NONE") : "NONE"
   // Enable deployment based on length of local.anydb_databases
 
