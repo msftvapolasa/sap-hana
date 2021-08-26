@@ -19,11 +19,11 @@
     - { tier: 'hdb',          type: 'xfs',   src: '/dev/vg_hana_data/lv_hana_data',                path: '/hana/data' }
     - { tier: 'hdb',          type: 'xfs',   src: '/dev/vg_hana_log/lv_hana_log',                  path: '/hana/log' }
     - { tier: 'hdb',          type: 'xfs',   src: '/dev/vg_hana_backup/lv_hana_backup',            path: '/hana/backup' }
-    - { tier: 'oracle',       type: 'xfs',   src: '/dev/mapper/vg_oracle/lv_oracle',               path: '/oracle' }
-    - { tier: 'oracle',       type: 'xfs',   src: '/dev/mapper/vg_oracle_sapdata1/lv_oracle_sapdata1', path: '/oracle/{{ sap_sid|upper }}/sapdata1' }
-    - { tier: 'oracle',       type: 'xfs',   src: '/dev/mapper/vg_oracle_origloga/lv_oracle_origloga', path: '/oracle/{{ sap_sid|upper }}/origlogA' }
-    - { tier: 'oracle',       type: 'xfs',   src: '/dev/mapper/vg_oracle_mirrloga/lv_oracle_mirrloga', path: '/oracle/{{ sap_sid|upper }}/mirlogA' }
-    - { tier: 'oracle',       type: 'xfs',   src: '/dev/mapper/vg_oracle_oraarch/lv_oracle_oraarch',   path: '/oracle/{{ sap_sid|upper }}/oraarch' }
+    - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle/lv_oracle',               path: '/oracle' }
+    - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_sapdata1/lv_oracle_sapdata1', path: '/oracle/{{ sap_sid|upper }}/sapdata1' }
+    - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_origloga/lv_oracle_origloga', path: '/oracle/{{ sap_sid|upper }}/origlogA' }
+    - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_mirrloga/lv_oracle_mirrloga', path: '/oracle/{{ sap_sid|upper }}/mirlogA' }
+    - { tier: 'oracle',       type: 'xfs',   src: '/dev/vg_oracle_oraarch/lv_oracle_oraarch',   path: '/oracle/{{ sap_sid|upper }}/oraarch' }
     - { tier: 'web',          type: 'xfs',   src: '/dev/vg_sap/lv_sapmnt',                         path: '/sapmnt' }
     - { tier: 'dbload',       type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
     - { tier: 'app',          type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }

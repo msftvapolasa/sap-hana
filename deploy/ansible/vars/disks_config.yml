@@ -17,9 +17,14 @@ disk_type_to_name_map:
   data:   '{{ node_tier | lower }}_data'
   log:    '{{ node_tier | lower }}_log'
   backup: '{{ node_tier | lower }}_backup'
-  origlog: '{{ node_tier | lower }}_origlog'
-  mirlog:  '{{ node_tier | lower }}_mirlog'
-  archlog: '{{ node_tier | lower }}_archlog'
+  sapdata1: '{{ node_tier | lower }}_sapdat1'
+  sapdata2: '{{ node_tier | lower }}_sapdat2'
+  sapdata3: '{{ node_tier | lower }}_sapdat3'
+  origloga: '{{ node_tier | lower }}_origlogA'
+  origlogb: '{{ node_tier | lower }}_origlogB'
+  mirrloga:  '{{ node_tier | lower }}_mirrlogA'
+  mirrlogb:  '{{ node_tier | lower }}_mirrlogB'
+  oraarch: '{{ node_tier | lower }}_oraarch'
 
 #
 # Table of possible logical volumes that need to be managed.
