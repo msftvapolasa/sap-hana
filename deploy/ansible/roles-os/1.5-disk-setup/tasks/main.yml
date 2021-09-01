@@ -98,11 +98,6 @@
   ansible.builtin.set_fact: 
   ora-disktypes: "{{ disktypes }}"
   
-  loop: "{{ logical_volumes }}"
-  when:
-      - item.tier == "ora"
-      - item.node_tier == "oracle" 
-      - item.fstype == "xfs"
 
 # -------------------------------------+---------------------------------------8
 #
