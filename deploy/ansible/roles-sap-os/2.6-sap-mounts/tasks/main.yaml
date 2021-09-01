@@ -71,7 +71,7 @@
    - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_mirrlogA/lv_oracle_mirrlogB',    path: '/oracle/{{ anydb_sid|upper }}/mirlogB' }
    - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_oraarch/lv_oracle_oraarch',      path: '/oracle/{{ anydb_sid|upper }}/oraarch' }
   when:  
-      item.src in "{{ ora-mounts }}" or 
+      item.src in "{{ ora-mounts }}" and
       item.tier == ora
-      
+
 ...
