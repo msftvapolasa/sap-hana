@@ -21,8 +21,12 @@
     - { tier: 'hdb',          type: 'xfs',   src: '/dev/vg_hana_backup/lv_hana_backup',            path: '/hana/backup' }
     - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle/lv_oracle',                      path: '/oracle' }
     - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_sapdata1/lv_oracle_sapdata1',    path: '/oracle/{{ sap_sid|upper }}/sapdata1' }
+    - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_sapdata1/lv_oracle_sapdata2',    path: '/oracle/{{ sap_sid|upper }}/sapdata2' }
+    - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_sapdata1/lv_oracle_sapdata3',    path: '/oracle/{{ sap_sid|upper }}/sapdata3' }
     - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_origlogA/lv_oracle_origlogA',    path: '/oracle/{{ sap_sid|upper }}/origlogA' }
+    - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_origlogA/lv_oracle_origlogB',    path: '/oracle/{{ sap_sid|upper }}/origlogB' }
     - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_mirrlogA/lv_oracle_mirrlogA',    path: '/oracle/{{ sap_sid|upper }}/mirlogA' }
+    - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_mirrlogA/lv_oracle_mirrlogB',    path: '/oracle/{{ sap_sid|upper }}/mirlogB' }
     - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_oraarch/lv_oracle_oraarch',      path: '/oracle/{{ sap_sid|upper }}/oraarch' }
     - { tier: 'web',          type: 'xfs',   src: '/dev/vg_sap/lv_sapmnt',                         path: '/sapmnt' }
     - { tier: 'dbload',       type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
@@ -32,6 +36,6 @@
     - { tier: 'app',          type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install' }                # Special Install Structure; Destroy on Completion
     - { tier: 'web',          type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install' }                # Special Install Structure; Destroy on Completion
   when:         item.tier == "all" or
-                item.tier == tier
+                item.tier == ora
 
 ...

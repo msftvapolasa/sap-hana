@@ -134,12 +134,28 @@ logical_volumes:
 
   - tier:       'sapos'
     node_tier:  'oracle'
+    vg:         'vg_oracle_origlogB'
+    lv:         'lv_oracle_origlogB'
+    size:       '100%FREE'
+    stripesize: 128
+    fstype:     'xfs'
+
+  - tier:       'sapos'
+    node_tier:  'oracle'
     vg:         'vg_oracle_mirrlogA'
     lv:         'lv_oracle_mirrlogA'
     size:       '100%FREE'
     stripesize: 128
     fstype:     'xfs'
 
+  - tier:       'sapos'
+    node_tier:  'oracle'
+    vg:         'vg_oracle_mirrlogB'
+    lv:         'lv_oracle_mirrlogB'
+    size:       '100%FREE'
+    stripesize: 128
+    fstype:     'xfs'
+ 
   - tier:       'sapos'
     node_tier:  'oracle'
     vg:         'vg_oracle_oraarch'
