@@ -1,7 +1,6 @@
 #   SAP: Register BOM
-#   create .params directory
-#   deploy db install template
-#   deploy hdblcm password file
+#   Export environment variables for Oracle Installation
+#   Run the Oracle universal installer in silent mode. Refer to SAP Note : 2660017 Oracle Software Installation on Unix
 #
 
 # TODO: Considerations
@@ -36,24 +35,24 @@
 
 # TODO: Move the template to the BOM Directory
 #   SAP HANA: deploy hdblcm password file
-- name:               "SAP HANA: deploy hdblcm password file"
-  ansible.builtin.template:
-    src:              HANA_2_00_055_v1_install.rsp.xml.j2
-    dest:             "{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_passwords.xml"
-    mode:             0644
-    force:            yes
-  # Template parameter mapping
-  vars:
-    pwd_os_root:                      "***"                                       # Not used at this time
-    pwd_os_sapadm:                    "{{ password_master }}"
-    pwd_master:                       "{{ password_master }}"
-    pwd_os_sidadm:                    "{{ password_master }}"
-    pwd_hdb_system:                   "{{ password_master }}"
-    pwd_lss_user:                     "***"                                       # Not used at this time
-    pwd_lss_backup:                   "***"                                       # Not used at this time
-    pwd_streaming_cluster_manager:    "***"                                       # Not used at this time
-    pwd_ase_user:                     "***"                                       # Not used at this time
-    pwd_org_manager:                  "***"                                       # Not used at this time
+#- name:               "Oracle:  parameter file"
+#    src:              ORACLE_19c_00_01_v1_install.rsp.xml.j2
+#  ansible.builtin.template:
+#    dest:             "{{ dir_params }}/oracle_{{ ansible_hostname }}_{{ sap_sid }}_passwords.xml"
+#    mode:             0644
+#    force:            yes
+#  # Template parameter mapping
+#  vars:
+#    pwd_os_root:                      "***"                                       # Not used at this time
+#   pwd_os_sapadm:                    "{{ password_master }}"
+#    pwd_master:                       "{{ password_master }}"
+#    pwd_os_sidadm:                    "{{ password_master }}"
+#    pwd_hdb_system:                   "{{ password_master }}"
+#    pwd_lss_user:                     "***"                                       # Not used at this time
+#    pwd_lss_backup:                   "***"                                       # Not used at this time
+#    pwd_streaming_cluster_manager:    "***"                                       # Not used at this time
+#    pwd_ase_user:                     "***"                                       # Not used at this time
+#    pwd_org_manager:                  "***"                                       # Not used at this time
 
 
 
@@ -61,39 +60,39 @@
 # TODO: Move the template to the BOM Directory
 # TODO: Analyze file in more detail
 #   SAP HANA: deploy hdblcm install response file
-- name:               "SAP HANA: deploy hdblcm install response file"
-  ansible.builtin.template:
-    src:              HANA_2_00_055_v1_install.rsp.j2
-    dest:             "{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_install.rsp"
-    mode:             0644
-    force:            yes
-  # Template parameter mapping
-  vars:
-    _rsp_component_root:              "../COMPONENTS"
-    _rsp_components:                  "all"
-    _rsp_sapmnt:                      "/hana/shared"                              # Default Value
-    _rsp_hostname:                    "{{ ansible_hostname }}"            # TODO: needs to be tested with HA and scale out
-    _rsp_sid:                         "{{ hdb_sid|upper }}"
-    _rsp_number:                      "{{ hdb_instance_number }}"
-    _rsp_system_usage:                "custom"
+# - name:               "SAP HANA: deploy hdblcm install response file"
+#   ansible.builtin.template:
+#     src:              HANA_2_00_055_v1_install.rsp.j2
+#     dest:             "{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_install.rsp"
+#     mode:             0644
+#     force:            yes
+#   # Template parameter mapping
+#   vars:
+#     _rsp_component_root:              "../COMPONENTS"
+#     _rsp_components:                  "all"
+#     _rsp_sapmnt:                      "/hana/shared"                              # Default Value
+#     _rsp_hostname:                    "{{ ansible_hostname }}"            # TODO: needs to be tested with HA and scale out
+#     _rsp_sid:                         "{{ hdb_sid|upper }}"
+#     _rsp_number:                      "{{ hdb_instance_number }}"
+#     _rsp_system_usage:                "custom"
 
 
 
-#   SAP HANA: Install
+#   Oracle: Install
 
 #ToDo make the code more robust
-- name:               "Execute hdblcm"
-  # ansible.builtin.shell:              "pwd=$(<../hdbserver_{{ sap_sid }}_passwords.xml); rm ../hdbserver_{{ sap_sid }}_passwords.xml; echo $pwd | ./hdblcm --batch --action=install --configfile='../hdbserver_{{ sap_sid }}_install.cfg' --read_password_from_stdin=xml"
+- name:               "Execute RUNINSTALLER"
   ansible.builtin.shell: |
-                      pwd=$(<{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_passwords.xml)
-                      echo $pwd | \
-                        ./hdblcm --batch --action=install --configfile='{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_install.rsp' --read_password_from_stdin=xml
-                      rm {{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_passwords.xml
-                      touch /etc/sap_deployment_automation/sap_deployment_hdb.txt
+                      set -o errexit | \
+                      setenv DB_SID {{ sap_sid }} | \
+                      setenv CV_ASSUME_DISTID  OL7 | \
+                      ./RUNINSTALLER -silent | \
+                      touch /etc/sap_deployment_automation/oracleinstall.txt
+                      
                       
   args:
-    chdir:            "/usr/sap/install/CD_HDBSERVER/SAP_HANA_DATABASE"
-    creates:          /etc/sap_deployment_automation/sap_deployment_hdb.txt
+    chdir:            "/usr/sap/install/oracle/LINUX_X86_64/db_home/SAP"
+    creates:          /etc/sap_deployment_automation/oracleinstall.txt
 
 
 
