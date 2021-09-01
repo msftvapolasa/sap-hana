@@ -91,7 +91,7 @@
   loop:                           "{{ volume_groups }}"
   when:
     - tier == "sapos"
-    - item.vg in "{{ disktypes }}"
+    
 
 
 
@@ -113,6 +113,7 @@
   when:
     - item.tier in ["all", tier]
     - item.node_tier in ["all", node_tier]
+    - item.vg in "{{ disktypes }}"
     
 
 
