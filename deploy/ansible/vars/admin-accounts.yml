@@ -31,42 +31,42 @@ admin_groups:
     node_tier:    all
   #Admin users for Oracle ASM and Non-ASM
   - name:         dba
-    gid:          "3000"
+    gid:          "{{ dba_gid }}"
     state:        present
     tier:         ora
     enabled:      true
     node_tier:    oracle
   
   - name:         oper
-    gid:          "3001"
+    gid:          "{{ oper_gid }}"
     state:        present
     tier:         ora
     enabled:      true
     node_tier:    oracle
   
   - name:         asmoper
-    gid:          "3002"
+    gid:          "{{ asmoper_gid }}"
     state:        present
     tier:         ora
     enabled:      true
     node_tier:    oracle
   
   - name:         asmadmin
-    gid:          "3003"
+    gid:          "{{ asmadmin_gid }}"
     state:        present
     tier:         ora
     enabled:      true
     node_tier:    oracle
   
   - name:         asmdba
-    gid:          "3004"
+    gid:          "{{ asmdba_gid }}"
     state:        present
     tier:         ora
     enabled:      true
     node_tier:    oracle
   
   - name:         oinstall
-    gid:          "3005"
+    gid:          "{{ oinstall_gid }}"
     state:        present
     tier:         ora
     enabled:      true
@@ -137,6 +137,7 @@ admin_users:
     group:        dba
     groups:       ["oper","sapinst","oinstall"]
     sudoers_role: "admin_no_password"
+    password:     "{{ password_master }}"
     shell:        /bin/csh
     state:        present
     tier:         ora
@@ -149,6 +150,7 @@ admin_users:
     group:        dba
     groups:       ["oper","sapsys","sapinst","asmdba","oinstall","asmadmin","asmoper"]
     sudoers_role: "admin_no_password"
+    password:     "{{ password_master }}"
     shell:        /bin/csh
     state:        present
     tier:         ora
