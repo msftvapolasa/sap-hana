@@ -93,10 +93,7 @@
     - tier == "sapos"
 
 
-# Mount Filesystems
-- name:     "Collecting Oracle Filesystems"
-  ansible.builtin.set_fact: 
-  ora-disktypes: "{{ disktypes }}"
+
   
 
 # -------------------------------------+---------------------------------------8
@@ -115,7 +112,7 @@
   when:
     - item.tier in ["all", tier]
     - item.node_tier in ["all", node_tier]
-    - item.lv in "{{ora-disktypes }}"
+    - item.lv in "{{ disktypes }}"
 
 
 
