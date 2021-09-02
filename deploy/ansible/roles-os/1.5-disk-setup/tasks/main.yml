@@ -113,7 +113,7 @@
   when:
     - item.tier in ["all", tier]
     - item.node_tier in ["all", node_tier]
-    #- item.vg in "{{ disktypes }}"
+    - item.vg in "{{ disktypes }}"
     
 
 

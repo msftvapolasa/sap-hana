@@ -2,16 +2,21 @@
 # - name: Gather Logical volumes created in 1.5
 #   include_vars: disks_config.yml
 
-# # Mount Filesystems
-# - name:     "Collecting Oracle Filesystems"
-#   ansible.builtin.set_fact: 
-#   ora-mounts: "{{ dev_path_from_lv_item }}"
+# Mount Filesystems
+- name:     "Collecting Oracle Filesystems"
+  ansible.builtin.set_fact: 
+  ora-mounts: "{{ dev_path_from_lv_item }}"
   
-#   loop: "{{ logical_volumes }}"
-#   when:
-#       - item.tier == "ora"
-#       - item.node_tier == "oracle" 
-#       - item.fstype == "xfs"
+  loop: "{{ logical_volumes }}"
+  when:
+      - item.tier == "ora"
+      - item.node_tier == "oracle" 
+      - item.fstype == "xfs"
+      - item.vg in "{{ disktypes }}"
+  
+- name:   "Printing values of ora-mounts"
+  ansible.builtin.debug: 
+  var: "{{ ora-mounts }}" 
       
 
 
