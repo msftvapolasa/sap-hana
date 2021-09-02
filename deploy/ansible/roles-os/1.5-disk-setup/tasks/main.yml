@@ -63,6 +63,7 @@
 
 # Get all the unique disk types from sap-parameters
 
+
 # -------------------------------------+---------------------------------------8
 #
 - name:                           Load the disk configuration settings
@@ -95,7 +96,11 @@
 
 
 
-  
+- name:                           "Print volume group details"
+  debug:
+    var:                          "{{ logical_volumes }}"
+    #verbosity:                    2
+
 
 # -------------------------------------+---------------------------------------8
 #
@@ -111,7 +116,7 @@
     resizefs:                     no
   loop: "{{ logical_volumes }}"
   when:
-    - item.tier in ["all", tier]
+    - tier == "sapos"
     - item.node_tier in ["all", node_tier]
     - item.vg in "{{ disktypes }}"
     
