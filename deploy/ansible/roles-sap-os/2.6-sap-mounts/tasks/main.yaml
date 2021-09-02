@@ -4,7 +4,7 @@
   include_vars:              disks_config.yml
 
 # Import this task only if the tier is ora.
-- import_tasks: anydb.yaml
+- import_tasks: "{{ node_tier }}.yaml"
   when: node_tier == "oracle"
 
 
