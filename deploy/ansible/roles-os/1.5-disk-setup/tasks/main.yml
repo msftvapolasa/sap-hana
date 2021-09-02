@@ -66,18 +66,18 @@
 
 # -------------------------------------+---------------------------------------8
 #
-- name:                           Load the disk configuration settings
-  include_vars:                   disks_config.yml
+- name:                      Load the disk configuration settings
+  include_vars:              disks_config.yml
 
-- name:                           "print unique disks"
+- name:                          "print unique disks"
   debug:
-    var:                          disktypes
-    verbosity:                    2
+    var:                         disktypes
+    verbosity:                   2
 
-- name:                           "Print volume group details"
+- name:                          "Print volume group details"
   debug:
-    var:                          volume_groups
-   #verbosity:                    2
+    var:                         volume_groups
+   #verbosity:                   2
 
 
 
@@ -92,14 +92,42 @@
   loop:                           "{{ volume_groups }}"
   when:
     - tier == "sapos"
-    
+  register: vgscreated  
 
+- name: "Fileter the vg name from vgscreated results"
+  set_fact:
+    vgcreatedlist: "{{ vgscreated | json_query('results[*].item.vg') }}"
 
+#Debug for testing
+- name:                           "Print vgcreated details"
+  debug:
+    var:                         vgcreatedlist
 
-- name:                           "Print logical group details"
+- name:                          "Print logical group details"
   debug:
     var:                          logical_volumes
+
+- name:                           "created logical group details"
+  debug:
+    var:                          vgscreated.results
     #verbosity:                    2
+
+#Debug testing end of line
+
+
+# - name: "Caputre Oracle Filesystems"
+#   ansible.builtin.file:
+#     path:        "{{ item.path }}"
+#     state:       directory
+#     group:       sapsys
+#     mode:        0755
+#   loop:
+#     - { tier == 'sapos', path: '/sapmnt/{{ sap_sid|upper }}'      }
+#     - { tier == 'sapos', path: '/usr/sap/{{ sap_sid|upper }}/SYS' }
+#     # - { tier == 'sapos', path: '/usr/sap/{{ sap_sid|upper }}/ASCS00' }
+#     # - { tier == 'sapos', path: '/usr/sap/{{ sap_sid|upper }}/ERS01' }
+#   when:     tier == 'sapos'
+#   register: isCreatedNow
 
 
 # -------------------------------------+---------------------------------------8
@@ -118,11 +146,35 @@
   when:
     - tier == "sapos"
     - item.node_tier in ["all", node_tier]
-    - item.vg in disktypes
+    - item.vg in vgcreatedlist
+   # - item.vg == volume_groups.item.vg
+  register: lvscreated 
     
+- name: "Fileter the logical volumes created results"
+  set_fact:
+   lvcreatedlist: "{{ lvscreated.results | selectattr('skipped','undefined') | list }}"
+   
+- name: "Fileter the logical volumes created results1"
+  set_fact:
+   lvcreatedlist1: "{{ lvcreatedlist | map(attribute='lv') | list }}"
+  
+#{{ ['/dev', item.vg, item.lv] | join('/') }}
 
+  # vars:
+  #   jmesquery: "[ == false].{vg: vg, lv: lv }"
 
+  #('results[*].item.{vg: vg, lv: lv }') |json_query ('results[*].item.{vg: vg, lv: lv }') }}" 
 
+#Debug for testing
+- name:                           "Print vgcreated details"
+  debug:
+    var:                         lvscreated
+
+#Debug for testing
+- name:                           "Print vgcreated details"
+  debug:
+    var:                         lvcreatedlist1
+#- fail: msg="here"
 
 # -------------------------------------+---------------------------------------8
 #
@@ -136,6 +188,8 @@
     - item.tier in ["all", tier]
     - item.node_tier in ["all", node_tier]
     - item.fstype is defined
+    - item.lv in lvcreatedlist1
+
 
 ...
 # /*---------------------------------------------------------------------------8

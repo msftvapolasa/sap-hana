@@ -1,0 +1,60 @@
+---
+
+- name: Gather Logical volumes created in 1.5
+  include_vars: disks_config.yml
+   
+
+
+
+- name: Check if LVs exists.
+  stat:
+    path: "{{ dev_path_from_lv_item }}"
+  loop: "{{logical_volumes }}"
+  register: oravgstat
+
+- debug:
+    var:                         oravgstat
+
+- name: Gater existing LVs 
+  set_fact:
+    lvexists: "{{ oravgstat.results | selectattr('stat.exists','equalto',true) | map(attribute='item.lv') |list }}" 
+
+
+- debug:
+    var:                         lvexists
+
+#- fail: msg="here"
+
+# Mount Filesystems
+- name:     "Mount Filesystems for Oracle"
+  mount:
+    src:    "{{ dev_path_from_lv_item }}"
+    #path:   "{{ ['/'~item.lv|split('_')[-2], anydb_sid|upper, item.lv|split('_')[-1]] | join('/') }}"
+    path: >-
+        {%- set lv_parts = item.lv.split('_') -%}
+        {%- if lv_parts| length == 2 -%}
+        {%- set _path = '/' ~ lv_parts[-1] -%}
+        {%- else -%}
+        {%- set _path = ['/' ~ lv_parts[-2], anydb_sid | upper, lv_parts[-1]] | join('/') -%}
+        {%- endif -%}
+        {{- _path -}} 
+    fstype: "{{ item.fstype }}"
+    opts:   defaults
+    state:  mounted
+
+
+  loop: "{{logical_volumes |sort(attribute='lv') }}"
+  
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle/lv_oracle',                      path: '/oracle' }
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_sapdata1/lv_oracle_sapdata1',    path: '/oracle/{{ anydb_sid|upper }}/sapdata1' }
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_sapdata1/lv_oracle_sapdata2',    path: '/oracle/{{ anydb_sid|upper }}/sapdata2' }
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_sapdata1/lv_oracle_sapdata3',    path: '/oracle/{{ anydb_sid|upper }}/sapdata3' }
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_origlogA/lv_oracle_origlogA',    path: '/oracle/{{ anydb_sid|upper }}/origlogA' }
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_origlogA/lv_oracle_origlogB',    path: '/oracle/{{ anydb_sid|upper }}/origlogB' }
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_mirrlogA/lv_oracle_mirrlogA',    path: '/oracle/{{ anydb_sid|upper }}/mirlogA' }
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_mirrlogA/lv_oracle_mirrlogB',    path: '/oracle/{{ anydb_sid|upper }}/mirlogB' }
+    # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_oraarch/lv_oracle_oraarch',      path: '/oracle/{{ anydb_sid|upper }}/oraarch' }
+  when:         
+              - item.tier == "all" or  item.node_tier == "oracle" 
+              - item.lv in  lvexists
+
