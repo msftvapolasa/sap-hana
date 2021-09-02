@@ -77,7 +77,7 @@
 - name:                           "Print volume group details"
   debug:
     var:                          volume_groups
-    verbosity:                    2
+   #verbosity:                    2
 
 
 
@@ -118,7 +118,7 @@
   when:
     - tier == "sapos"
     - item.node_tier in ["all", node_tier]
-    - item.vg in "{{ disktypes }}"
+    - item.vg in disktypes
     
 
 
