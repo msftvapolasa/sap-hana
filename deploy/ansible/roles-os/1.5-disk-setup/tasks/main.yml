@@ -96,9 +96,9 @@
 
 
 
-- name:                           "Print volume group details"
+- name:                           "Print logical group details"
   debug:
-    var:                          "{{ logical_volumes }}"
+    var:                          logical_volumes
     #verbosity:                    2
 
 
