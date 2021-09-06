@@ -1,0 +1,58 @@
+---
+name:    'ORACLE_19_00_v0001ms'
+target:  'Oracle 19c'
+version: 1
+
+
+
+materials:
+#   templates:
+    # - name:     X
+    #   file:     HANA_2_00_055_v1.params
+    #   override_target_location: "{{ target_media_location }}/config"
+
+    # - name:     X
+    #   file:     HANA_2_00_055_v1.params.xml
+    #   override_target_location: "{{ target_media_location }}/config"
+
+#   stackfiles:
+    # # Download Basket permalinks
+    # - name: Download Basket permalinks
+    #   file: myDownloadBasketFiles.txt
+    #   override_target_location: "{{ target_media_location }}/config"
+
+  media:
+    # SAPCAR 7.22
+    # - name:         SAPCAR
+    #   archive:      SAPCAR_1010-70006178.EXE
+    #   filename:     SAPCAR
+    #   permissions:  '0755'
+    #   download:     false
+    #   url:          https://softwaredownloads.sap.com/file/0020000002208852020               #Note update the links
+
+    - name:         Oracle Client
+      archive:      51054541.zip
+      extract:      true
+      extractDir:   oraclient
+      path:         download_basket
+      download:     false
+      url:          https://softwaredownloads.sap.com/file/0020000000381822021               #Note update the links
+
+    - name:         Oracle Software Server
+      archive:      51053828.zip
+      extract:      true
+      download:     false
+      extractDir:   oraserver
+      #creates:     SIGNATURE.SMF
+      url:          https://softwaredownloads.sap.com/file/0020000000958462021
+      
+    # - name:         X
+    #   archive:      SAPHOSTAGENT51_51-20009394.SAR
+    #   path:         download_basket
+    #   url:          https://softwaredownloads.sap.com/file/0020000000363342021
+
+    # - name:         X
+    #   archive:      saphostagentrpm_51-20009394.rpm
+    #   url:          https://softwaredownloads.sap.com/file/0020000000269152021
+
+...

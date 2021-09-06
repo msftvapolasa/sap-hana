@@ -110,6 +110,7 @@
     - item.extract
     - ( item.filename is undefined and (item.archive |regex_search('[^.]+(?=\\.*$)')|upper=="SAR") ) or
       ( item.filename is defined   and (item.filename|regex_search('[^.]+(?=\\.*$)')|upper=="SAR") )
+    
 
 
 

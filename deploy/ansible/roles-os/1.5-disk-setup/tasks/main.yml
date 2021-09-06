@@ -94,7 +94,7 @@
     - tier == "sapos"
   register: vgscreated  
 
-- name: "Fileter the vg name from vgscreated results"
+- name: "Filter the vg name from vgscreated results"
   set_fact:
     vgcreatedlist: "{{ vgscreated | json_query('results[*].item.vg') }}"
 
@@ -158,12 +158,7 @@
   set_fact:
    lvcreatedlist1: "{{ lvcreatedlist | map(attribute='lv') | list }}"
   
-#{{ ['/dev', item.vg, item.lv] | join('/') }}
 
-  # vars:
-  #   jmesquery: "[ == false].{vg: vg, lv: lv }"
-
-  #('results[*].item.{vg: vg, lv: lv }') |json_query ('results[*].item.{vg: vg, lv: lv }') }}" 
 
 #Debug for testing
 - name:                           "Print vgcreated details"
@@ -174,6 +169,8 @@
 - name:                           "Print vgcreated details"
   debug:
     var:                         lvcreatedlist1
+
+
 #- fail: msg="here"
 
 # -------------------------------------+---------------------------------------8
@@ -189,6 +186,13 @@
     - item.node_tier in ["all", node_tier]
     - item.fstype is defined
     - item.lv in lvcreatedlist1
+  register : filesystemscreated
+
+#Debug for testing
+- name:                           "Print values to be passed for filesystem creation"
+  debug:
+    var:                         filesystemscreated
+
 
 
 ...
