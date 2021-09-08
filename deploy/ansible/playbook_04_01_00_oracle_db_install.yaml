@@ -11,7 +11,7 @@
 
 - hosts:          "{{ sap_sid|upper }}_DB"
 
-  name:           DB Installation - Oracle
+  name:           DB Installation prechecks - Oracle
   remote_user:    "{{ orchestration_ansible_user }}"                
   become:         yes
   become_user:    root
@@ -29,6 +29,7 @@
 
   - ansible.builtin.set_fact:
       tier:     ora                                                        # Actions for Oracle DB Servers
+      node_tier: oracle
     tags:
       - always
 
@@ -39,7 +40,7 @@
 #              
 #
   - include_role:
-      name:     roles-sap-os/1.11-accounts
+      name:     roles-os/1.11-accounts
 # -------------------------------------+---------------------------------------8
 # -------------------------------------+---------------------------------------8
 # Role: sap-mounts
@@ -53,6 +54,17 @@
 
 
 
+- hosts:          "{{ sap_sid|upper }}_DB"
+
+  name:           DB Installation - Oracle
+  remote_user:    "{{ orchestration_ansible_user }}"                
+  become:         yes
+  become_user:    "ora{{ anydb_sid|lower }}"
+  gather_facts:   true
+  vars_files:
+    - vars/ansible-input-api.yaml                               # API Input template with defaults
+
+  tasks:
   - include_role:
       name:     roles-db/4.1.0-ora-install
       

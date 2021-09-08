@@ -31,7 +31,7 @@
   ansible.builtin.file:
     path:   /etc/sap_deployment_automation
     state:  directory
-    mode:   0755
+    mode:   0777
 
 # TODO: Move the template to the BOM Directory
 #   SAP HANA: deploy hdblcm password file
@@ -80,21 +80,36 @@
 
 #   Oracle: Install
 
+# # orasid should be the owner of the file systems /oracle directories. Moved this code to oracle.yaml
+# - name:              "Make orasid:dba as owners"          
+#   ansible.builtin.shell: |
+#                       chown -R ora{{ sap_sid|lower }}:dba /oracle
+#                       chmod -R 777 /usr/sap/install/oraserver/
+
 #ToDo make the code more robust
 - name:               "Execute RUNINSTALLER"
   ansible.builtin.shell: |
-                      set -o errexit | \
-                      setenv DB_SID {{ sap_sid }} | \
-                      setenv CV_ASSUME_DISTID  OL7 | \
-                      ./RUNINSTALLER -silent | \
-                      touch /etc/sap_deployment_automation/oracleinstall.txt
-                      
-                      
+                      set -o errexit 
+                      setenv DB_SID "{{anydb_sid}}"
+                      setenv CV_ASSUME_DISTID  OL7
+                      ./RUNINSTALLER -silent |tee -a /oracle/install.log
+  register:           orainstaller_results
+  failed_when:        orainstaller_results.rc >= 2              
+  
   args:
-    chdir:            "/usr/sap/install/oracle/LINUX_X86_64/db_home/SAP"
+    executable:       /bin/csh        
+    chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
     creates:          /etc/sap_deployment_automation/oracleinstall.txt
 
+- name:            "create after a sucessfull install"
+  ansible.builtin.shell: |                    
+                      touch /etc/sap_deployment_automation/oracleinstall.txt
 
+
+#Debug for testing
+- name:                           "installer ouput"
+  debug:
+    var:                           orainstaller_results
 
 
 

@@ -56,7 +56,19 @@
     # - { tier: 'ora',          type: 'xfs',   src: '/dev/vg_oracle_oraarch/lv_oracle_oraarch',      path: '/oracle/{{ anydb_sid|upper }}/oraarch' }
   when:         
               #- item.tier == "all" or  
-              - item.tier == "ora"
+              #- item.tier == "sapos"
+              #- item.tier == "ora"
               - item.node_tier == "oracle" 
               - item.lv in  lvexists
+  register:  oraclefilesystemmounts
 
+# orasid should be the owner of the file systems /oracle directories.
+- name:              "Make orasid:dba as owners"          
+  ansible.builtin.shell: |
+                      chown -R ora{{ sap_sid|lower }}:dba /oracle
+                      chmod -R 777 /usr/sap/install/oraserver/
+
+#Debug for testing
+- name:                           "Print oracle filesystems"
+  debug:
+    var:                         oraclefilesystemmounts

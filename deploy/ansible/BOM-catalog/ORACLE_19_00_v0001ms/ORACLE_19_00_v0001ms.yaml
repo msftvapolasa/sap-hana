@@ -35,16 +35,16 @@ materials:
       extract:      true
       extractDir:   oraclient
       path:         download_basket
-      download:     false
-      url:          https://softwaredownloads.sap.com/file/0020000000381822021               #Note update the links
+      download:     true
+      #url:          https://softwaredownloads.sap.com/file/0020000000381822021               #Note update the links
 
     - name:         Oracle Software Server
       archive:      51053828.zip
       extract:      true
-      download:     false
+      download:     true
       extractDir:   oraserver
       #creates:     SIGNATURE.SMF
-      url:          https://softwaredownloads.sap.com/file/0020000000958462021
+      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
       
     # - name:         X
     #   archive:      SAPHOSTAGENT51_51-20009394.SAR

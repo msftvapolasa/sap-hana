@@ -77,7 +77,7 @@
 - name:                          "Print volume group details"
   debug:
     var:                         volume_groups
-   #verbosity:                   2
+    #verbosity:                   2
 
 
 
@@ -99,20 +99,20 @@
     vgcreatedlist: "{{ vgscreated | json_query('results[*].item.vg') }}"
 
 #Debug for testing
-- name:                           "Print vgcreated details"
+- name:                          "Print vgcreated details"
   debug:
-    var:                         vgcreatedlist
+    var:                        vgcreatedlist
 
-- name:                          "Print logical group details"
+- name:                         "Print logical group details"
   debug:
-    var:                          logical_volumes
+    var:                         logical_volumes
 
-- name:                           "created logical group details"
+- name:                          "created logical group details"
   debug:
-    var:                          vgscreated.results
-    #verbosity:                    2
+    var:                         vgscreated.results
+    #verbosity:                   2
 
-#Debug testing end of line
+#Debug testing end of line 
 
 
 # - name: "Caputre Oracle Filesystems"
@@ -150,13 +150,13 @@
    # - item.vg == volume_groups.item.vg
   register: lvscreated 
     
-- name: "Fileter the logical volumes created results"
+- name: "Filter the logical volumes created results"
   set_fact:
-   lvcreatedlist: "{{ lvscreated.results | selectattr('skipped','undefined') | list }}"
+    lvcreatedlist: "{{ lvscreated.results | selectattr('skipped','undefined') | list }}"
    
-- name: "Fileter the logical volumes created results1"
+- name: "Filter the logical volumes created results1"
   set_fact:
-   lvcreatedlist1: "{{ lvcreatedlist | map(attribute='lv') | list }}"
+    lvcreatedlist1: "{{ lvcreatedlist | map(attribute='lv') | list }}"
   
 
 
@@ -170,30 +170,106 @@
   debug:
     var:                         lvcreatedlist1
 
+- name: Gather list of mounted devices
+  set_fact:
+    mounted_devices: "{{ ansible_mounts|json_query('[].device') }}"
+
+- name: Gather list of mounted devices
+  set_fact:
+    uuid_devices: "{{ ansible_devices }}"
+
+#Debug for testing
+- name:                           "Print filtered mount points"
+  debug:
+    var:                         uuid_devices
+
+- name: Filter existing mounted device list
+  set_fact:
+    mounted_devices_filtered: "{{ mounted_devices | map('regex_search','/dev/mapper/vg_*') |list }}" 
+
+
+#Debug for testing
+- name:                           "Print filtered mount points"
+  debug:
+    var:                         mounted_devices
+
+#Debug for testing
+- name:                           "Print filtered mount points"
+  debug:
+    var:                         mounted_devices_filtered
+
 
 #- fail: msg="here"
 
+- name:             Check if the file sapmounts exists
+  stat:             
+    path:           /etc/sapmounts
+  register:         sapmountexists   
+
+
+#Debug for testing
+- name:                           "Print of the file /etc/sapmountexists"
+  debug:
+    var:                         sapmountexists
+
+#- fail: msg="here"
 # -------------------------------------+---------------------------------------8
 #
-- name:                           "Filesystem creation"
+
+- name:                       "Filesystem creation"
   filesystem:
-    dev:                          "{{ dev_path_from_lv_item }}"
-    fstype:                       "{{ item.fstype }}"
-    opts:                         "{{ item.fsopts | default('') }}"
+    dev:                       "{{ dev_path_from_lv_item }}"
+    fstype:                    "{{ item.fstype }}"
+    opts:                      "{{ item.fsopts | default('') }}"
   loop: "{{ logical_volumes }}"
   when:
-    - item.tier in ["all", tier]
-    - item.node_tier in ["all", node_tier]
-    - item.fstype is defined
-    - item.lv in lvcreatedlist1
-  register : filesystemscreated
+        - item.tier in ["all", tier ]
+        - item.node_tier in ["all", node_tier]
+        - item.fstype is defined
+        - item.lv in lvcreatedlist1
+        - sapmountexists.stat.exists == false
+  register : filesystemscreated    
+  #failed_when: vgsfalse
+
+# - name:                           "Filesystem creation"
+#   ansible.builtin.file:
+#     state: touch
+#     path:  /etc/sapmounts
+#   when:
+#     - filesystemscreated is changed
+
+
+
+
+
+# - name:                        "File system check and create"
+#   #when:                         sapmountexists.stat.exists
+#   ansible.builtin.block:
+#     - name:                       "Filesystem creation"
+#       filesystem:
+#         dev:                       "{{ dev_path_from_lv_item }}"
+#         fstype:                    "{{ item.fstype }}"
+#         opts:                      "{{ item.fsopts | default('') }}"
+#       loop: "{{ logical_volumes }}"
+#       when:
+#         - item.tier in ["all", tier]
+#         - item.node_tier in ["all", node_tier]
+#         - item.fstype is defined
+#         - item.lv in lvcreatedlist1  
+#       register : filesystemscreated    
+
+#     - name:                           "Filesystem creation"
+#       ansible.builtin.file:
+#         state: touch
+#         path:  /etc/sapmounts
+#       when:
+#         - filesystemscreated is changed
+
 
 #Debug for testing
 - name:                           "Print values to be passed for filesystem creation"
   debug:
     var:                         filesystemscreated
-
-
 
 ...
 # /*---------------------------------------------------------------------------8

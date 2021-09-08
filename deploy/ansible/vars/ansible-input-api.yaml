@@ -41,18 +41,20 @@ sap_fqdn:                     ""                                                
 sapadm_uid:                   2100
 sapinst_gid:                  2001
 sapsys_gid:                   2000
+ora_sid:                      "BPC" 
 dba_gid:                      3000
 oper_gid:                     3001
 asmoper_gid:                  3002
 asmadmin_gid:                 3003
 asmdba_gid:                   3004
 oinstall_gid:                 3005
-anydb_sid:                    "X00"
+anydb_sid:                    "BPC"
 orasid_uid:                   3000
 oracle_uid:                   3001                                                      #AnyDB sid eg: Oracle,SQL,DB2
 scs_hostname:                 ""
 scs_instance_number:          "00"                                                      # SAP Install
 sidadm_uid:                   2000
+hdbadm_uid:                   2200
 scs_lb_ip:                    ""                                                        # SAP HA   
 db_lb_ip:                     ""                                                        # SAP HA
 
