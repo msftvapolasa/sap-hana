@@ -126,6 +126,25 @@ logical_volumes:
   
   - tier:       'sapos'
     node_tier:  'oracle'
+    vg:         'vg_oracle_sapdata2'
+    lv:         'lv_oracle_sapdata2'
+    size:       '100%FREE'
+    stripesize: 256
+    fstype:     'xfs'
+
+
+  - tier:       'sapos'
+    node_tier:  'oracle'
+    vg:         'vg_oracle_sapdata3'
+    lv:         'lv_oracle_sapdata3'
+    size:       '100%FREE'
+    stripesize: 256
+    fstype:     'xfs'
+
+
+
+  - tier:       'sapos'
+    node_tier:  'oracle'
     vg:         'vg_oracle_origlogA'
     lv:         'lv_oracle_origlogA'
     size:       '100%FREE'
