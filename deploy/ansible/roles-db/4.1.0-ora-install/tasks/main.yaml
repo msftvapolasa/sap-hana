@@ -29,9 +29,9 @@
 
 - name:     "Create run flag directory"
   ansible.builtin.file:
-    path:   /etc/sap_deployment_automation
+    path:   /oracle/sap_deployment_automation
     state:  directory
-    mode:   0777
+    mode:   0755
 
 
 #  START OF ORACLE SOFTWARE INSTALLATION USING SAP RUNINSTALLER WRAPPER.
@@ -52,7 +52,7 @@
   args:
     executable:       /bin/csh        
     chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
-    creates:          /etc/sap_deployment_automation/precheck.txt
+    creates:          /oracle/sap_deployment_automation/precheck.txt
 
 #Debug for testing
 - name:                           "installer prechecks ouput"
@@ -74,11 +74,11 @@
   args:
     executable:       /bin/csh        
     chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
-    creates:          /etc/sap_deployment_automation/oracleinstall.txt
+    creates:          /oracle/sap_deployment_automation/oracleinstall.txt
 
 - name:            "create after a sucessfull install"
   ansible.builtin.shell: |                    
-                      touch /etc/sap_deployment_automation/oracleinstall.txt
+                      touch /oracle/sap_deployment_automation/oracleinstall.txt
 
 
 #STEP3 POST PROCESSING.
@@ -91,7 +91,7 @@
                      /oracle/oraInventory/orainstRoot.sh
                      /oracle/BPC/19.0.0/root.sh
   args:
-    creates:          /etc/sap_deployment_automation/rootscriptexecuted1.txt
+    creates:          /oracle/sap_deployment_automation/rootscriptexecuted1.txt
 
 
 #Debug for testing
