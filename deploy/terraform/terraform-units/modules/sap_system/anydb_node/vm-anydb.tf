@@ -132,6 +132,9 @@ resource "azurerm_linux_virtual_machine" "dbserver" {
       version   = local.anydb_os.version
     }
   }
+
+
+
   additional_capabilities {
     ultra_ssd_enabled = local.enable_ultradisk
   }

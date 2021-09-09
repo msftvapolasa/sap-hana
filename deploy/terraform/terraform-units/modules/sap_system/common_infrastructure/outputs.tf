@@ -28,8 +28,12 @@ output "ppg" {
 
 
 output "admin_subnet" {
-  value = local.sub_admin_exists ? data.azurerm_subnet.admin[0] : azurerm_subnet.admin[0]
+  value = local.enable_admin_subnet ? (
+    local.sub_admin_exists ? data.azurerm_subnet.admin[0] : azurerm_subnet.admin[0]) : (
+    null
+  )
 }
+
 
 output "db_subnet" {
   value = local.sub_db_exists ? data.azurerm_subnet.db[0] : azurerm_subnet.db[0]

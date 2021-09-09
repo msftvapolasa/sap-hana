@@ -80,7 +80,7 @@
     #verbosity:                   2
 
 
-
+#CREATE VOLUME GROUPS BASED ON sap-parameters.yaml
 # -------------------------------------+---------------------------------------8
 #
 - name:                           "Volume Group creation"
@@ -115,21 +115,7 @@
 #Debug testing end of line 
 
 
-# - name: "Caputre Oracle Filesystems"
-#   ansible.builtin.file:
-#     path:        "{{ item.path }}"
-#     state:       directory
-#     group:       sapsys
-#     mode:        0755
-#   loop:
-#     - { tier == 'sapos', path: '/sapmnt/{{ sap_sid|upper }}'      }
-#     - { tier == 'sapos', path: '/usr/sap/{{ sap_sid|upper }}/SYS' }
-#     # - { tier == 'sapos', path: '/usr/sap/{{ sap_sid|upper }}/ASCS00' }
-#     # - { tier == 'sapos', path: '/usr/sap/{{ sap_sid|upper }}/ERS01' }
-#   when:     tier == 'sapos'
-#   register: isCreatedNow
-
-
+#CREATE LOGICAL VOLUMES BASED ON VGCREATEDLIST
 # -------------------------------------+---------------------------------------8
 #
 - name:                           "Logical Volume creation"
@@ -147,16 +133,16 @@
     - tier == "sapos"
     - item.node_tier in ["all", node_tier]
     - item.vg in vgcreatedlist
-   # - item.vg == volume_groups.item.vg
+   
   register: lvscreated 
     
 - name: "Filter the logical volumes created results"
   set_fact:
-    lvcreatedlist: "{{ lvscreated.results | selectattr('skipped','undefined') | list }}"
+    lvcreatedlist-tmp: "{{ lvscreated.results | selectattr('skipped','undefined') | list }}"
    
 - name: "Filter the logical volumes created results1"
   set_fact:
-    lvcreatedlist1: "{{ lvcreatedlist | map(attribute='lv') | list }}"
+    lvcreatedlist: "{{ lvcreatedlist-tmp | map(attribute='lv') | list }}"
   
 
 
@@ -168,13 +154,13 @@
 #Debug for testing
 - name:                           "Print vgcreated details"
   debug:
-    var:                         lvcreatedlist1
+    var:                         lvcreatedlist
 
 - name: Gather list of mounted devices
   set_fact:
     mounted_devices: "{{ ansible_mounts|json_query('[].device') }}"
 
-- name: Gather list of mounted devices
+- name: Gather list of devices with UUIDS
   set_fact:
     uuid_devices: "{{ ansible_devices }}"
 
@@ -226,7 +212,7 @@
         - item.tier in ["all", tier ]
         - item.node_tier in ["all", node_tier]
         - item.fstype is defined
-        - item.lv in lvcreatedlist1
+        - item.lv in lvcreatedlist
         - sapmountexists.stat.exists == false
   register : filesystemscreated    
   #failed_when: vgsfalse
