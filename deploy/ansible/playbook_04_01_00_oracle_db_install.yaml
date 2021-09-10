@@ -53,6 +53,7 @@
 # -------------------------------------+---------------------------------------8
 
 
+# Oracle installation has to be done with ora<sid> user. Change the user to become orasid and call the installer.
 
 - hosts:          "{{ sap_sid|upper }}_DB"
 

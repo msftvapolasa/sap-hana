@@ -41,23 +41,40 @@
     fstype: "{{ item.fstype }}"
     opts:   defaults
     state:  mounted
-
-
   loop: "{{logical_volumes |sort(attribute='lv') }}"
-  
-    
   when:         
               #- item.tier == "ora"
               - item.node_tier == "oracle" 
               - item.lv in  lvexists
-  
   register:  oraclefilesystemmounts
 
-# orasid should be the owner of the file systems /oracle directories.
+
+# Mount Filesystems
+- name:     "Mount SAP Filesystems on Database for installation"
+  mount:
+    src:    "{{ item.src }}"
+    path:   "{{ item.path }}"
+    fstype: "{{ item.type }}"
+    opts:   defaults
+    state:  mounted
+  vars:
+    # Get all the hostnames in <SID>_SCS group and return only the first hostname
+    nfs_server:   "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"
+  loop:
+    - { tier: 'sapos',          type: 'xfs',   src: '/dev/vg_sap/lv_usrsap',                         path: '/usr/sap' }
+    - { tier: 'ora',          type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install' }                # Special Install Structure; Destroy on Completion
+  when:         
+                item.tier == "sapos" or 
+                item.tier == "ora"
+
+# ORASID should be the owner of the file systems /oracle directories. 
+#.PARAMS folder is not required for oracle install as we are not passing any parameters files.
+
 - name:              "Make orasid:dba as owners"          
   ansible.builtin.shell: |
                       chown -R ora{{ sap_sid|lower }}:dba /oracle
-                      chmod -R 777 /usr/sap/install/oraserver/
+                      chmod -R 777 /usr/sap/install/
+
 
 #Debug for testing
 - name:                           "Print oracle filesystems"

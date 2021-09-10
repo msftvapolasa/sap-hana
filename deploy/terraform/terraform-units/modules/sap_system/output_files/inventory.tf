@@ -214,7 +214,7 @@ resource "local_file" "sap-parameters_yml" {
 
 resource "azurerm_storage_blob" "hosts_yaml" {
   provider               = azurerm.deployer
-  name                   = format("%s_hosts.yaml", length(trimspace(var.naming.prefix.SDU)) > 0 ? trimspace(var.naming.prefix.SDU) : var.hdb_sid)
+  name                   = format("%s_hosts.yaml", length(trimspace(var.naming.prefix.SDU)) > 0 ? trimspace(var.naming.prefix.SDU) : coalesce ( var.hdb_sid, var.anydb_sid)
   storage_account_name   = local.tfstate_storage_account_name
   storage_container_name = local.ansible_container_name
   type                   = "Block"
