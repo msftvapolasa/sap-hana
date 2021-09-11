@@ -72,7 +72,7 @@
 
 - name:              "Make orasid:dba as owners"          
   ansible.builtin.shell: |
-                      chown -R ora{{ sap_sid|lower }}:dba /oracle
+                      chown -R ora{{ anydb_sid|lower }}:dba /oracle
                       chmod -R 777 /usr/sap/install/
 
 

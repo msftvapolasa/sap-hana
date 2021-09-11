@@ -52,7 +52,9 @@
   args:
     executable:       /bin/csh        
     chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
-    creates:          /oracle/sap_deployment_automation/precheck.txt
+    #creates:          /oracle/sap_deployment_automation/precheck.txt
+
+
 
 #Debug for testing
 - name:                           "installer prechecks ouput"
@@ -70,7 +72,6 @@
                       ./RUNINSTALLER -silent |tee -a /oracle/install.log
   register:           orainstaller_results
   failed_when:        orainstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
-  
   args:
     executable:       /bin/csh        
     chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
@@ -88,18 +89,25 @@
   become:         yes
   become_user:    root
   ansible.builtin.shell: |       
-                     /oracle/oraInventory/orainstRoot.sh
-                     /oracle/BPC/19.0.0/root.sh
+                     /oracle/{{anydb_sid}}/19.0.0/root.sh
+  register: rootscript_results
   args:
-    creates:          /oracle/sap_deployment_automation/rootscriptexecuted1.txt
+    executable:       /bin/csh
+    creates:          /oracle/sap_deployment_automation/scripstexecuted.txt
 
+- name:            "creates after a sucessfull script execution"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/scripstexecuted.txt
 
 #Debug for testing
 - name:                           "installer ouput"
   debug:
     var:                           orainstaller_results
 
-
+#Debug for testing
+- name:                           "installer ouput"
+  debug:
+    var:                           rootscript_results
 
 
 # #   0x) remove hidden directory for parameter files
