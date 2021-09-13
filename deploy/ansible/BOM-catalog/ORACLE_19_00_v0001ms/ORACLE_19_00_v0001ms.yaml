@@ -43,9 +43,59 @@ materials:
       extract:      true
       download:     true
       extractDir:   oraserver
+      path:         download_basket
       #creates:     SIGNATURE.SMF
       #url:          https://softwaredownloads.sap.com/file/0020000000958462021
-      
+
+
+#SBP Patches are downloaded based on SAP Note 2799920 - Patches 19c: Database
+
+    - name:         "Oracle SBP - Bundle patches for 19c: GIRU"
+      archive:      GIRU19P_2108-70004508.ZIP
+      extract:      true
+      download:     true
+      extractDir:   SBP/GIRU19P
+      path:         download_basket
+      #creates:     SIGNATURE.SMF
+      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+
+    - name:         "Oracle SBP - Bundle patches for 19c: SAP19P"
+      archive:      SAP19P_2108-70004508.ZIP
+      extract:      true
+      download:     true
+      extractDir:   SBP/SAPSBP
+      path:         download_basket
+      #creates:     SIGNATURE.SMF
+      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+
+    - name:         "Oracle SBP - Bundle patches for 19c: SBPJDK19P"
+      archive:      SBPJDK19P_2108-70004508.ZIP
+      extract:      true
+      download:     true
+      extractDir:   SBP/SBPJDK
+      path:         download_basket
+      #creates:     SIGNATURE.SMF
+      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+
+    - name:         "Oracle SBP - Bundle patches for 19c: OPatch"
+      archive:      OPATCH19P_2105-70004508.ZIP
+      extract:      true
+      download:     true
+      extractDir:   SBP/OPATCH
+      path:         download_basket
+      #creates:     SIGNATURE.SMF
+      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+
+    - name:         "Oracle SBP - Bundle patches for 19c: Readme Patch File"
+      archive:      README19P_2108-70004508.HTM
+      extract:      false
+      download:     true
+      extractDir:   SBP
+      path:         download_basket
+      #creates:     SIGNATURE.SMF
+      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+
+
     # - name:         X
     #   archive:      SAPHOSTAGENT51_51-20009394.SAR
     #   path:         download_basket
