@@ -55,7 +55,7 @@ materials:
       extract:      true
       download:     true
       extractDir:   SBP/GIRU19P
-      path:         download_basket
+      path:         SBP
       #creates:     SIGNATURE.SMF
       #url:          https://softwaredownloads.sap.com/file/0020000000958462021
 
@@ -64,7 +64,7 @@ materials:
       extract:      true
       download:     true
       extractDir:   SBP/SAPSBP
-      path:         download_basket
+      path:         SBP
       #creates:     SIGNATURE.SMF
       #url:          https://softwaredownloads.sap.com/file/0020000000958462021
 
@@ -73,7 +73,7 @@ materials:
       extract:      true
       download:     true
       extractDir:   SBP/SBPJDK
-      path:         download_basket
+      path:         SBP
       #creates:     SIGNATURE.SMF
       #url:          https://softwaredownloads.sap.com/file/0020000000958462021
 
@@ -82,7 +82,7 @@ materials:
       extract:      true
       download:     true
       extractDir:   SBP/OPATCH
-      path:         download_basket
+      path:         SBP
       #creates:     SIGNATURE.SMF
       #url:          https://softwaredownloads.sap.com/file/0020000000958462021
 
@@ -91,7 +91,7 @@ materials:
       extract:      false
       download:     true
       extractDir:   SBP
-      path:         download_basket
+      path:         SBP
       #creates:     SIGNATURE.SMF
       #url:          https://softwaredownloads.sap.com/file/0020000000958462021
 
