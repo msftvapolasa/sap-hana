@@ -23,12 +23,12 @@ materials:
 
   media:
     # SAPCAR 7.22
-    # - name:         SAPCAR
-    #   archive:      SAPCAR_1010-70006178.EXE
-    #   filename:     SAPCAR
-    #   permissions:  '0755'
-    #   download:     false
-    #   url:          https://softwaredownloads.sap.com/file/0020000002208852020               #Note update the links
+    - name:         SAPCAR
+      archive:      SAPCAR_1010-70006178.EXE
+      filename:     SAPCAR
+      permissions:  '0755'
+      download:     true
+      url:          https://softwaredownloads.sap.com/file/0020000002208852020               #Note update the links
 
     - name:         Oracle Client
       archive:      51054541.zip
@@ -57,7 +57,7 @@ materials:
       extractDir:   SBP/GIRU19P
       path:         SBP
       #creates:     SIGNATURE.SMF
-      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+      url:         https://softwaredownloads.sap.com/file/0020000001214732021
 
     - name:         "Oracle SBP - Bundle patches for 19c: SAP19P"
       archive:      SAP19P_2108-70004508.ZIP
@@ -66,7 +66,7 @@ materials:
       extractDir:   SBP/SAPSBP
       path:         SBP
       #creates:     SIGNATURE.SMF
-      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+      url:          https://softwaredownloads.sap.com/file/0020000001213832021
 
     - name:         "Oracle SBP - Bundle patches for 19c: SBPJDK19P"
       archive:      SBPJDK19P_2108-70004508.ZIP
@@ -75,7 +75,7 @@ materials:
       extractDir:   SBP/SBPJDK
       path:         SBP
       #creates:     SIGNATURE.SMF
-      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+      url:         https://softwaredownloads.sap.com/file/0020000001213892021
 
     - name:         "Oracle SBP - Bundle patches for 19c: OPatch"
       archive:      OPATCH19P_2105-70004508.ZIP
@@ -84,22 +84,61 @@ materials:
       extractDir:   SBP/OPATCH
       path:         SBP
       #creates:     SIGNATURE.SMF
-      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+      url:          https://softwaredownloads.sap.com/file/0020000000751692021
 
     - name:         "Oracle SBP - Bundle patches for 19c: Readme Patch File"
       archive:      README19P_2108-70004508.HTM
       extract:      false
-      download:     true
+      download:     false
       extractDir:   SBP
       path:         SBP
       #creates:     SIGNATURE.SMF
-      #url:          https://softwaredownloads.sap.com/file/0020000000958462021
+      url:         https://softwaredownloads.sap.com/file/0020000001213422021
+
+#SAP Oracle executables, SWMP and Installation exports 
+    
+    - name:         "DB Independent Kernel Files"
+      archive:      SAPEXE_200-70005283.SAR
+      extract:      false
+      download:     true
+      path:         download_basket
+      #creates:     SIGNATURE.SMF
+      url:          https://softwaredownloads.sap.com/file/0020000001164152021
+    
+    
+    - name:         "Oracle DB specific kernel files"
+      archive:      SAPEXEDB_200-70005502.SAR
+      extract:      false
+      download:     true
+      path:         download_basket
+      #creates:     SIGNATURE.SMF
+      url:          https://softwaredownloads.sap.com/file/0020000001163822021
+
+      # SWPM
+    - name:         "SWPM20SP09 OS: Linux on x86_64 64bit"
+      archive:      SWPM10SP32_5-20009701.SAR
+      extract:      true
+      extractDir:   SWPM
+      creates:      SIGNATURE.SMF
+      url:          https://softwaredownloads.sap.com/file/0020000001253802021
 
 
-    # - name:         X
-    #   archive:      SAPHOSTAGENT51_51-20009394.SAR
-    #   path:         download_basket
-    #   url:          https://softwaredownloads.sap.com/file/0020000000363342021
+    - name:       "Oracle installation dump"
+      archive:     51050829_3.ZIP
+      extract:     true
+      download:    true
+      extractDir:  EXPORT
+      path:        download_basket
+      #creates:    SIGNATURE.SMF
+      url:        https://softwaredownloads.sap.com/file/0030000000635092016
+    
+
+    - name:         "SAP Host Agent"
+      archive:      SAPHOSTAGENT53_53-80004822.SAR
+      extract:      false
+      download:     true
+      path:         download_basket
+      url:          https://softwaredownloads.sap.com/file/0020000001179602021
 
     # - name:         X
     #   archive:      saphostagentrpm_51-20009394.rpm
