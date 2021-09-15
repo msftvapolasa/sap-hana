@@ -115,7 +115,7 @@
                      mv  /oracle/{{anydb_sid}}/19.0.0/OPatch   /oracle/{{anydb_sid}}/19.0.0/OPatch.bck 
                      cp -R OPATCH/OPatch  /oracle/{{anydb_sid}}/19.0.0/.
                      cp -R SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/{{anydb_sid}}/19.0.0/.
-                     $IHRDBMS/MOPatch/mopatch.sh -v -s /usr/sap/install/download_basket/SAP19P_2108-70004508.ZIP |tee -a /oracle/sbp.log
+                     $IHRDBMS/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SAP19P_2108-70004508.ZIP |tee -a /oracle/sbp.log
                      
 
   register: sbpscript_results

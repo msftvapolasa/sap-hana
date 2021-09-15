@@ -52,7 +52,7 @@ materials:
 
     - name:         "Oracle SBP - Bundle patches for 19c: GIRU"
       archive:      GIRU19P_2108-70004508.ZIP
-      extract:      true
+      extract:      false
       download:     true
       extractDir:   SBP/GIRU19P
       path:         SBP
@@ -70,7 +70,7 @@ materials:
 
     - name:         "Oracle SBP - Bundle patches for 19c: SBPJDK19P"
       archive:      SBPJDK19P_2108-70004508.ZIP
-      extract:      true
+      extract:      false
       download:     true
       extractDir:   SBP/SBPJDK
       path:         SBP
