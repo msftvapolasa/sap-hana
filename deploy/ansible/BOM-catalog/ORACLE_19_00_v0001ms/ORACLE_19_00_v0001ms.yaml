@@ -98,22 +98,32 @@ materials:
 #SAP Oracle executables, SWMP and Installation exports 
     
     - name:         "DB Independent Kernel Files"
-      archive:      SAPEXE_200-70005283.SAR
+      archive:      SAPEXE_801-80002573.SAR
       extract:      false
-      download:     true
+      #download:     true
       path:         download_basket
       #creates:     SIGNATURE.SMF
-      url:          https://softwaredownloads.sap.com/file/0020000001164152021
+      url:          https://softwaredownloads.sap.com/file/0020000000937192021
     
     
     - name:         "Oracle DB specific kernel files"
-      archive:      SAPEXEDB_200-70005502.SAR
+      archive:      SAPEXEDB_801-80002605.SAR
       extract:      false
-      download:     true
+      #download:     true
       path:         download_basket
       #creates:     SIGNATURE.SMF
-      url:          https://softwaredownloads.sap.com/file/0020000001163822021
+      url:          https://softwaredownloads.sap.com/file/0020000000937422021
 
+    
+    - name:         "Oracle DBATOOLS"
+      archive:      DBATL740O11_46-80002605.SAR
+      extract:      false
+      #download:     true
+      path:         download_basket
+      #creates:     SIGNATURE.SMF
+      url:          https://softwaredownloads.sap.com/file/0020000000816512021
+
+    
       # SWPM
     - name:         "SWPM20SP09 OS: Linux on x86_64 64bit"
       archive:      SWPM10SP32_5-20009701.SAR
