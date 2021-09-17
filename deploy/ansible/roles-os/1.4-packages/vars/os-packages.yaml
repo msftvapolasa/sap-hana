@@ -139,7 +139,7 @@ packages:
       - { tier: 'os',    package: 'xorg-x11-xauth',               state: 'present' }
       - { tier: 'os',    package: 'net-tools',                    state: 'present' }
       - { tier: 'os',    package: 'bind-utils',                   state: 'present' }
-      - { tier: 'os',    package: 'xfsprogs',                   state: 'present' }
+      - { tier: 'os',    package: 'xfsprogs',                     state: 'present' }
       - { tier: 'os',    package: 'gdisk',                        state: 'present' }
       - { tier: 'os',    package: 'lvm2',                         state: 'present' }
       - { tier: 'os',    package: 'cifs-utils',                   state: 'present' }

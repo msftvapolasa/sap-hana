@@ -53,14 +53,14 @@
 # -------------------------------------+---------------------------------------8
 
 
-# Oracle installation has to be done with ora<sid> user. Change the user to become orasid and call the installer.
+# Oracle installation has to be done with oracle user. Change the user to become orasid and call the installer.
 
 - hosts:          "{{ sap_sid|upper }}_DB"
 
   name:           DB Installation - Oracle
   remote_user:    "{{ orchestration_ansible_user }}"                
   become:         yes
-  become_user:    "ora{{ anydb_sid|lower }}"
+  become_user:    "oracle"
   gather_facts:   true
   vars_files:
     - vars/ansible-input-api.yaml                               # API Input template with defaults

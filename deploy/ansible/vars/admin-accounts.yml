@@ -147,8 +147,8 @@ admin_users:
   - name:         "oracle"
     comment:      "Oracle Database software Administrator"
     uid:          "{{ oracle_uid }}"
-    group:        dba
-    groups:       ["oper","sapsys","sapinst","asmdba","oinstall","asmadmin","asmoper"]
+    group:        oinstall
+    groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
     sudoers_role: "admin_no_password"
     password:     "{{ password_master }}"
     shell:        /bin/csh

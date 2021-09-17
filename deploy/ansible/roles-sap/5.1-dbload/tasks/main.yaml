@@ -22,12 +22,12 @@
     tasks_from:                   bom-template
   vars:
 
-    sap_cd_package_cd1:            
+    sap_cd_package_hdbclient:     /usr/sap/install/CD_HDBCLIENT/SAP_HANA_CLIENT
+    sap_cd_package_cd1:           /usr/sap/install/CD_EXPORT
     sap_cd_package_cd2:           
     sap_cd_package_cd3:           
     sap_cd_package_cd4:           
     sap_cd_package_cd5:           
-    sap_cd_package_hdbclient:     
     sap_ciInstanceNumber:         
     app_instance_number:          
     sap_ciDialogWPNumber:         
@@ -40,14 +40,43 @@
     sap_appVirtualHostname:       
 
 
+
+
+
 # *====================================4=======================================8
 #   SAP DBLOAD: Install
 # 2230669 - System Provisioning Using a Parameter Input File
 #
+
+- name:     "Create run flag directory"
+  ansible.builtin.file:
+    path:   /etc/sap_deployment_automation
+    state:  directory
+    mode:   0755
+
+
+- name:               "SAP DBLOAD reset"
+  ansible.builtin.file: 
+    path: /etc/sap_deployment_automation/sap_deployment_dbload.txt
+    state: absent
+  when: reinstall == true 
+
+
+- name: SAP DBLOAD install variables
+  debug:
+    msg: "{{ sap_inifile }}"
+    
+
+- name: SAP DBLOAD install variables
+  debug:
+    msg: "{{ bom.product_ids.dbl }}"
+    verbosity: 2
+
+
+
 - name:               "SAP DBLOAD Install"
   ansible.builtin.shell: |
                       set -o errexit
-                      mkdir -p /etc/sap_deployment_automation
                       export TMPDIR=/usr/sap/install
                       ./sapinst SAPINST_INPUT_PARAMETERS_URL=/usr/sap/install/downloads/{{ sap_inifile }}     \
                                 SAPINST_EXECUTE_PRODUCT_ID={{ bom.product_ids.dbl }}                          \

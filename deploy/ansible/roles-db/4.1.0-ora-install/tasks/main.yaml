@@ -91,6 +91,7 @@
   ansible.builtin.shell: |   
                      /oracle/oraInventory/orainstRoot.sh    
                      /oracle/{{anydb_sid}}/19.0.0/root.sh
+                     chmod 6751 /oracle/{{anydb_sid|upper }}/19.0.0/bin/oracle 
   register: rootscript_results
   args:
     executable:       /bin/csh
@@ -104,7 +105,7 @@
 
 - name:           "Oracle Post Processing - SBP Patching"                
   become:         yes
-  become_user:    "ora{{ anydb_sid|lower }}"
+  become_user:    "oracle"
   ansible.builtin.shell: |   
                      set -o errexit
                      setenv DB_SID "{{anydb_sid}}"

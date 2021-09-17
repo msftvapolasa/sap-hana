@@ -61,8 +61,9 @@
     # Get all the hostnames in <SID>_SCS group and return only the first hostname
     nfs_server:   "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"
   loop:
-    - { tier: 'sapos',          type: 'xfs',   src: '/dev/vg_sap/lv_usrsap',                         path: '/usr/sap' }
-    - { tier: 'ora',          type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install' }                # Special Install Structure; Destroy on Completion
+    - { tier: 'sapos',          type: 'xfs',   src: '/dev/vg_sap/lv_usrsap',                             path: '/usr/sap' }
+    - { tier: 'ora',            type: 'nfs4',    src: '{{ nfs_server }}:/usr/sap/install',               path: '/usr/sap/install' }                # Special Install Structure; Destroy on Completion
+    - { tier: 'ora',            type: 'nfs4',    src: '{{ nfs_server }}:/sapmnt',                        path: '/sapmnt' } 
   when:         
                 item.tier == "sapos" or 
                 item.tier == "ora"
@@ -71,8 +72,8 @@
 #.PARAMS folder is not required for oracle install as we are not passing any parameters files.
 
 - name:              "Make orasid:dba as owners"          
-  ansible.builtin.shell: |
-                      chown -R ora{{ anydb_sid|lower }}:dba /oracle
+  ansible.builtin.shell: | 
+                      chown -R oracle:oinstall /oracle
                       chmod -R 777 /usr/sap/install/
 
 

@@ -8,19 +8,17 @@
 # Installation service 'SAP NetWeaver 7.5 > Oracle > Installation > Application Server ABAP > Distributed System > Database Instance', product id 'NW_ABAP_DB:NW750.ORA.ABAP' #
 #                                                                                                                                                                             #
 ###############################################################################################################################################################################
-# IMPORTANT DO NOT DELETE!!! SAPInstDes25Hash=$omvy9qViLeP0$I16OunUjpSKmYikMEp6gMfyxlyH5jY9Twc92vxJ47fUHQ2Hy8CnZpXBOWXk0mvJmWyMnvKfC3e6j3i7eQui1dJ6rzex1cCBy
-
 
 
 # Location of Export CD
 SAPINST.CD.PACKAGE.ORACLI                                            = /usr/sap/install/oraclient
-SAPINST.CD.PACKAGE.DATALOAD1                                         = usr/sap/install/EXPORT/DATA_UNITS/EXP1
-SAPINST.CD.PACKAGE.DATALOAD2                                         = usr/sap/install/EXPORT/DATA_UNITS/EXP2
-SAPINST.CD.PACKAGE.DATALOAD3                                         = usr/sap/install/EXPORT/DATA_UNITS/EXP3
+SAPINST.CD.PACKAGE.CD1                                               = /usr/sap/install/EXPORT/DATA_UNITS/EXP1
+SAPINST.CD.PACKAGE.CD2                                               = /usr/sap/install/EXPORT/DATA_UNITS/EXP2
+SAPINST.CD.PACKAGE.CD3                                               = /usr/sap/install/EXPORT/DATA_UNITS/EXP3
 
 
 archives.downloadBasket                                              = /usr/sap/install/download_basket
-
+NW_readProfileDir.profilesAvailable                                  = false
 nwUsers.sapadmUID                                                    = {{ sapadm_uid }}
 nwUsers.sapsysGID                                                    = {{ sapsys_gid }}
 nwUsers.sidAdmUID                                                    = {{ sidadm_uid }}
@@ -53,7 +51,7 @@ storageBasedCopy.javaSchemaPassword                                  = {{ passwo
 # ora.hasTDE                                                         = false
 ora.multitenant.installMT                                            = FALSE
 ora.multitenant.pdbsid                                               = {{ anydb_sid|upper }}
-#storageBasedCopy.ora.ABAPSchema                                     = SAPSR3
+storageBasedCopy.ora.ABAPSchema                                     = SAPSR3
 
 # possible values are
 #         isSingle:  Database on filesystem exist.
@@ -87,6 +85,8 @@ storageBasedCopy.ora.clientVersion                                   = 19
 # Port of Oracle Listener. Default value ist: 1521
 # storageBasedCopy.ora.listenerPort = 
 
+# Set Oracle advanced parameters. Default value is 'false'.
+# ora.advanced.parameter = false
 
 # Set advanced parameter maxDatafileSize in MB. Default value is 2000.
 # ora.maxDatafileSize = 
