@@ -20,6 +20,7 @@ disk_type_to_name_map:
   sapdata1: '{{ node_tier | lower }}_sapdata1'
   sapdata2: '{{ node_tier | lower }}_sapdata2'
   sapdata3: '{{ node_tier | lower }}_sapdata3'
+  sapdata4: '{{ node_tier | lower }}_sapdata4'
   origloga: '{{ node_tier | lower }}_origlogA'
   origlogb: '{{ node_tier | lower }}_origlogB'
   mirrloga:  '{{ node_tier | lower }}_mirrlogA'
@@ -141,7 +142,13 @@ logical_volumes:
     stripesize: 256
     fstype:     'xfs'
 
-
+  - tier:       'sapos'
+    node_tier:  'oracle'
+    vg:         'vg_oracle_sapdata4'
+    lv:         'lv_oracle_sapdata4'
+    size:       '100%FREE'
+    stripesize: 256
+    fstype:     'xfs'
 
   - tier:       'sapos'
     node_tier:  'oracle'
