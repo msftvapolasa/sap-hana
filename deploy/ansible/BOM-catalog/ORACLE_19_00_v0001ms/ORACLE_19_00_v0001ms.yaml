@@ -155,6 +155,22 @@ materials:
       path:         download_basket
       url:          https://softwaredownloads.sap.com/file/0020000001179602021
 
+    - name:         "SAP IGS"
+      archive:      igsexe_13-80003187.sar
+      extract:      false
+      download:     true
+      path:         download_basket
+      url:          https://softwaredownloads.sap.com/file/0020000000534572021
+
+
+    - name:         "SAP IGSHELPER"
+      archive:      igshelper_17-10010245.sar
+      extract:      false
+      download:     true
+      path:         download_basket
+      url:          https://softwaredownloads.sap.com/file/0020000000703122018
+
+
     # - name:         X
     #   archive:      saphostagentrpm_51-20009394.rpm
     #   url:          https://softwaredownloads.sap.com/file/0020000000269152021
