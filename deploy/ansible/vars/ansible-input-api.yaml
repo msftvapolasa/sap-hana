@@ -28,7 +28,7 @@ download_directory:           "/mnt/downloads"
 # SAP Configuration for templates and install
 aas_hostname:                 ""
 aas_instance_number:          ""
-sap_sid:                      ""                                                        # REQUIRED - SAP Install
+sap_sid:                      "BPC"                                                        # REQUIRED - SAP Install
 download_basket_dir:          "{{ target_media_location }}/download_basket"
 hdb_hostname:                 ""
 hdb_sid:                      "XDB"                                                     # Default
@@ -41,6 +41,16 @@ sap_fqdn:                     ""                                                
 sapadm_uid:                   2100
 sapinst_gid:                  2001
 sapsys_gid:                   2000
+ora_sid:                      "BPC" 
+dba_gid:                      3000
+oper_gid:                     3001
+asmoper_gid:                  3002
+asmadmin_gid:                 3003
+asmdba_gid:                   3004
+oinstall_gid:                 3005
+anydb_sid:                    "BPC"
+orasid_uid:                   3000
+oracle_uid:                   3001    
 hdbshm_gid:                   2002
 scs_hostname:                 ""
 scs_instance_number:          "00"                                                      # SAP Install
@@ -75,6 +85,6 @@ sap_swap:
   - { tier: 'app',  swap_size_mb: '20480' }
   - { tier: 'web',  swap_size_mb: '4096' }
   - { tier: 'hana', swap_size_mb: '2048' }
-
+  - { tier: 'oracle', swap_size_mb: '20480' }
 
 ...

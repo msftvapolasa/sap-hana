@@ -1,0 +1,159 @@
+#   SAP: Register BOM
+#   Export environment variables for Oracle Installation
+#   Run the Oracle universal installer in silent mode. Refer to SAP Note : 2660017 Oracle Software Installation on Unix
+#
+
+# TODO: Considerations
+#         15G+ swap space for Oracle DB installation.
+#         message server acl
+#         certificates
+#         secure storage key
+#
+
+---
+
+- name:  
+  ansible.builtin.set_fact:
+    dir_params:                   "{{ target_media_location }}/.params"
+
+
+
+#   0x) Create hidden directory for parameter files
+- name:     "Create hidden directory"
+  ansible.builtin.file:
+    path:   "{{ item.path }}"
+    state:  directory
+    mode:   0755
+  loop:
+    - { state: 'directory', mode: '0755', path: '{{ dir_params }}' }
+
+- name:     "Create run flag directory"
+  ansible.builtin.file:
+    path:   /oracle/sap_deployment_automation
+    state:  directory
+    mode:   0755
+
+
+#  START OF ORACLE SOFTWARE INSTALLATION USING SAP RUNINSTALLER WRAPPER.
+
+
+#BEFORE RUNNING INSTALLER SETENV DB_SID AND CV_ASSUME_DISTID VALUES ARE SET ACCORDING TO SAP NOTE 2660017 Oracle Software Installation on Unix
+
+#STEP1 RUN THE PRE-REQUISITE INSTALLATION - CHECK.
+
+- name:               "Execute RUNINSTALLER"
+  ansible.builtin.shell: |
+                      set -o errexit
+                      setenv DB_SID "{{anydb_sid}}"
+                      setenv CV_ASSUME_DISTID  OL7
+                      ./RUNINSTALLER -ohcheck -silent |tee -a /oracle/pre-req.log
+  register:           oraprecheck_results
+  failed_when:        oraprecheck_results.rc >= 3
+  args:
+    executable:       /bin/csh        
+    chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
+    #creates:          /oracle/sap_deployment_automation/precheck.txt
+
+
+
+#Debug for testing
+- name:                           "installer prechecks ouput"
+  debug:
+    var:                           oraprecheck_results
+
+
+#STEP2 RUN THE INSTALLATION - EXECUTE.
+
+- name:               "Execute RUNINSTALLER"
+  ansible.builtin.shell: |
+                      set -o errexit
+                      setenv DB_SID "{{anydb_sid}}"
+                      setenv CV_ASSUME_DISTID  OL7
+                      ./RUNINSTALLER -silent |tee -a /oracle/install.log
+  register:           orainstaller_results
+  failed_when:        orainstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
+  args:
+    executable:       /bin/csh        
+    chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
+    creates:          /oracle/sap_deployment_automation/oracleinstall.txt
+
+- name:            "create after a sucessfull install"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/oracleinstall.txt
+
+
+#STEP3 POST PROCESSING.
+
+
+- name:           "Oracle Post Processing - Run root.sh"                
+  become:         yes
+  become_user:    root
+  ansible.builtin.shell: |   
+                     /oracle/oraInventory/orainstRoot.sh    
+                     /oracle/{{anydb_sid}}/19.0.0/root.sh
+                     chmod 6751 /oracle/{{anydb_sid|upper }}/19.0.0/bin/oracle 
+  register: rootscript_results
+  args:
+    executable:       /bin/csh
+    creates:          /oracle/sap_deployment_automation/rootscripstexecuted.txt
+
+- name:            "creates after a sucessfull script execution"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/rootscripstexecuted.txt
+
+#STEP 4 SBP Patching for Oracle.
+
+- name:           "Oracle Post Processing - SBP Patching"                
+  become:         yes
+  become_user:    "oracle"
+  ansible.builtin.shell: |   
+                     set -o errexit
+                     setenv DB_SID "{{anydb_sid}}"
+                     setenv CV_ASSUME_DISTID  OL7
+                     setenv IHRDBMS /oracle/{{anydb_sid}}/19.0.0
+                     setenv ORACLE_HOME /oracle/{{anydb_sid}}/19.0.0
+                     setenv RDBMS /oracle/{{anydb_sid}}/19
+                     mv  /oracle/{{anydb_sid}}/19.0.0/OPatch   /oracle/{{anydb_sid}}/19.0.0/OPatch.bck 
+                     cp -R OPATCH/OPatch  /oracle/{{anydb_sid}}/19.0.0/.
+                     cp -R SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/{{anydb_sid}}/19.0.0/.
+                     $IHRDBMS/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SAP19P_2108-70004508.ZIP |tee -a /oracle/sbp.log
+                     
+
+  register: sbpscript_results
+  failed_when:        sbpscript_results.rc >= 2 
+  args:
+    executable:       /bin/csh
+    chdir:            "/usr/sap/install/SBP/"
+    creates:          /oracle/sap_deployment_automation/sbpinstalled.txt
+
+- name:            "creates after a sucessfull script execution"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/sbpinstalled.txt
+
+
+#Debug for testing
+- name:                           "installer ouput"
+  debug:
+    var:                           orainstaller_results
+
+#Debug for testing
+- name:                           "installer ouput"
+  debug:
+    var:                           rootscript_results
+
+
+
+
+# #   0x) remove hidden directory for parameter files
+# - name:     "remove hidden directory"
+#   ansible.builtin.file:
+#     path:   "{{ item.path }}"
+#     state:  "{{ item.state }}"
+#     mode:   "{{ item.mode }}"
+#   loop:
+#     - { state: 'absent',    mode: '0755', path: '{{ dir_params }}' }
+
+...
+# /*---------------------------------------------------------------------------8
+# |                                   END                                      |
+# +------------------------------------4--------------------------------------*/

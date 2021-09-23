@@ -38,6 +38,51 @@ admin_groups:
     tier:         ha
     enabled:      true
     node_tier:    all
+  
+  #Admin users for Oracle ASM and Non-ASM
+  - name:         dba
+    gid:          "{{ dba_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle
+  
+  - name:         oper
+    gid:          "{{ oper_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle
+  
+  - name:         asmoper
+    gid:          "{{ asmoper_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle
+  
+  - name:         asmadmin
+    gid:          "{{ asmadmin_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle
+  
+  - name:         asmdba
+    gid:          "{{ asmdba_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle
+  
+  - name:         oinstall
+    gid:          "{{ oinstall_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle
+
+
 
 # -------------------------------------+---------------------------------------8
 #
@@ -85,3 +130,31 @@ admin_users:
 #    tier:         sapos
 #    node_tier:    all
 #    enabled:      true
+
+#Admin users for Oracle ASM and Non-ASM
+  
+  - name:         "ora{{ sap_sid|lower }}"
+    comment:      "Oracle Database System Administrator"
+    uid:          "{{ orasid_uid }}"
+    group:        dba
+    groups:       ["oper","sapinst","oinstall"]
+    sudoers_role: "admin_no_password"
+    password:     "{{ password_master }}"
+    shell:        /bin/csh
+    state:        present
+    tier:         ora
+    node_tier:    oracle
+    enabled:      true
+
+  - name:         "oracle"
+    comment:      "Oracle Database software Administrator"
+    uid:          "{{ oracle_uid }}"
+    group:        oinstall
+    groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
+    sudoers_role: "admin_no_password"
+    password:     "{{ password_master }}"
+    shell:        /bin/csh
+    state:        present
+    tier:         ora
+    node_tier:    oracle
+    enabled:      true
