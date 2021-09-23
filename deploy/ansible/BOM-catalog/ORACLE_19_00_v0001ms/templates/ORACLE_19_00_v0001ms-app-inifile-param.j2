@@ -50,8 +50,11 @@ NW_getDBInfoGeneric.dbhost                                           = {{ sap_db
 NW_getDBInfoGeneric.dbsid                                            = {{ anydb_sid }}
 NW_getLoadType.loadType                                              = SAP
 NW_readProfileDir.profileDir                                         = /sapmnt/{{ anydb_sid|upper }}/profile
-
+NW_getUnicode.isUnicode                                              = true
 #Oracle DB parameters
+MessageServer.configureAclInfo                                       = false
+
+
 
 ora.multitenant.pdbsid                                               = {{ anydb_sid }}
 ora.whatInstallation                                                 = isSingle
