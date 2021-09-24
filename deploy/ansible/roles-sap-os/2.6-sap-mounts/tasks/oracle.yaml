@@ -63,7 +63,7 @@
   loop:
     - { tier: 'sapos',          type: 'xfs',   src: '/dev/vg_sap/lv_usrsap',                             path: '/usr/sap' }
     - { tier: 'ora',            type: 'nfs4',    src: '{{ nfs_server }}:/usr/sap/install',               path: '/usr/sap/install' }                # Special Install Structure; Destroy on Completion
-    - { tier: 'ora',            type: 'nfs4',    src: '{{ nfs_server }}:/sapmnt/{{ anydb_sid|upper }}',  path: '/sapmnt/{{ any_sid|upper }}' }
+    - { tier: 'ora',            type: 'nfs4',    src: '{{ nfs_server }}:/sapmnt/{{ anydb_sid|upper }}',  path: '/sapmnt/{{ anydb_sid|upper }}' }
   
   when:         
                 item.tier == "sapos" or 
