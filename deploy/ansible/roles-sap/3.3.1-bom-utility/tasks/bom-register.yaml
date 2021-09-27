@@ -22,6 +22,7 @@
 - name:                                Check for Microsoft Supplied BOM ({{ bom_base_name }})  result
   ansible.builtin.debug:
     var:                               microsoft_supplied_bom
+    verbosity:                         2
 
 - name:                                Check for Microsoft Supplied BOM ({{ bom_name }})
   ansible.builtin.stat:

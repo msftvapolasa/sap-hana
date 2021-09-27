@@ -17,6 +17,7 @@ provider "azurerm" {
     resource_group {
       prevent_deletion_if_contains_resources = true
     }
+  }
   subscription_id = local.spn.subscription_id
   client_id       = local.use_spn ? local.spn.client_id : null
   client_secret   = local.use_spn ? local.spn.client_secret : null

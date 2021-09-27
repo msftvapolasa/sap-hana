@@ -96,7 +96,7 @@
     tmp_dest:                          '/mnt/resource'
   register:                            result
   until:                               result is succeeded
-  retries:                             5
+  retries:                             2
   delay:                               5
   loop:                                "{{ bom.materials.media|flatten(levels=1) }}"
   when:                                item.download is undefined or item.download
