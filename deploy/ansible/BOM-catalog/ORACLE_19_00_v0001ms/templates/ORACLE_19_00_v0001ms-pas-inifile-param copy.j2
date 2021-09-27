@@ -21,10 +21,10 @@ archives.downloadBasket                                              = /usr/sap/
 nwUsers.sapadmUID                                                    = {{ sapadm_uid }}
 nwUsers.sapsysGID                                                    = {{ sapsys_gid }}
 nwUsers.sidAdmUID                                                    = {{ sidadm_uid }}
-nwUsers.sidadmPassword                                               = {{ password_master }}
+nwUsers.sidadmPassword                                               = {{ main_password }}
 
 NW_Delete_Sapinst_Users.removeUsers                                  = true
-NW_GetMasterPassword.masterPwd                                       = {{ password_master }}
+NW_GetMasterPassword.masterPwd                                       = {{ main_password }}
 NW_GetSidNoProfiles.sid                                              = {{ sap_sid|upper }}
 
 NW_SCS_Instance.ascsInstallGateway                                   = true
@@ -40,7 +40,7 @@ NW_CI_Instance.ascsInstallGateway                                    = false
 NW_SLD_Configuration.configureSld                                    = false
 
 NW_DDIC_Password.needDDICPasswords                                   = false
-NW_GetMasterPassword.masterPwd                                       = {{ password_master }}
+NW_GetMasterPassword.masterPwd                                       = {{ main_password }}
 NW_checkMsgServer.abapMSPort                                         = 36{{ scs_instance_number }}
 NW_getDBInfoGeneric.dbhost                                           = {{ sap_db_hostname }}
 NW_getDBInfoGeneric.dbsid                                            = {{ anydb_sid }}
