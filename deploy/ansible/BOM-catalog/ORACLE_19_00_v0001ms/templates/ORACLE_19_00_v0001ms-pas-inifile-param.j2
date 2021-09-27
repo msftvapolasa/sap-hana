@@ -20,7 +20,7 @@ nwUsers.sidAdmUID                                                    = {{ sidadm
 nwUsers.sidadmPassword                                               = {{ password_master }}
 
 NW_Delete_Sapinst_Users.removeUsers                                  = true
-NW_GetMasterPassword.masterPwd                                       = {{ password_master }}
+NW_GetMasterPassword.masterPwd                                       = {{ main_password }}
 NW_GetSidNoProfiles.sid                                              = {{ sap_sid|upper }}
 NW_getUnicode.isUnicode                                              = true
 NW_SCS_Instance.ascsInstallGateway                                   = true
@@ -32,7 +32,7 @@ NW_adaptProfile.skipSecurityProfileSettings                          = true
 NW_getFQDN.FQDN                                                      = {{ sap_fqdn }}
 
 NW_DDIC_Password.needDDICPasswords                                   = false
-NW_GetMasterPassword.masterPwd                                       = {{ password_master }}
+NW_GetMasterPassword.masterPwd                                       = {{ main_password }}
 NW_checkMsgServer.abapMSPort                                         = 36{{ scs_instance_number }}
 NW_getDBInfoGeneric.dbhost                                           = {{ sap_db_hostname }}
 NW_getDBInfoGeneric.dbsid                                            = {{ anydb_sid }}
