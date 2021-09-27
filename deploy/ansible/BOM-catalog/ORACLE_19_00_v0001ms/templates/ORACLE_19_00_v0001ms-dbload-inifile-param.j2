@@ -24,11 +24,11 @@ nwUsers.sapsysGID                                                    = {{ sapsys
 nwUsers.sidAdmUID                                                    = {{ sidadm_uid }}
 
 NW_Delete_Sapinst_Users.removeUsers                                  = true
-NW_GetMasterPassword.masterPwd                                       = {{ password_master }}
+NW_GetMasterPassword.masterPwd                                       = {{ main_password }}
 NW_GetSidNoProfiles.sid                                              = {{ sap_sid|upper }}
 NW_getFQDN.FQDN                                                      = {{ sap_fqdn }}
-hostAgent.sapAdmPassword                                             = {{ password_master }}
-nwUsers.sidadmPassword                                               = {{ password_master }}
+hostAgent.sapAdmPassword                                             = {{ main_password }}
+nwUsers.sidadmPassword                                               = {{ main_password }}
 #NW_readProfileDir.profileDir                                         = {{ sap_profile_dir }}
 
 
@@ -40,14 +40,14 @@ NW_ABAP_Import_Dialog.migmonLoadArgs                                 = -stop_on_
 NW_getDBInfoGeneric.dbhost                                         = {{ sap_db_hostname }}
 NW_getDBInfoGeneric.dbsid                                            = {{ anydb_sid|upper }}
 NW_getLoadType.loadType                                              = SAP
-ora.SysPassword                                                      = {{ password_master }}
-ora.SystemPassword                                                   = {{ password_master }}
+ora.SysPassword                                                      = {{ main_password }}
+ora.SystemPassword                                                   = {{ main_password }}
 ora.createStatisticsCodeABAP                                         = CREATE
 ora.dbhome                                                           = /oracle/{{ anydb_sid|upper }}/19
-#ora.oraclePassword                                                  = {{ password_master }}
-# ora.orasidPassword                                                 = {{ password_master }}
-storageBasedCopy.abapSchemaPassword                                  = {{ password_master }}
-storageBasedCopy.javaSchemaPassword                                  = {{ password_master }}
+#ora.oraclePassword                                                  = {{ main_password }}
+# ora.orasidPassword                                                 = {{ main_password }}
+storageBasedCopy.abapSchemaPassword                                  = {{ main_password }}
+storageBasedCopy.javaSchemaPassword                                  = {{ main_password }}
 # ora.hasTDE                                                         = false
 ora.multitenant.installMT                                            = FALSE
 ora.multitenant.pdbsid                                               = {{ anydb_sid|upper }}
