@@ -139,7 +139,7 @@ admin_users:
     group:        dba
     groups:       ["oper","sapinst","oinstall"]
     sudoers_role: "admin_no_password"
-    password:     "{{ password_master }}"
+    password:     "{{ main_password }}"
     shell:        /bin/csh
     state:        present
     tier:         ora
@@ -152,7 +152,7 @@ admin_users:
     group:        oinstall
     groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
     sudoers_role: "admin_no_password"
-    password:     "{{ password_master }}"
+    password:     "{{ main_password }}"
     shell:        /bin/csh
     state:        present
     tier:         ora
