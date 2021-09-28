@@ -206,6 +206,8 @@ packages:
     - { tier: 'ha',    package: 'jq',                           state: 'present' }
     - { tier: 'os',    package: 'unzip',                        state: 'present' }
   
+  oraclelinux8.1:
+  
   oraclelinux8.2:
   
   oraclelinux8.3:
