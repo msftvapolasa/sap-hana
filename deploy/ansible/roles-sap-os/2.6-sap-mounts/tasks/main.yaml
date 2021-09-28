@@ -57,7 +57,7 @@
   loop:
     - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
   when:
-    - tier == 'dbload' or tier == 'app'
+    - tier == 'dbload' or tier == 'app' or tier == 'pas' 
     - node_tier == 'pas' or node_tier =='app'
     - sap_mnt | default ('none') | trim | length == 4
 
