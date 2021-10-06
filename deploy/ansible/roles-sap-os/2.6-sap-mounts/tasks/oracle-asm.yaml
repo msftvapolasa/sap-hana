@@ -1,7 +1,7 @@
 ---
 
-- name: Gather Logical volumes created in 1.5
-  include_vars: disks_config.yml
+- name: Gather Logical volumes created in 1.5.1
+  include_vars: disks_config_asm.yml
    
 
 
@@ -43,8 +43,8 @@
     state:  mounted
   loop: "{{logical_volumes |sort(attribute='lv') }}"
   when:         
-              #- item.tier == "ora"
-              - item.node_tier == "oracle" 
+              - item.tier == "ora"
+              - item.node_tier == "oracle-asm" 
               - item.lv in  lvexists
   register:  oraclefilesystemmounts
 
@@ -69,10 +69,10 @@
                 item.tier == "sapos" or 
                 item.tier == "ora"
 
-# ORACLE should be the owner of the file systems /oracle directories. 
+# ORASID should be the owner of the file systems /oracle directories. 
 #.PARAMS folder is not required for oracle install as we are not passing any parameters files.
 
-- name:              "Make orasid:dba as owners"          
+- name:              "Make oracle:oinstall as owners"          
   ansible.builtin.shell: | 
                       chown -R oracle:oinstall /oracle
                       chmod -R 777 /usr/sap/install/

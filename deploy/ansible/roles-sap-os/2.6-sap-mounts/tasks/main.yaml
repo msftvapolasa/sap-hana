@@ -110,4 +110,5 @@
 - import_tasks: "oracle.yaml"
   when: 
     - tier == "ora"
-...
+    - node_tier != "oracle-asm"
+

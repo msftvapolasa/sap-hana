@@ -84,12 +84,19 @@
       tags:
         - 1.4-packages
 
+    
+    
     - block:
         - name:                        Include 1.5-disk-setup role
           ansible.builtin.include_role:
             name:                      roles-os/1.5-disk-setup
+          when:
+            node_tier != "oracle-asm"
       tags:
         - 1.5-disk-setup
+    
+    
+
 
     - block:
         - name:                        Include 1.9-kernelparameters role
