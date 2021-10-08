@@ -58,43 +58,23 @@
 #              
 #
   - include_role:
-      name:     roles-db/4.1.0-ora-asm-grid
+      name:     roles-db/4.1.1-ora-asm-grid
     tags:
-      - 4.1.0-ora-asm-grid
+      - 4.1.1-ora-asm-grid
+# -------------------------------------+---------------------------------------8
+
+# -------------------------------------+---------------------------------------8
+# Role: ASM Grid SOftware install.
+#
+# Description: ASM Grid SOftware Install
+#              
+#
+  - include_role:
+      name:     roles-db/4.1.2-ora-asm-db-install
+    tags:
+      - 4.1.2-ora-asm-db-install
 # -------------------------------------+---------------------------------------8
 
 
-# # Oracle installation has to be done with oracle user. Change the user to become orasid and call the installer.
-
-# - hosts:          "{{ anydb_sid|upper }}_DB"
-
-#   name:           DB Installation - Oracle
-#   remote_user:    "{{ orchestration_ansible_user }}"                
-#   become:         yes
-#   become_user:    "oracle"
-#   gather_facts:   true
-#   vars_files:
-#     - vars/ansible-input-api.yaml                               # API Input template with defaults
-
-#   tasks:
-#   - include_role:
-#       name:     roles-db/4.1.0-ora-install
-      
-
-
-# # Oracle Post installation scripts
-# - hosts:          "{{ sap_sid|upper }}_DB"
-
-#   name:           DB Installation - Oracle
-#   remote_user:    "{{ orchestration_ansible_user }}"                
-#   become:         yes
-#   become_user:    root
-#   gather_facts:   true
-#   vars_files:
-#     - vars/ansible-input-api.yaml                               # API Input template with defaults
-
-#   tasks:
-#   - include_role:
-#       name:     roles-db/4.1.0-ora-post-install
 
 

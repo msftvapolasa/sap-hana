@@ -1,0 +1,131 @@
+#   SAP: Register BOM
+#   Install and configure Database on ASM.
+#
+
+# TODO: Considerations
+#         15G+ swap space for Oracle DB installation.
+#         message server acl
+#         certificates
+#         secure storage key
+#
+
+---
+
+- name:  
+  ansible.builtin.set_fact:
+    dir_params:                   "{{ target_media_location }}/.params"
+
+
+- name:                                Load the disk configuration settings
+  ansible.builtin.include_vars:        disks_config_asm.yml
+
+
+#   Oracle DB install: Response file
+- name:                               "SAP Oracle ASM: deploy Database install response file"
+  ansible.builtin.template:
+    src:                              ORACLE_19c_00_asm_db_v1_install.rsp.j2
+    dest:                             "/oracle/sap_deployment_automation/ORACLE_19c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp"
+    mode:                             0644
+    force:                            true
+
+
+#STEP1 Unzip the Oracle  Software
+# Running the standard SAP installer to extract the files to /oracle/<sid>/19.0.0
+- name:               "Unzip the Oracle Software"
+  become:             yes
+  become_user:        oracle
+  ansible.builtin.shell: |
+                      set -o errexit
+                      ./RUNINSTALLER -ohextract -silent |tee -a /oracle/oraextract.log
+                      touch /oracle/sap_deployment_automation/oraextract.txt
+  register:           swinstaller_results
+  failed_when:        swinstaller_results.rc >= 2   
+  environment:
+    DB_SID:                       "{{anydb_sid}}"
+    CV_ASSUME_DISTID:             OL7
+  args:
+    chdir:             "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
+    creates:           /oracle/sap_deployment_automation/oraextract.txt
+
+
+#STEP2 RUN THE INSTALLATION - EXECUTE.
+
+- name:               "Execute runInstaller"
+  become:             yes
+  become_user:        oracle
+  ansible.builtin.shell: |
+                      set -o errexit
+                      ./runInstaller -silent -responseFile /oracle/sap_deployment_automation/ORACLE_19c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/dbinstall.log
+  register:           dbinstaller_results
+  environment:
+    DB_SID:                       "{{anydb_sid}}"
+    CV_ASSUME_DISTID:             OL7
+  args:       
+    executable:        /bin/csh
+    chdir:            "/oracle/{{ anydb_sid }}/19.0.0"
+    creates:           /oracle/sap_deployment_automation/dbinstall.txt
+
+- name:            "create after a sucessfull install"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/dbinstall.txt
+
+
+# #STEP3.1 POST PROCESSING - RUN ROOT SCRIPT.
+
+
+- name:           "Oracle Post Processing - Run root.sh"                
+  become:         yes
+  become_user:    root
+  ansible.builtin.shell: |   
+                     /oracle/{{ anydb_sid }}/19.0.0/root.sh                                                       
+  register: rootscript_results
+  args:
+    executable:       /bin/csh
+    creates:          /oracle/sap_deployment_automation/dbrootscripstexecuted.txt
+
+- name:            "creates after a sucessfull script execution"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/dbrootscripstexecuted.txt
+
+
+#STEP3.1 POST PROCESSING - Execute DB configtools.
+- name:               "Execute ASM Configtools"
+  become:             yes
+  become_user:        oracle
+  ansible.builtin.shell: |
+                      set -o errexit
+                      /oracle/{{ anydb_sid }}/19.0.0/runInstaller -executeConfigTools -silent -responseFile /oracle/sap_deployment_automation/ORACLE_19c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/dbconfigtoolsinstall.log
+  register:           dbtoolsinstaller_results
+  #failed_when:        gridinstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
+  environment:
+    DB_SID:                       "{{ anydb_sid }}"
+    CV_ASSUME_DISTID:             OL7
+  args:       
+    executable:        /bin/csh
+    chdir:            "/oracle/{{ anydb_sid }}/19.0.0"
+    creates:           /oracle/sap_deployment_automation/dbtoolsinstall.txt
+
+- name:            "create after a sucessfull install"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/dbtoolsinstall.txt
+
+
+
+
+
+
+
+
+# #   0x) remove hidden directory for parameter files
+# - name:     "remove hidden directory"
+#   ansible.builtin.file:
+#     path:   "{{ item.path }}"
+#     state:  "{{ item.state }}"
+#     mode:   "{{ item.mode }}"
+#   loop:
+#     - { state: 'absent',    mode: '0755', path: '{{ dir_params }}' }
+
+...
+# /*---------------------------------------------------------------------------8
+# |                                   END                                      |
+# +------------------------------------4--------------------------------------*/
