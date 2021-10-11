@@ -37,6 +37,7 @@
   ansible.builtin.shell: |
                       set -o errexit
                       ./RUNINSTALLER -ohextract -silent |tee -a /oracle/oraextract.log
+                      ln -s /oracle/{{ anydb_sid }}/19.0.0 /oracle/{{ anydb_sid }}/19
                       touch /oracle/sap_deployment_automation/oraextract.txt
   register:           swinstaller_results
   failed_when:        swinstaller_results.rc >= 2   
@@ -46,6 +47,24 @@
   args:
     chdir:             "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
     creates:           /oracle/sap_deployment_automation/oraextract.txt
+
+# Create the softlink /oracle/<sid>/19.0.0
+- name:               "softlink creation for SAP SWPM"
+  become:             yes
+  become_user:        oracle
+  ansible.builtin.shell: |
+                      set -o errexit
+                      ln -s 19.0.0 19                  
+  environment:
+    DB_SID:                       "{{anydb_sid}}"
+    CV_ASSUME_DISTID:             OL7
+  args:
+    chdir:             "/oracle/{{ anydb_sid }}"
+    creates:           /oracle/sap_deployment_automation/softlinkcreated.txt
+
+- name:            "create after softlink"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/softlinkcreated.txt
 
 
 #STEP2 RUN THE INSTALLATION - EXECUTE.
@@ -110,6 +129,29 @@
                       touch /oracle/sap_deployment_automation/dbtoolsinstall.txt
 
 
+# #Update Compatiable for DATA, ARCH and RECO disk groups using ASMCA.
+# Default value of rdbms compatiable is 10.1.0.0 however for SAP installation it needs a minimum value of 11.2.0.2.
+# SAP Note 1739274 - Database Parameter COMPATIBLE
+# SAP Note 1773593 - CREATE DATABASE  on ASM Fails with ORA-15204
+
+- name:           "Create ASM Disk groups ARCH and RECO"                
+  become:         yes
+  become_user:    oracle
+  ansible.builtin.shell: |   
+                     set -o errexit
+                     /asmca -silent -editDiskGroupAttributes -diskGroupName DATA -attribute compatible.rdbms=12.2.0.1.0
+                     /asmca -silent -editDiskGroupAttributes -diskGroupName ARCH -attribute compatible.rdbms=12.2.0.1.0
+                     /asmca -silent -editDiskGroupAttributes -diskGroupName RECO -attribute compatible.rdbms=12.2.0.1.0 
+                     
+                     
+  register: diskgroupcreation_results
+  environment:
+    DB_SID:                       "{{anydb_sid}}"
+    CV_ASSUME_DISTID:             OL7
+  args:
+    executable:       /bin/csh
+    chdir:            "/oracle/stage/19/grid_home/bin"
+    creates:          /oracle/sap_deployment_automation/diskgroupcreated.txt
 
 
 

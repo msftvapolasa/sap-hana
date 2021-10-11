@@ -140,14 +140,18 @@
 
 
 # #STEP 5 Create ARCH and RECO disk groups using ASMCA.
+# Default value of rdbms compatiable is 10.1.0.0 however for SAP installation it needs a minimum value of 11.2.0.2.
+# SAP Note 1739274 - Database Parameter COMPATIBLE
+# SAP Note 1773593 - CREATE DATABASE  on ASM Fails with ORA-15204
 
 - name:           "Create ASM Disk groups ARCH and RECO"                
   become:         yes
-  become_user:    "oracle"
+  become_user:    oracle
   ansible.builtin.shell: |   
                      set -o errexit
-                     ./asmca -silent -createDiskGroup -diskGroupName RECO -diskList '{{ recolistrsp }}1'
-                     ./asmca -silent -createDiskGroup -diskGroupName ARCH -diskList '{{ archlistrsp }}1'
+                     ./asmca -silent -createDiskGroup -diskGroupName RECO -diskList '{{ recolistrsp }}1' 
+                     ./asmca -silent -createDiskGroup -diskGroupName ARCH -diskList '{{ archlistrsp }}1' 
+                     
   register: diskgroupcreation_results
   environment:
     DB_SID:                       "{{anydb_sid}}"

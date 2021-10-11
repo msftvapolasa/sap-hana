@@ -95,7 +95,7 @@ ORACLE_BASE=/oracle/{{ anydb_sid }}
 #-------------------------------------------------------------------------------
 # The OSDBA_GROUP is the OS group which is to be granted SYSDBA privileges.
 #-------------------------------------------------------------------------------
-oracle.install.asm.OSDBA=asmdba
+oracle.install.asm.OSDBA=oinstall
 
 #-------------------------------------------------------------------------------
 # The OSOPER_GROUP is the OS group which is to be granted SYSOPER privileges.
@@ -108,7 +108,7 @@ oracle.install.asm.OSOPER=asmoper
 # The OSASM_GROUP is the OS group which is to be granted SYSASM privileges. This
 # must be different than the previous two.
 #-------------------------------------------------------------------------------
-oracle.install.asm.OSASM=asmadmin
+oracle.install.asm.OSASM=dba
 
 ################################################################################
 #                                                                              #

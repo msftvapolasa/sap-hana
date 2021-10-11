@@ -43,7 +43,7 @@ NW_getLoadType.loadType                                              = SAP
 ora.SysPassword                                                      = {{ main_password }}
 ora.SystemPassword                                                   = {{ main_password }}
 ora.createStatisticsCodeABAP                                         = CREATE
-ora.dbhome                                                           = /oracle/{{ anydb_sid|upper }}/19
+ora.dbhome                                                           = /oracle/{{ anydb_sid|upper }}/{{ ora-release }}
 #ora.oraclePassword                                                  = {{ main_password }}
 # ora.orasidPassword                                                 = {{ main_password }}
 storageBasedCopy.abapSchemaPassword                                  = {{ main_password }}
@@ -53,18 +53,35 @@ ora.multitenant.installMT                                            = FALSE
 ora.multitenant.pdbsid                                               = {{ anydb_sid|upper }}
 storageBasedCopy.ora.ABAPSchema                                     = SAPSR3
 
+# Path to 'ORACLE_HOME' directory of GRID software
+ora.grid.ORACLE_HOME                                                = /oracle/stage/{{ ora-release }}/grid_home
+
+# ORACLE_SID' of 'GRID', default value is: '+ASM'
+# ora.grid.ORACLE_SID = +ASM
+
+# Install Multitenant Pluggable DB, possible values are
+#         FALSE:    no pluggable installation (default value)
+#         CDB_PDB:  install CDB and PDB
+#         PDB_ONLY: install PDB only in an existing CDB.
+#         CDB_ONLY: install CDB only.
+# ora.multitenant.installMT = FALSE
+
+# Whilist Installing Oracle SOftware we have created the database. In this step we will drop the standard orcl database and SWPM will create the required database.
+# Radio button for database creation. Possible values are: 'CREATEDB', 'MCOD', 'PDBINST'
+ora.rbDatabase                                                      = CREATEDB
+
 # possible values are
 #         isSingle:  Database on filesystem exist.
 #         isSHOH:    Database installation with SHared Oracle Home.
 #         isASM:     Database on ASM.
 #         isRAC:     Database on RAC.
 #         isRacAsm:  Database on RAC and ASM.
-ora.whatInstallation                                                 = isSingle
+ora.whatInstallation                                                 = isASM
 
 # possible values are
 #         true:  Database on ASM.
 #         false: Database not on ASM.
-ora.whatIsASM                                                        = false
+#ora.whatIsASM                                                        = true
 
 # possible values are
 #         true:  Database Software installed as oracle user.
@@ -76,8 +93,8 @@ ora.whatIsOracleUser                                                 = true
 # storageBasedCopy.ora.swowner                                      = oracle
 
 # Oracle client & Server  version: 121, 112, ...
-storageBasedCopy.ora.serverVersion                                   = 19
-storageBasedCopy.ora.clientVersion                                   = 19
+storageBasedCopy.ora.serverVersion                                   ={{ ora-release}}
+storageBasedCopy.ora.clientVersion                                   ={{ ora-release }}
 
 # Name of Oracle Listener. Default value is: LISTENER
 # storageBasedCopy.ora.listenerName = 

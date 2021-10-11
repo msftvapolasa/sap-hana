@@ -141,13 +141,13 @@
 
 - name:           "Create ASM Disk groups ARCH and RECO"                
   become:         yes
-  become_user:    "oracle"
+  become_user:    oracle
   ansible.builtin.shell: |   
                      set -o errexit
                      setenv DB_SID "{{anydb_sid}}"
                      setenv CV_ASSUME_DISTID  OL7
-                     ./asmca -silent -createDiskGroup -diskGroupName RECO_{{ anydb_sid }} -diskList '{{ recolistrsp }}1'
-                     ./asmca -silent -createDiskGroup -diskGroupName ARCH_{{ anydb_sid }} -diskList '{{ archlistrsp }}1'
+                     ./asmca -silent -createDiskGroup -diskGroupName RECO -diskList '{{ recolistrsp }}1'
+                     ./asmca -silent -createDiskGroup -diskGroupName ARCH -diskList '{{ archlistrsp }}1'
   register: diskgroupcreation_results
   args:
     executable:       /bin/csh
