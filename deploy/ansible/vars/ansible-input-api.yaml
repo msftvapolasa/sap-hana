@@ -62,6 +62,7 @@ db_lb_ip:                     ""                                                
 reinstall:                    false                                                     # Provide a way to override the idempotency flags for SAP tasks
 ora_release:                  19
 ora_version:                  19.0.0
+ora_compatible:               19.0.0.0.0
 orchestration_ansible_user:   azureadm
 
 password_cockpit_admin:       ""

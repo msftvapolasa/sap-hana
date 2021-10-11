@@ -23,8 +23,8 @@
 #   Oracle DB install: Response file
 - name:                               "SAP Oracle ASM: deploy Database install response file"
   ansible.builtin.template:
-    src:                              ORACLE_19c_00_asm_db_v1_install.rsp.j2
-    dest:                             "/oracle/sap_deployment_automation/ORACLE_19c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp"
+    src:                              ORACLE_{{ ora_release }}c_00_asm_db_v1_install.rsp.j2
+    dest:                             "/oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp"
     mode:                             0644
     force:                            true
 
@@ -37,7 +37,7 @@
   ansible.builtin.shell: |
                       set -o errexit
                       ./RUNINSTALLER -ohextract -silent |tee -a /oracle/oraextract.log
-                      ln -s /oracle/{{ anydb_sid }}/19.0.0 /oracle/{{ anydb_sid }}/19
+                      ln -s /oracle/{{ anydb_sid }}/{{ ora_version }} /oracle/{{ anydb_sid }}/{{ ora_release }}
                       touch /oracle/sap_deployment_automation/oraextract.txt
   register:           swinstaller_results
   failed_when:        swinstaller_results.rc >= 2   
@@ -54,7 +54,7 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      ln -s 19.0.0 19                  
+                      ln -s {{ ora_version }} {{ ora_release }}                  
   environment:
     DB_SID:                       "{{anydb_sid}}"
     CV_ASSUME_DISTID:             OL7
@@ -74,14 +74,14 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      ./runInstaller -silent -responseFile /oracle/sap_deployment_automation/ORACLE_19c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/dbinstall.log
+                      ./runInstaller -silent -responseFile /oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/dbinstall.log
   register:           dbinstaller_results
   environment:
     DB_SID:                       "{{anydb_sid}}"
     CV_ASSUME_DISTID:             OL7
   args:       
     executable:        /bin/csh
-    chdir:            "/oracle/{{ anydb_sid }}/19.0.0"
+    chdir:            "/oracle/{{ anydb_sid }}/{{ ora_version }}"
     creates:           /oracle/sap_deployment_automation/dbinstall.txt
 
 - name:            "create after a sucessfull install"
@@ -96,7 +96,7 @@
   become:         yes
   become_user:    root
   ansible.builtin.shell: |   
-                     /oracle/{{ anydb_sid }}/19.0.0/root.sh                                                       
+                     /oracle/{{ anydb_sid }}/{{ ora_version }}/root.sh                                                       
   register: rootscript_results
   args:
     executable:       /bin/csh
@@ -113,7 +113,7 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      /oracle/{{ anydb_sid }}/19.0.0/runInstaller -executeConfigTools -silent -responseFile /oracle/sap_deployment_automation/ORACLE_19c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/dbconfigtoolsinstall.log
+                      /oracle/{{ anydb_sid }}/{{ ora_version }}/runInstaller -executeConfigTools -silent -responseFile /oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/dbconfigtoolsinstall.log
   register:           dbtoolsinstaller_results
   #failed_when:        gridinstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
   environment:
@@ -121,7 +121,7 @@
     CV_ASSUME_DISTID:             OL7
   args:       
     executable:        /bin/csh
-    chdir:            "/oracle/{{ anydb_sid }}/19.0.0"
+    chdir:            "/oracle/{{ anydb_sid }}/{{ ora_version }}"
     creates:           /oracle/sap_deployment_automation/dbtoolsinstall.txt
 
 - name:            "create after a sucessfull install"
@@ -134,24 +134,23 @@
 # SAP Note 1739274 - Database Parameter COMPATIBLE
 # SAP Note 1773593 - CREATE DATABASE  on ASM Fails with ORA-15204
 
-- name:           "Create ASM Disk groups ARCH and RECO"                
+- name:           "Update ASM Disk groups ARCH and RECO"                
   become:         yes
   become_user:    oracle
   ansible.builtin.shell: |   
                      set -o errexit
-                     /asmca -silent -editDiskGroupAttributes -diskGroupName DATA -attribute compatible.rdbms=12.2.0.1.0
-                     /asmca -silent -editDiskGroupAttributes -diskGroupName ARCH -attribute compatible.rdbms=12.2.0.1.0
-                     /asmca -silent -editDiskGroupAttributes -diskGroupName RECO -attribute compatible.rdbms=12.2.0.1.0 
-                     
-                     
+                     ./asmca -silent -editDiskGroupAttributes -diskGroupName DATA -attribute compatible.rdbms={{ ora_compatible }}
+                     ./asmca -silent -editDiskGroupAttributes -diskGroupName ARCH -attribute compatible.rdbms={{ ora_compatible }}
+                     ./asmca -silent -editDiskGroupAttributes -diskGroupName RECO -attribute compatible.rdbms={{ ora_compatible }}
+                     touch /oracle/sap_deployment_automation/diskgroupupdated.txt                   
   register: diskgroupcreation_results
   environment:
     DB_SID:                       "{{anydb_sid}}"
     CV_ASSUME_DISTID:             OL7
   args:
     executable:       /bin/csh
-    chdir:            "/oracle/stage/19/grid_home/bin"
-    creates:          /oracle/sap_deployment_automation/diskgroupcreated.txt
+    chdir:            /oracle/stage/{{ ora_release }}/grid_home/bin
+    creates:          /oracle/sap_deployment_automation/diskgroupupdated.txt
 
 
 
