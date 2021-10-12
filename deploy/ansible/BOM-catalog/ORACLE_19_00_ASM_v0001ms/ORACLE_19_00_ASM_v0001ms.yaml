@@ -91,6 +91,14 @@ materials:
       #creates:     SIGNATURE.SMF
       url:          https://softwaredownloads.sap.com/file/0020000000751692021
 
+    - name:         "Oracle SBP - Bundle patches for 19c: GRID Infra"
+      archive:      SGR19P_2108-70004550.ZIP
+      extract:      false
+      download:     true
+      #extractDir:   SBP
+      path:         SBP
+      url:          https://softwaredownloads.sap.com/file/0020000001217972021
+
     - name:         "Oracle SBP - Bundle patches for 19c: Readme Patch File"
       archive:      README19P_2108-70004508.HTM
       extract:      false

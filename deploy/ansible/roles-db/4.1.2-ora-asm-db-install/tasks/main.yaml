@@ -129,6 +129,64 @@
                       touch /oracle/sap_deployment_automation/dbtoolsinstall.txt
 
 
+#STEP 4.1 SBP Patching for Oracle.
+
+- name:           "Oracle Post Processing - SBP Patching"                
+  become:         yes
+  become_user:    "oracle"
+  ansible.builtin.shell: |   
+                     set -o errexit 
+                     mv  /oracle/{{anydb_sid}}/{{ora_version}}/OPatch   /oracle/{{anydb_sid}}/{{ora_version}}/OPatch.bck 
+                     cp -R OPATCH/OPatch  /oracle/{{anydb_sid}}/{{ora_version}}/.
+                     cp -R SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/{{anydb_sid}}/{{ora_version}}/.
+                     $IHRDBMS/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SAP19P_2108-70004508.ZIP |tee -a /oracle/sbp.log
+  register: sbpscript_results
+  environment:
+    DB_SID:                       "{{anydb_sid}}"
+    CV_ASSUME_DISTID:             OL7
+    IHRDBMS:                      /oracle/{{anydb_sid}}/{{ora_version}}
+    ORACLE_HOME:                  /oracle/{{anydb_sid}}/{{ora_version}}
+    RDBMS:                       /oracle/{{anydb_sid}}/{{ora_release}}
+  failed_when:        sbpscript_results.rc >= 2 
+  args:
+    executable:       /bin/csh
+    chdir:            "/usr/sap/install/SBP/"
+    creates:          /oracle/sap_deployment_automation/sbpinstalled.txt
+
+- name:            "creates after a sucessfull script execution"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/sbpinstalled.txt
+
+
+#STEP 4.1 SBP Patching for Oracle GRID.
+
+- name:           "Oracle Post Processing - GRID SBP Patching"                
+  become:         yes
+  become_user:    "oracle"
+  ansible.builtin.shell: |   
+                     set -o errexit 
+                     mv  /oracle/stage/{{ora_release}}/grid_home/OPatch   /oracle/stage/{{ora_release}}/grid_home/OPatch.bck 
+                     cp -R OPATCH/OPatch  /oracle/stage/{{ora_release}}/grid_home/.
+                     cp -R SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/stage/{{ora_release}}/grid_home/.
+                     $OHGRID/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SGR19P_2108-70004550.ZIP |tee -a /oracle/sbpgrid.log
+  register: sbpscript_results
+  environment:
+    DB_SID:                       "{{anydb_sid}}"
+    CV_ASSUME_DISTID:             OL7
+    OHGRID:                      /oracle/stage/{{ora_release}}/grid_home
+    ORACLE_HOME:                 /oracle/stage/{{ora_release}}/grid_home  
+  failed_when:        sbpscript_results.rc >= 2 
+  args:
+    executable:       /bin/csh
+    chdir:            "/usr/sap/install/SBP/"
+    creates:          /oracle/sap_deployment_automation/sbpginstalled.txt
+
+- name:            "creates after a sucessfull script execution"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/sbpginstalled.txt
+
+
+#STEP5 POST PROCESSING - Change RDBMS Compatiable Setting.
 # #Update Compatiable for DATA, ARCH and RECO disk groups using ASMCA.
 # Default value of rdbms compatiable is 10.1.0.0 however for SAP installation it needs a minimum value of 11.2.0.2.
 # SAP Note 1739274 - Database Parameter COMPATIBLE
@@ -151,9 +209,6 @@
     executable:       /bin/csh
     chdir:            /oracle/stage/{{ ora_release }}/grid_home/bin
     creates:          /oracle/sap_deployment_automation/diskgroupupdated.txt
-
-
-
 
 
 
