@@ -114,7 +114,7 @@
 
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.shell: |                    
-                      touch /oracle/sap_deployment_automation/rootscripstexecuted.txt
+                      touch /oracle/sap_deployment_automation/gridrootscripstexecuted.txt
 
 
 # #STEP 4  Execute Config tools.
