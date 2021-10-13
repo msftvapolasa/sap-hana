@@ -60,6 +60,7 @@
                       set -o errexit
                       unzip -o -d /oracle/stage/{{ ora_release }}/grid_home  /usr/sap/install/oraserver/LINUX_X86_64/grid_home/LINUX.X64_193000_grid_home.zip
                       chown -R oracle:oinstall *
+                      chown oracle:oinstall /oracle/stage/{{ora_release}}/grid_home
                       yum install -y /oracle/stage/{{ ora_release }}/grid_home/cv/rpm/cvuqdisk-1.0.10-1.rpm
                       touch /oracle/sap_deployment_automation/gridsw.txt
   args:

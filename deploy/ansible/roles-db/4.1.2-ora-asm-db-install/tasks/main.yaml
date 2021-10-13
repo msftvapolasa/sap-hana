@@ -156,7 +156,8 @@
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.shell: |                    
                       touch /oracle/sap_deployment_automation/sbpinstalled.txt
-                      chown oracle:oinstall /oracle/stage/{{ora_release}}/grid_home
+                      chown  -R oracle:oinstall /oracle/stage/{{ora_release}}/grid_home
+                      chown root:oinstall /oracle/stage/{{ora_release}}/grid_home/root.*
 
 
 #STEP 4.1 SBP Patching for Oracle GRID.
@@ -174,9 +175,7 @@
   environment:
     DB_SID:                       "{{anydb_sid}}"
     CV_ASSUME_DISTID:             OL7
-    IHRDBMS:                      /oracle/{{anydb_sid}}/{{ora_version}}
     OHGRID:                      /oracle/stage/{{ora_release}}/grid_home
-    RDBMS:                       /oracle/{{anydb_sid}}/{{ora_release}}
     ORACLE_HOME:                 /oracle/stage/{{ora_release}}/grid_home  
   failed_when:        sbpgscript_results.rc >= 2 
   args:
@@ -200,8 +199,8 @@
                      set -o errexit
                      /oracle/stage/{{ ora_release }}/grid_home/rdbms/install/rootadd_rdbms.sh
                      /oracle/stage/{{ ora_release }}/grid_home/crs/install/roothas.sh -postpatch
-                     chown oracle:oinstall /oracle/{{ anydb_sid}}/bin/oracle
-                     chmod 6751  /oracle/{{ anydb_sid}}/bin/oracle
+                     chown oracle:oinstall /oracle/{{ anydb_sid}}/{{ ora_version }}/bin/oracle
+                     chmod 6751  /oracle/{{ anydb_sid}}/{{ ora_version }}/bin/oracle
                      chmod 755 /opt/oracle
   register: sbppostpro_results 
   args:
