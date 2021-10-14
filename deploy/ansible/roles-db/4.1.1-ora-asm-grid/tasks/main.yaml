@@ -41,9 +41,17 @@
     state:  directory
     mode:   0755
 
+- name:               "Permission for Grid software Directory"
+  become:             yes
+  become_user:        root
+  ansible.builtin.shell: |
+                        chown -R oracle:oinstall /oracle/*
+
 
 #   Oracle Grid: Response file
 - name:                               "SAP Oracle ASM: deploy Grid install response file"
+  become:             yes
+  become_user:        oracle
   ansible.builtin.template:
     src:                              ORACLE_19c_00_asm_v1_install.rsp.j2
     dest:                             "/oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp"
@@ -55,17 +63,29 @@
 # Unzipping this pakcage might have longer runtime.
 - name:               "Unzip the Gridsoftware"
   become:             yes
+  become_user:        oracle
+  ansible.builtin.shell: |
+                      set -o errexit
+                      unzip -o -q -d /oracle/stage/{{ ora_release }}/grid_home  /usr/sap/install/oraserver/LINUX_X86_64/grid_home/LINUX.X64_193000_grid_home.zip
+  args:
+    chdir:             /oracle/stage
+    creates:           /oracle/sap_deployment_automation/gridswunzip.txt
+
+
+- name:            "create after a sucessfull unzip install"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/gridswunzip.txt
+
+
+- name:               "Install CVUQDISK RPM"
+  become:             yes
   become_user:        root
   ansible.builtin.shell: |
                       set -o errexit
-                      unzip -o -d /oracle/stage/{{ ora_release }}/grid_home  /usr/sap/install/oraserver/LINUX_X86_64/grid_home/LINUX.X64_193000_grid_home.zip
-                      chown -R oracle:oinstall *
-                      chown oracle:oinstall /oracle/stage/{{ora_release}}/grid_home
                       yum install -y /oracle/stage/{{ ora_release }}/grid_home/cv/rpm/cvuqdisk-1.0.10-1.rpm
-                      touch /oracle/sap_deployment_automation/gridsw.txt
   args:
     chdir:             /oracle/stage
-    creates:           /oracle/sap_deployment_automation/gridsw.txt
+
 
 
 
@@ -87,7 +107,7 @@
   register:           gridinstaller_results
   #failed_when:        gridinstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
   environment:
-    DB_SID:                       "{{anydb_sid}}"
+    #DB_SID:                       "{{anydb_sid}}"
     CV_ASSUME_DISTID:             OL7
   args:       
     executable:        /bin/csh
@@ -116,6 +136,7 @@
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.shell: |                    
                       touch /oracle/sap_deployment_automation/gridrootscripstexecuted.txt
+                      chown oracle:oinstall /oracle/stage/19/grid_home
 
 
 # #STEP 4  Execute Config tools.

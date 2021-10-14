@@ -142,7 +142,7 @@
                      $IHRDBMS/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SAP19P_2108-70004508.ZIP |tee -a /oracle/sbp.log
   register: sbpscript_results
   environment:
-    DB_SID:                       "{{anydb_sid}}"
+    #DB_SID:                       "{{anydb_sid}}"
     CV_ASSUME_DISTID:             OL7
     IHRDBMS:                      /oracle/{{anydb_sid}}/{{ora_version}}
     ORACLE_HOME:                  /oracle/{{anydb_sid}}/{{ora_version}}
@@ -156,8 +156,9 @@
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.shell: |                    
                       touch /oracle/sap_deployment_automation/sbpinstalled.txt
-                      chown  -R oracle:oinstall /oracle/stage/{{ora_release}}/grid_home
-                      chown root:oinstall /oracle/stage/{{ora_release}}/grid_home/root.*
+                      chown -R oracle:oinstall /oracle/stage/{{ora_release}}/grid_home/bin
+                      /oracle/stage/{{ora_release}}/grid_home/crs/install/roothas.sh -prepatch
+                      
 
 
 #STEP 4.1 SBP Patching for Oracle GRID.
@@ -173,8 +174,8 @@
                      $OHGRID/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SGR19P_2108-70004550.ZIP |tee -a /oracle/sbpgrid.log
   register: sbpgscript_results
   environment:
-    DB_SID:                       "{{anydb_sid}}"
-    CV_ASSUME_DISTID:             OL7
+    #DB_SID:                       "{{anydb_sid}}"
+    #CV_ASSUME_DISTID:             OL7
     OHGRID:                      /oracle/stage/{{ora_release}}/grid_home
     ORACLE_HOME:                 /oracle/stage/{{ora_release}}/grid_home  
   failed_when:        sbpgscript_results.rc >= 2 
