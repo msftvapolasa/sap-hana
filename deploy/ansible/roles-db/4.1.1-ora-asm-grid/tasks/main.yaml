@@ -46,6 +46,12 @@
   become_user:        root
   ansible.builtin.shell: |
                         chown -R oracle:oinstall /oracle/*
+  args:
+    creates:            /oracle/sap_deployment_automation/oraclepermupd.txt                    
+
+- name:            "create after a directory permission changes"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/oraclepermupd.txt 
 
 
 #   Oracle Grid: Response file
@@ -67,6 +73,7 @@
   ansible.builtin.shell: |
                       set -o errexit
                       unzip -o -q -d /oracle/stage/{{ ora_release }}/grid_home  /usr/sap/install/oraserver/LINUX_X86_64/grid_home/LINUX.X64_193000_grid_home.zip
+                      mkdir /oracle/installlogs
   args:
     chdir:             /oracle/stage
     creates:           /oracle/sap_deployment_automation/gridswunzip.txt
@@ -103,7 +110,7 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      ./gridSetup.sh -silent -responseFile /oracle/sap_deployment_automation/ORACLE_19c_00_asm_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/gridinstall.log
+                      ./gridSetup.sh -silent -responseFile /oracle/sap_deployment_automation/ORACLE_19c_00_asm_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/installlogs/gridinstall.log
   register:           gridinstaller_results
   #failed_when:        gridinstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
   environment:
@@ -136,7 +143,7 @@
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.shell: |                    
                       touch /oracle/sap_deployment_automation/gridrootscripstexecuted.txt
-                      chown oracle:oinstall /oracle/stage/19/grid_home
+                      
 
 
 # #STEP 4  Execute Config tools.
@@ -145,7 +152,7 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      ./gridSetup.sh -executeConfigTools -silent -responseFile /oracle/sap_deployment_automation/ORACLE_19c_00_asm_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/asmtoolsinstall.log
+                      ./gridSetup.sh -executeConfigTools -silent -responseFile /oracle/sap_deployment_automation/ORACLE_19c_00_asm_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/installlogs/asmtoolsinstall.log
   register:           toolsinstaller_results
   #failed_when:        gridinstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
   environment:

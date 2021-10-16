@@ -202,13 +202,6 @@
   when:         
     item.tier == "ora"
 
-# ORACLE should be the owner of the file systems /oracle directories. 
-
-- name:              "Make orasid:dba as owners"          
-  ansible.builtin.shell: | 
-                      chown -R oracle:oinstall /oracle
-                      chmod -R 777 /usr/sap/install/
-
 
 #ASM Specific Configuration.
 
@@ -219,6 +212,18 @@
     state:  directory
     mode:   0755
 
+# ORACLE should be the owner of the file systems /oracle directories. 
+
+- name:              "Make orasid:dba as owners"          
+  ansible.builtin.shell: | 
+                      chown -R oracle:oinstall /oracle
+                      chmod -R 777 /usr/sap/install/
+  args:
+    creates:  /etc/sap_deployment_automation/permissionupdated.txt
+
+- name:              "creation permission flag"          
+  ansible.builtin.shell: |
+                      touch /etc/sap_deployment_automation/permissionupdated.txt
 
 # Setup and configure ORACLE ASM.
 

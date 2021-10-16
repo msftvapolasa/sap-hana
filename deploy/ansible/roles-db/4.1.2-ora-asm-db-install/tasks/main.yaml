@@ -36,7 +36,7 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      ./RUNINSTALLER -ohextract -silent |tee -a /oracle/oraextract.log
+                      ./RUNINSTALLER -ohextract -silent |tee -a /oracle/installlogs/oraextract.log
                       ln -s /oracle/{{ anydb_sid }}/{{ ora_version }} /oracle/{{ anydb_sid }}/{{ ora_release }}
                       touch /oracle/sap_deployment_automation/oraextract.txt
   register:           swinstaller_results
@@ -74,7 +74,7 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      ./runInstaller -silent -responseFile /oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/dbinstall.log
+                      ./runInstaller -silent -responseFile /oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/installlogs/dbinstall.log
   register:           dbinstaller_results
   environment:
     DB_SID:                       "{{anydb_sid}}"
@@ -96,7 +96,7 @@
   become:         yes
   become_user:    root
   ansible.builtin.shell: |   
-                     /oracle/{{ anydb_sid }}/{{ ora_version }}/root.sh                                                       
+                     /oracle/{{ anydb_sid }}/{{ ora_version }}/root.sh                                                    
   register: rootscript_results
   args:
     executable:       /bin/csh
@@ -105,6 +105,7 @@
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.shell: |                    
                       touch /oracle/sap_deployment_automation/dbrootscripstexecuted.txt
+                      chmod 6751 /oracle/stage/{{ora_release}}/grid_home/bin/oracle 
 
 
 #STEP3.1 POST PROCESSING - Execute DB configtools.
@@ -113,7 +114,8 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      /oracle/{{ anydb_sid }}/{{ ora_version }}/runInstaller -executeConfigTools -silent -responseFile /oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/dbconfigtoolsinstall.log
+                      chmod 6751 /oracle/stage/{{ora_release}}/grid_home/bin/oracle   
+                      /oracle/{{ anydb_sid }}/{{ ora_version }}/runInstaller -executeConfigTools -silent -responseFile /oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/installlogs/dbconfigtoolsinstall.log
   register:           dbtoolsinstaller_results
   #failed_when:        gridinstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
   environment:
@@ -139,7 +141,7 @@
                      mv  /oracle/{{anydb_sid}}/{{ora_version}}/OPatch   /oracle/{{anydb_sid}}/{{ora_version}}/OPatch.bck 
                      cp -R OPATCH/OPatch  /oracle/{{anydb_sid}}/{{ora_version}}/.
                      cp -R SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/{{anydb_sid}}/{{ora_version}}/.
-                     $IHRDBMS/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SAP19P_2108-70004508.ZIP |tee -a /oracle/sbp.log
+                     $IHRDBMS/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SAP19P_2108-70004508.ZIP |tee -a /oracle/installlogs/sbp.log
   register: sbpscript_results
   environment:
     #DB_SID:                       "{{anydb_sid}}"
@@ -156,12 +158,30 @@
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.shell: |                    
                       touch /oracle/sap_deployment_automation/sbpinstalled.txt
-                      chown -R oracle:oinstall /oracle/stage/{{ora_release}}/grid_home/bin
-                      /oracle/stage/{{ora_release}}/grid_home/crs/install/roothas.sh -prepatch
                       
 
 
 #STEP 4.1 SBP Patching for Oracle GRID.
+
+- name:            "Prep for GRID SBP Patching"
+  ansible.builtin.shell: |                    
+                      cp -rp /oracle/stage/{{ora_release}}/grid_home /oracle/stage/{{ora_release}}/grid_home.bck
+                      /oracle/stage/{{ora_release}}/grid_home/bin/srvctl stop database -db orcl |tee /oracle/installlogs/dbstop.log
+                      /oracle/stage/{{ora_release}}/grid_home/crs/install/roothas.sh -prepatch |tee /oracle/installlogs/pre-patchcmd.log                    
+  args:
+    creates:          /oracle/sap_deployment_automation/gridpreinstall.txt
+
+
+- name:            "creates after a sucessfull pre install"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/gridpreinstall.txt
+
+
+# - name: "FAIL Here"
+#   fail:
+#     msg: Check if the crs and ASM database are stopped or not
+
+
 
 - name:           "Oracle Post Processing - GRID SBP Patching"                
   become:         yes
@@ -171,13 +191,14 @@
                      mv  /oracle/stage/{{ora_release}}/grid_home/OPatch   /oracle/stage/{{ora_release}}/grid_home/OPatch.bck 
                      cp -R OPATCH/OPatch  /oracle/stage/{{ora_release}}/grid_home/.
                      cp -R /usr/sap/install/SBP/SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/stage/{{ora_release}}/grid_home/.
-                     $OHGRID/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SGR19P_2108-70004550.ZIP |tee -a /oracle/sbpgrid.log
+                     chmod 6751 /oracle/stage/{{ora_release}}/grid_home/bin/oracle 
+                     $OHGRID/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SGR19P_2108-70004550.ZIP |tee -a /oracle/installlogs/sbpgrid.log
   register: sbpgscript_results
   environment:
     #DB_SID:                       "{{anydb_sid}}"
     #CV_ASSUME_DISTID:             OL7
     OHGRID:                      /oracle/stage/{{ora_release}}/grid_home
-    ORACLE_HOME:                 /oracle/stage/{{ora_release}}/grid_home  
+    ORACLE_HOME:                 /oracle/stage/{{ora_release}}/grid_home
   failed_when:        sbpgscript_results.rc >= 2 
   args:
     executable:       /bin/csh
@@ -199,7 +220,7 @@
   ansible.builtin.shell: |   
                      set -o errexit
                      /oracle/stage/{{ ora_release }}/grid_home/rdbms/install/rootadd_rdbms.sh
-                     /oracle/stage/{{ ora_release }}/grid_home/crs/install/roothas.sh -postpatch
+                     /oracle/stage/{{ ora_release }}/grid_home/crs/install/roothas.sh -postpatch |tee /oracle/installlogs/post-processing.log
                      chown oracle:oinstall /oracle/{{ anydb_sid}}/{{ ora_version }}/bin/oracle
                      chmod 6751  /oracle/{{ anydb_sid}}/{{ ora_version }}/bin/oracle
                      chmod 755 /opt/oracle
@@ -208,7 +229,10 @@
     chdir:            /oracle/stage/{{ ora_release }}/grid_home/
     creates:          /oracle/sap_deployment_automation/sbpgpostprocess.txt
 
-
+- name:            "creates after a sucessfull change"
+  ansible.builtin.shell: |                    
+                      touch /oracle/sap_deployment_automation/sbpgpostprocess.txt
+                     
 
 
 #STEP5 POST PROCESSING - Change RDBMS Compatiable Setting.
@@ -222,10 +246,9 @@
   become_user:    oracle
   ansible.builtin.shell: |   
                      set -o errexit
-                     ./asmca -silent -editDiskGroupAttributes -diskGroupName DATA -attribute compatible.rdbms={{ ora_compatible }}
-                     ./asmca -silent -editDiskGroupAttributes -diskGroupName ARCH -attribute compatible.rdbms={{ ora_compatible }}
-                     ./asmca -silent -editDiskGroupAttributes -diskGroupName RECO -attribute compatible.rdbms={{ ora_compatible }}
-                                        
+                     /oracle/stage/{{ ora_release }}/grid_home/bin/asmca -silent -editDiskGroupAttributes -diskGroupName DATA -attribute compatible.rdbms={{ ora_version }}
+                     /oracle/stage/{{ ora_release }}/grid_home/bin/asmca -silent -editDiskGroupAttributes -diskGroupName ARCH -attribute compatible.rdbms={{ ora_version }}
+                     /oracle/stage/{{ ora_release }}/grid_home/bin/asmca -silent -editDiskGroupAttributes -diskGroupName RECO -attribute compatible.rdbms={{ ora_version }}                                     
   register: diskgroupcreation_results
   environment:
     DB_SID:                       "{{anydb_sid}}"
