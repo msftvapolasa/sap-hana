@@ -142,6 +142,31 @@
     path:              "/oracle/sap_deployment_automation/dbtoolsinstall.txt"
     state:             touch
   
+# - name: "FAIL Here"
+#   fail:
+#     msg: Check if the crs and ASM database are stopped or not
+
+
+# # Stop Database for SBP Patching
+- name:           "Stop ORCL Database"                
+  become:         yes
+  become_user:    oracle
+  ansible.builtin.shell: |   
+                     ./srvctl stop database -db orcl -f |tee /oracle/installlogs/dbstop.log
+  register: dbstop_results
+  environment:
+    #DB_SID:                       "{{anydb_sid}}"
+    #RDBMS:            /oracle/{{anydb_sid}}/{{ora_release}}
+  failed_when:        dbstop_results.rc >= 3 
+  args:
+    chdir:            /oracle/stage/{{ora_release}}/grid_home/bin
+    creates:          /oracle/sap_deployment_automation/dbstopped.txt
+
+- name:            "creates after a sucessfull DB Stop"
+  ansible.builtin.file:
+    path:              "/oracle/sap_deployment_automation/dbstopped.txt"
+    state:             touch
+
 
 
 #STEP 4.1 SBP Patching for Oracle.
@@ -155,7 +180,6 @@
                      cp -R OPATCH/OPatch  /oracle/{{anydb_sid}}/{{ora_version}}/.
                      cp -R SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/{{anydb_sid}}/{{ora_version}}/.
                      $IHRDBMS/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SAP19P_2108-70004508.ZIP |tee -a /oracle/installlogs/sbp.log
-                     /oracle/stage/{{ora_release}}/grid_home/bin/srvctl stop database -db orcl |tee /oracle/installlogs/dbstop.log
   register: sbpscript_results
   environment:
     #DB_SID:                       "{{anydb_sid}}"
@@ -173,21 +197,15 @@
   ansible.builtin.file:
     path:              "/oracle/sap_deployment_automation/sbpinstalled.txt"
     state:             touch
-  
-                      
-# Wait for Database to Stop before patching the Oracle Grid Infrasturcture.
-- name: Sleep for 30 seconds and continue with play
-  wait_for:
-    timeout: 30
-  
 
-#STEP 4.1 SBP Patching for Oracle GRID.
-
+#STEP 4.2 SBP Patching for Oracle GRID.
+#STEP 4.2.1 SBP Patching for Oracle GRID.
 - name:            "Prep for GRID SBP Patching"
   ansible.builtin.shell: |                    
                       cp -rp /oracle/stage/{{ora_release}}/grid_home /oracle/stage/{{ora_release}}/grid_home.bck
                       /oracle/stage/{{ora_release}}/grid_home/crs/install/roothas.sh -prepatch |tee /oracle/installlogs/pre-patchcmd.log
-                      chown oracle:oinstall /oracle/stage/{{ora_release}}/grid_home/                
+                      cp -R /usr/sap/install/SBP/SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/stage/{{ora_release}}/grid_home/.
+                      chown -R oracle:oinstall  /oracle/stage/{{ora_release}}/grid_home/MOPatch            
   args:
     creates:          /oracle/sap_deployment_automation/gridpreinstall.txt
 
@@ -196,24 +214,8 @@
     path:              "/oracle/sap_deployment_automation/gridpreinstall.txt"
     state:             touch
   
-# - name: "FAIL Here"
-#   fail:
-#     msg: Check if the crs and ASM database are stopped or not
 
-# - name:           "Oracle Post Processing - GRID SBP Patching Prep"                
-#   become:         yes
-#   become_user:    "oracle"
-#   ansible.builtin.shell: |   
-#                      set -o errexit 
-                     
-#   environment:
-#     OHGRID:                      /oracle/stage/{{ora_release}}/grid_home
-#     ORACLE_HOME:                 /oracle/stage/{{ora_release}}/grid_home
-#   args:
-#     executable:       /bin/csh
-#     chdir:            "/usr/sap/install/SBP/"
-#     creates:          /oracle/sap_deployment_automation/prepcomplete.txt
-
+#STEP 4.2.2 SBP Patching for Oracle GRID.
 - name:           "Oracle Post Processing - GRID SBP Patching Execution"                
   become:         yes
   become_user:    "oracle"
@@ -222,7 +224,6 @@
                      mv  /oracle/stage/{{ora_release}}/grid_home/OPatch   /oracle/stage/{{ora_release}}/grid_home/OPatch.bck
                      cp -R OPATCH/OPatch  /oracle/stage/{{ora_release}}/grid_home/.
                      chmod 6751 /oracle/stage/{{ora_release}}/grid_home/bin/oracle
-                     cp -R /usr/sap/install/SBP/SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/stage/{{ora_release}}/grid_home/.
                      $OHGRID/MOPatch/mopatch.sh -v -s /usr/sap/install/SBP/SGR19P_2108-70004550.ZIP |tee -a /oracle/installlogs/sbpgrid.log
   register: sbpgscript_results
   environment:
@@ -240,11 +241,11 @@
     state:             touch
   
 
-#STEP 4.2 Post-Processing SBP Patching for Oracle GRID.
+#STEP 4.2.3 Post-Processing SBP Patching for Oracle GRID.
 #SAP Note 2893317 - ORA-12547:  TNS:lost contact during SWPM system copy import -NetWeaver
 # Run the post install script for GRID SBP patching to start the Oracle Cluster service manager, ASMCA and relevant toolset.
 
-- name:           "Oracle Post Processing - GRID SBP Patching"                
+- name:           "Oracle Post Processing - GRID SBP GRID Patching Post-Processing"                
   become:         yes
   become_user:    root
   ansible.builtin.shell: |   
@@ -277,7 +278,7 @@
 # SAP Note 1739274 - Database Parameter COMPATIBLE
 # SAP Note 1773593 - CREATE DATABASE  on ASM Fails with ORA-15204
 
-- name:           "Update ASM Disk groups ARCH and RECO"                
+- name:           "Update ASM Disk groups ARCH and RECO for DBLOAD"                
   become:         yes
   become_user:    oracle
   ansible.builtin.shell: |   
