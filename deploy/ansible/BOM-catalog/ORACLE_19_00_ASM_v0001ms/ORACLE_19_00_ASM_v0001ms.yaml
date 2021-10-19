@@ -95,9 +95,9 @@ materials:
 
     - name:         "Oracle SBP - Bundle patches for 19c: GRID Infra"
       archive:      SGR19P_2108-70004550.ZIP
-      extract:      false
+      extract:      true
       download:     true
-      #extractDir:   SBP
+      extractDir:   SBP/SAPGSBP
       path:         SBP
       url:          https://softwaredownloads.sap.com/file/0020000001217972021
 

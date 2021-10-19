@@ -1,13 +1,13 @@
 #   SAP: Register BOM
 #   Install and configure Database on ASM.
-#
+#   Install Oracle Database
+#   Creates the database orcl and shuts it down.
+#   Updates SBP patches for database and GRID infrastructure.
+# Default value of rdbms compatiable is 10.1.0.0 however for SAP installation it needs a minimum value of 11.2.0.2.
+# SAP Note 1739274 - Database Parameter COMPATIBLE
+# SAP Note 1773593 - CREATE DATABASE  on ASM Fails with ORA-15204
 
-# TODO: Considerations
-#         15G+ swap space for Oracle DB installation.
-#         message server acl
-#         certificates
-#         secure storage key
-#
+
 
 ---
 
@@ -31,7 +31,7 @@
 - name:                               "SAP Oracle ASM: deploy Database install response file"
   ansible.builtin.template:
     src:                              ORACLE_{{ ora_release }}c_00_asm_db_v1_install.rsp.j2
-    dest:                             "/oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp"
+    dest:                             "/etc/sap_deployment_automation/oracle/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp"
     mode:                             0644
     force:                            true
 
@@ -45,7 +45,7 @@
                       set -o errexit
                       ./RUNINSTALLER -ohextract -silent |tee -a /oracle/installlogs/oraextract.log
                       ln -s /oracle/{{ anydb_sid }}/{{ ora_version }} /oracle/{{ anydb_sid }}/{{ ora_release }}
-                      touch /oracle/sap_deployment_automation/oraextract.txt
+                      touch /etc/sap_deployment_automation/oracle/oraextract.txt
   register:           swinstaller_results
   failed_when:        swinstaller_results.rc >= 2   
   environment:
@@ -53,27 +53,7 @@
     CV_ASSUME_DISTID:             OL7
   args:
     chdir:             "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
-    creates:           /oracle/sap_deployment_automation/oraextract.txt
-
-# Create the softlink /oracle/<sid>/19.0.0
-- name:               "softlink creation for SAP SWPM"
-  become:             yes
-  become_user:        oracle
-  ansible.builtin.shell: |
-                      set -o errexit
-                      ln -s {{ ora_version }} {{ ora_release }}                  
-  environment:
-    DB_SID:                       "{{anydb_sid}}"
-    CV_ASSUME_DISTID:             OL7
-  args:
-    chdir:             "/oracle/{{ anydb_sid }}"
-    creates:           /oracle/sap_deployment_automation/softlinkcreated.txt
-
-- name:            "create after softlink"
-  ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/softlinkcreated.txt"
-    state:             touch
-
+    creates:           /etc/sap_deployment_automation/oracle/oraextract.txt
 
 
 #STEP2 RUN THE INSTALLATION - EXECUTE.
@@ -83,7 +63,7 @@
   become_user:        oracle
   ansible.builtin.shell: |
                       set -o errexit
-                      ./runInstaller -silent -responseFile /oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/installlogs/dbinstall.log
+                      ./runInstaller -silent -responseFile /etc/sap_deployment_automation/oracle/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/installlogs/dbinstall.log
   register:           dbinstaller_results
   environment:
     DB_SID:                       "{{anydb_sid}}"
@@ -91,11 +71,11 @@
   args:       
     executable:        /bin/csh
     chdir:            "/oracle/{{ anydb_sid }}/{{ ora_version }}"
-    creates:           /oracle/sap_deployment_automation/dbinstall.txt
+    creates:           /etc/sap_deployment_automation/oracle/dbinstall.txt
 
 - name:            "create after a sucessfull install"
   ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/dbinstall.txt"
+    path:              "/etc/sap_deployment_automation/oracle/dbinstall.txt"
     state:             touch
   
 
@@ -111,11 +91,11 @@
   register: rootscript_results
   args:
     executable:       /bin/csh
-    creates:          /oracle/sap_deployment_automation/dbrootscripstexecuted.txt
+    creates:          /etc/sap_deployment_automation/oracle/dbrootscripstexecuted.txt
 
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.shell: |                    
-                      touch /oracle/sap_deployment_automation/dbrootscripstexecuted.txt
+                      touch /etc/sap_deployment_automation/oracle/dbrootscripstexecuted.txt
                       chmod 6751 /oracle/stage/{{ora_release}}/grid_home/bin/oracle 
 
 
@@ -126,7 +106,7 @@
   ansible.builtin.shell: |
                       set -o errexit
                       chmod 6751 /oracle/stage/{{ora_release}}/grid_home/bin/oracle   
-                      /oracle/{{ anydb_sid }}/{{ ora_version }}/runInstaller -executeConfigTools -silent -responseFile /oracle/sap_deployment_automation/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/installlogs/dbconfigtoolsinstall.log
+                      /oracle/{{ anydb_sid }}/{{ ora_version }}/runInstaller -executeConfigTools -silent -responseFile /etc/sap_deployment_automation/oracle/ORACLE_{{ ora_release }}c_00_asm_db_{{ ansible_hostname }}_{{ anydb_sid }}_install.rsp |tee -a /oracle/installlogs/dbconfigtoolsinstall.log
   register:           dbtoolsinstaller_results
   #failed_when:        gridinstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
   environment:
@@ -135,11 +115,11 @@
   args:       
     executable:        /bin/csh
     chdir:            "/oracle/{{ anydb_sid }}/{{ ora_version }}"
-    creates:           /oracle/sap_deployment_automation/dbtoolsinstall.txt
+    creates:           /etc/sap_deployment_automation/oracle/dbtoolsinstall.txt
 
 - name:            "create after a sucessfull install"
   ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/dbtoolsinstall.txt"
+    path:              "/etc/sap_deployment_automation/oracle/dbtoolsinstall.txt"
     state:             touch
   
 # - name: "FAIL Here"
@@ -160,11 +140,11 @@
   failed_when:        dbstop_results.rc >= 3 
   args:
     chdir:            /oracle/stage/{{ora_release}}/grid_home/bin
-    creates:          /oracle/sap_deployment_automation/dbstopped.txt
+    creates:          /etc/sap_deployment_automation/oracle/dbstopped.txt
 
 - name:            "creates after a sucessfull DB Stop"
   ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/dbstopped.txt"
+    path:              "/etc/sap_deployment_automation/oracle/dbstopped.txt"
     state:             touch
 
 
@@ -191,11 +171,11 @@
   args:
     executable:       /bin/csh
     chdir:            "/usr/sap/install/SBP/"
-    creates:          /oracle/sap_deployment_automation/sbpinstalled.txt
+    creates:          /etc/sap_deployment_automation/oracle/sbpinstalled.txt
 
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/sbpinstalled.txt"
+    path:              "/etc/sap_deployment_automation/oracle/sbpinstalled.txt"
     state:             touch
 
 #STEP 4.2 SBP Patching for Oracle GRID.
@@ -207,11 +187,11 @@
                       cp -R /usr/sap/install/SBP/SAPSBP/SBP_191200210720_202108/MOPatch  /oracle/stage/{{ora_release}}/grid_home/.
                       chown -R oracle:oinstall  /oracle/stage/{{ora_release}}/grid_home/MOPatch            
   args:
-    creates:          /oracle/sap_deployment_automation/gridpreinstall.txt
+    creates:          /etc/sap_deployment_automation/oracle/gridpreinstall.txt
 
 - name:            "creates after a sucessfull pre install"
   ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/gridpreinstall.txt"
+    path:              "/etc/sap_deployment_automation/oracle/gridpreinstall.txt"
     state:             touch
   
 
@@ -232,12 +212,12 @@
   args:
     executable:       /bin/csh
     chdir:            "/usr/sap/install/SBP/"
-    creates:          /oracle/sap_deployment_automation/sbpginstalled.txt
+    creates:          /etc/sap_deployment_automation/oracle/sbpginstalled.txt
 
 
 - name:            "creates after a sucessfull script execution"
   ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/sbpginstalled.txt"
+    path:              "/etc/sap_deployment_automation/oracle/sbpginstalled.txt"
     state:             touch
   
 
@@ -258,11 +238,11 @@
   register: sbppostpro_results 
   args:
     chdir:            /oracle/stage/{{ ora_release }}/grid_home/
-    creates:          /oracle/sap_deployment_automation/sbpgpostprocess.txt
+    creates:          /etc/sap_deployment_automation/oracle/sbpgpostprocess.txt
 
 - name:            "creates after a sucessfull change"
   ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/sbpgpostprocess.txt"
+    path:              "/etc/sap_deployment_automation/oracle/sbpgpostprocess.txt"
     state:             touch
   
                      
@@ -294,11 +274,11 @@
   args:
     executable:       /bin/csh
     chdir:            /oracle/stage/{{ ora_release }}/grid_home/bin
-    creates:          /oracle/sap_deployment_automation/diskgroupupdated.txt
+    creates:          /etc/sap_deployment_automation/oracle/diskgroupupdated.txt
 
 - name:            "creates after a sucessfull change"
   ansible.builtin.file:
-    path:              "/oracle/sap_deployment_automation/diskgroupupdated.txt"
+    path:              "/etc/sap_deployment_automation/oracle/diskgroupupdated.txt"
     state:             touch
   
 
