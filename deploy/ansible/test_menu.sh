@@ -122,7 +122,7 @@ all_playbooks=(
         ${cmd_dir}/playbook_03_bom_processing.yaml
         ${cmd_dir}/playbook_04_00_00_hana_db_install.yaml
         ${cmd_dir}/playbook_04_01_00_oracle_db_install.yaml
-        ${cmd_dir}/playbook_04_01_00_oracle_asm_db_install.yaml
+        ${cmd_dir}/playbook_04_01_01_oracle_asm_db_install.yaml
         ${cmd_dir}/playbook_05_00_00_sap_scs_install.yaml
         ${cmd_dir}/playbook_05_01_sap_dbload.yaml
         ${cmd_dir}/playbook_05_02_sap_pas_install.yaml
