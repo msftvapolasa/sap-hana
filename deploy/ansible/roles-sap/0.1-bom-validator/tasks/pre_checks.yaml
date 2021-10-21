@@ -19,7 +19,8 @@
       - "target_media_location is defined"                                      # Has the variable been defined
       - "target_media_location | trim | length != 0"                            #   and given a value
 
-      - "kv_name is defined"                                                     # Has the variable been defined
+      - "kv_name is defined"           
+      - "kv_name | type_debug != 'NoneType'"    # and given a value                                          # Has the variable been defined
       - "kv_name | trim | length != 0"                                           #   and given a value
 
 # -------------------------------------+---------------------------------------8

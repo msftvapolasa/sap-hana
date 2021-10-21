@@ -30,8 +30,11 @@ resource "azurerm_storage_account" "storage_tfstate" {
   }
 
   network_rules {
-    default_action             = var.use_private_endpoint ? "Deny" : "Allow"
-    ip_rules                   = [local.deployer_public_ip_address]
+    default_action = "Allow"
+    ip_rules = var.use_private_endpoint ? (
+      [length(local.deployer_public_ip_address) > 0 ? local.deployer_public_ip_address : null]) : (
+      []
+    )
     virtual_network_subnet_ids = var.use_private_endpoint ? [local.subnet_mgmt_id] : []
   }
 }
@@ -71,7 +74,7 @@ resource "azurerm_storage_container" "storagecontainer_ansible" {
 }
 
 resource "azurerm_private_endpoint" "storage_tfstate" {
-  count               = var.use_private_endpoint ? 1 : 0
+  count               = var.use_private_endpoint && !local.sa_tfstate_exists ? 1 : 0
   name                = format("%s%s", local.prefix, local.resource_suffixes.storage_private_link_tf)
   resource_group_name = local.rg_exists ? data.azurerm_resource_group.library[0].name : azurerm_resource_group.library[0].name
   location            = local.rg_exists ? data.azurerm_resource_group.library[0].location : azurerm_resource_group.library[0].location
@@ -112,14 +115,18 @@ resource "azurerm_storage_account" "storage_sapbits" {
   // TODO: soft delete for file share
 
   network_rules {
-    default_action             = var.use_private_endpoint ? "Deny" : "Allow"
-    ip_rules                   = [local.deployer_public_ip_address]
+    default_action = "Allow"
+    ip_rules = var.use_private_endpoint ? (
+      [length(local.deployer_public_ip_address) > 0 ? local.deployer_public_ip_address : null]) : (
+      []
+    )
+
     virtual_network_subnet_ids = var.use_private_endpoint ? [local.subnet_mgmt_id] : []
   }
 }
 
 resource "azurerm_private_endpoint" "storage_sapbits" {
-  count               = var.use_private_endpoint ? 1 : 0
+  count               = var.use_private_endpoint && !local.sa_sapbits_exists ? 1 : 0
   name                = format("%s%s", local.prefix, local.resource_suffixes.storage_private_link_sap)
   resource_group_name = local.rg_exists ? data.azurerm_resource_group.library[0].name : azurerm_resource_group.library[0].name
   location            = local.rg_exists ? data.azurerm_resource_group.library[0].location : azurerm_resource_group.library[0].location

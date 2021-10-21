@@ -15,7 +15,7 @@
 # Required variables when including this task list:
 #   * hanasudoers_file - the file name to create a sudoers.d file;
 #                    must be specified and must be a valid user name
-#                    This file will have the hdb_sid entry required for
+#                    This file will have the db_sid entry required for
 #                    clustering
 #   * hanasudoers_role - the type of sudoers entry to create; optional
 #                    defaulting to 'hanaadmin_no_password'. Specified

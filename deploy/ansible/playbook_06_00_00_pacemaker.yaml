@@ -146,14 +146,14 @@
 # +------------------------------------4--------------------------------------*/
 
 
-- hosts:          "{{ sap_sid|upper }}_SCS  :
-                  {{ sap_sid|upper }}_ERS"
+- hosts:                               "{{ sap_sid|upper }}_SCS :
+                                        {{ sap_sid|upper }}_ERS"
 
-  name:           PACEMAKER - General - Config - Central Services
-  remote_user:    "{{ orchestration_ansible_user }}"
-  become:         true
-  become_user:    root
-  gather_facts:   true
+  name:                                PACEMAKER - General - Config - Central Services
+  remote_user:                         "{{ orchestration_ansible_user }}"
+  become:                              true
+  become_user:                         root
+  gather_facts:                        true
   vars_files:
     - vars/ansible-input-api.yaml                               # API Input template with defaults
 

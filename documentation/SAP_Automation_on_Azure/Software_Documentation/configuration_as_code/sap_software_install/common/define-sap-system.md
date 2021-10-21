@@ -39,7 +39,7 @@ For each new SAP System deployed, a SAP System Configuration file must be genera
    download_basket_dir: "{{ target_media_location }}/download_basket"
    hdb_hostname: ""
    hdb_instance_number: ""
-   hdb_sid: ""
+   db_sid: ""
    pas_hostname: ""
    pas_instance_number: ""
    password_hana_system: ""
@@ -65,7 +65,7 @@ For each new SAP System deployed, a SAP System Configuration file must be genera
    | `app_sid`                    | SID for the Application Tier, e.g. `"X00"`                                        |
    | `hdb_hostname`               | Hostname for the HDB VM                                                           |
    | `hdb_instance_number`        | Instance number for the HDB Instance, e.g. `"00"`                                 |
-   | `hdb_sid`                    | SID for the SAP HANA Database, e.g. `"D00"`                                       |
+   | `db_sid`                    | SID for the SAP HANA Database, e.g. `"D00"`                                       |
    | `pas_hostname`               | Hostname for the PAS VM                                                           |
    | `pas_instance_number`        | Instance number for the PAS Instance, e.g. `"10"`                                 |
    | `password_hana_system`       | Password used for the SAP HANA System                                             |

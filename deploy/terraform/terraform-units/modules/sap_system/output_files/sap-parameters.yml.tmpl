@@ -10,7 +10,7 @@ sap_fqdn:                      ${dns}
 sap_sid:                       ${sid}
 
 # sap_sid is the database SID
-hdb_sid:                       ${db_sid}
+db_sid:                        ${db_sid}
 
 # kv_name is the name of the keyvault containing the system credentials
 kv_name:                       ${kv_name}
@@ -30,6 +30,7 @@ db_high_availability:          ${db_ha}
 db_lb_ip:                      ${db_lb_ip}
 
 ${sap_mnt}
+${sap_transport}
 
 disks: 
 %{~ for disk in disks }

@@ -7,7 +7,6 @@ module "sap_landscape" {
   providers = {
     azurerm.main     = azurerm.main
     azurerm.deployer = azurerm.deployer
-    azurerm.fencing  = azurerm.fencing
   }
   source                             = "../../terraform-units/modules/sap_landscape"
   infrastructure                     = local.infrastructure
@@ -15,7 +14,7 @@ module "sap_landscape" {
   authentication                     = local.authentication
   naming                             = module.sap_namegenerator.naming
   service_principal                  = local.use_spn ? local.service_principal : local.account
-  key_vault                          = var.key_vault
+  key_vault                          = local.key_vault
   deployer_tfstate                   = try(data.terraform_remote_state.deployer[0].outputs, [])
   diagnostics_storage_account        = var.diagnostics_storage_account
   witness_storage_account            = var.witness_storage_account

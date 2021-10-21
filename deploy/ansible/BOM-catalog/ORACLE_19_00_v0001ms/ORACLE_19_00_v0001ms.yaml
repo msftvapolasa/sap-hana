@@ -41,7 +41,7 @@ materials:
       extractDir:   oraclient
       path:         download_basket
       download:     true
-      url:         https://softwaredownloads.sap.com/file/0030000001432222020
+      url:          https://softwaredownloads.sap.com/file/0030000001432222020
 
     - name:         Oracle Software Server
       archive:      51053828.zip
@@ -62,7 +62,7 @@ materials:
       extractDir:   SBP/GIRU19P
       path:         SBP
       #creates:     SIGNATURE.SMF
-      url:         https://softwaredownloads.sap.com/file/0020000001214732021
+      url:          https://softwaredownloads.sap.com/file/0020000001214732021
 
     - name:         "Oracle SBP - Bundle patches for 19c: SAP19P"
       archive:      SAP19P_2108-70004508.ZIP
@@ -80,7 +80,7 @@ materials:
       extractDir:   SBP/SBPJDK
       path:         SBP
       #creates:     SIGNATURE.SMF
-      url:         https://softwaredownloads.sap.com/file/0020000001213892021
+      url:          https://softwaredownloads.sap.com/file/0020000001213892021
 
     - name:         "Oracle SBP - Bundle patches for 19c: OPatch"
       archive:      OPATCH19P_2105-70004508.ZIP
@@ -98,7 +98,7 @@ materials:
       extractDir:   SBP
       path:         SBP
       #creates:     SIGNATURE.SMF
-      url:         https://softwaredownloads.sap.com/file/0020000001213422021
+      url:          https://softwaredownloads.sap.com/file/0020000001213422021
 
 #SAP Oracle executables, SWMP and Installation exports 
     
@@ -145,7 +145,7 @@ materials:
       extractDir:  EXPORT
       path:        download_basket
       #creates:    SIGNATURE.SMF
-      url:        https://softwaredownloads.sap.com/file/0030000000635092016
+      url:         https://softwaredownloads.sap.com/file/0030000000635092016
     
 
     - name:         "SAP Host Agent"

@@ -115,7 +115,7 @@ logical_volumes:
     size:       '100%FREE'
     fstype:     'xfs'
   
-#Adding Tier and disk types for Oracle installation non-ASM.
+# Adding Tier and disk types for Oracle installation non-ASM.
   - tier:       'sapos'
     node_tier:  'oracle'
     vg:         'vg_oracle_sapdata1'

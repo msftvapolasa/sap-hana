@@ -56,8 +56,8 @@
     - name:                           Ensure corosync is configured
       ansible.builtin.command:        crm cluster init -y -u corosync --interface eth1
 
-    - name:                           Ensure cluster (hdb_{{ hdb_sid | upper }}) is configured
-      ansible.builtin.command:        "crm cluster init -y cluster --name 'hdb_{{ hdb_sid | upper }}' --interface eth1"
+    - name:                           Ensure cluster (hdb_{{ db_sid | upper }}) is configured
+      ansible.builtin.command:        "crm cluster init -y cluster --name 'hdb_{{ db_sid | upper }}' --interface eth1"
   when:                               inventory_hostname == primary_instance_name
 
 - name:                               Ensure Secondary node joins the Cluster

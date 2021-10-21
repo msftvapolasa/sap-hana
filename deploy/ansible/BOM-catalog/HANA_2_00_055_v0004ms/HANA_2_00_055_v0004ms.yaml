@@ -43,12 +43,12 @@ materials:
       creates:      SIGNATURE.SMF
       url:          https://softwaredownloads.sap.com/file/0020000001251872021
 
-    - name:         SAP HANA AFL Rev 57.0 only for HANA 2.0 Rev 57
-      archive:      IMDB_AFL20_057_0-80001894.SAR
+    - name:         SAP HANA AFL Rev 57.1 only for HANA 2.0 Rev 57
+      archive:      IMDB_AFL20_057_1-80001894.SAR
       extract:      true
       extractDir:   CD_HDBSERVER/COMPONENTS
       creates:      COMPONENTS/SAP_HANA_AFL/packages
-      url:          https://softwaredownloads.sap.com/file/0020000001252752021
+      url:          https://softwaredownloads.sap.com/file/0020000001379632021
 
     - name:         LCAPPS for HANA 2.00.057.00 Build 101.01 PL 000
       archive:      IMDB_LCAPPS_2057_0-20010426.SAR

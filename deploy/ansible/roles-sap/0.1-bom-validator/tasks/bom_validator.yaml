@@ -68,8 +68,8 @@
     url:                               "{{ item.url }}"
     dest:                              "{{ download_directory }}/files/{{ item.archive }}"
     tmp_dest:                          "{{ download_directory }}/tmp"
-    url_username:                      "{{ SUser }}"
-    url_password:                      "{{ SPassword }}"
+    url_username:                      "{{ s_user }}"
+    url_password:                      "{{ s_password }}"
     force_basic_auth:                  true
     http_agent:                        'SAP Software Download'
 

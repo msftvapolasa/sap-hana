@@ -48,17 +48,17 @@ NW_HDB_DB.abapSchemaName                            = SAPHANADB
 NW_HDB_DB.abapSchemaPassword                        = {{ main_password }}
 
 NW_HDB_getDBInfo.dbhost                             = {{ hdb_hostname }}
-NW_HDB_getDBInfo.dbsid                              = {{ hdb_sid | upper }}
+NW_HDB_getDBInfo.dbsid                              = {{ db_sid | upper }}
 NW_HDB_getDBInfo.instanceNumber                     = {{ hdb_instance_number }}
 NW_HDB_getDBInfo.systemDbPassword                   = {{ password_hana_system }}
-NW_HDB_getDBInfo.systemid                           = {{ hdb_sid | upper }}
+NW_HDB_getDBInfo.systemid                           = {{ db_sid | upper }}
 NW_HDB_getDBInfo.systemPassword                     = {{ password_hana_system }}
 
 NW_readProfileDir.profileDir                        = /usr/sap/{{ app_sid | upper }}/SYS/profile
 
-NW_Recovery_Install_HDB.extractLocation             = /usr/sap/{{ hdb_sid | upper }}/HDB{{ hdb_instance_number }}/backup/data/DB_{{ hdb_sid | upper }}
+NW_Recovery_Install_HDB.extractLocation             = /usr/sap/{{ db_sid | upper }}/HDB{{ hdb_instance_number }}/backup/data/DB_{{ db_sid | upper }}
 NW_Recovery_Install_HDB.extractParallelJobs         = 19
-NW_Recovery_Install_HDB.sidAdmName                  = {{ hdb_sid | lower }}adm
+NW_Recovery_Install_HDB.sidAdmName                  = {{ db_sid | lower }}adm
 NW_Recovery_Install_HDB.sidAdmPassword              = {{ main_password }}
 
 NW_SAPCrypto.SAPCryptoFile                          = {{ download_basket_dir }}/SAPEXE_300-80004393.SAR

@@ -127,12 +127,13 @@ packages:
     - { tier: 'ha',    package: 'fence-agents-azure-arm',                                   state: 'present' }
   suse12:
     - { tier: 'os',    package: 'chrony',                                                   state: 'present' }
-    - { tier: 'os',    package: 'libyui-qt-pkg7',                                           state: 'present' }
     - { tier: 'os',    package: 'glibc',                                                    state: 'present' }
-    - { tier: 'os',    package: 'systemd',                                                  state: 'present' }
-    - { tier: 'os',    package: 'tuned',                                                    state: 'present' }
+    - { tier: 'os',    package: 'jq',                                                       state: 'present' }
+    - { tier: 'os',    package: 'libyui-qt-pkg7',                                           state: 'present' }
     - { tier: 'os',    package: 'numad',                                                    state: 'present' }
     - { tier: 'os',    package: 'ntp',                                                      state: 'absent' }
+    - { tier: 'os',    package: 'systemd',                                                  state: 'present' }
+    - { tier: 'os',    package: 'tuned',                                                    state: 'present' }
     - { tier: 'sapos', package: 'autofs',                                                   state: 'present' }
     - { tier: 'sapos', package: 'saptune',                                                  state: 'present' }
     - { tier: 'sapos', package: 'libgcc_s1',                                                state: 'present' }
@@ -147,7 +148,6 @@ packages:
     - { tier: 'ha',    package: 'cloud-netconfig-azure>=1.3',                               state: 'present' }
   # Assumption: Public_Cloud_Module_x86_64 already available
     - { tier: 'ha',    package: 'python-azure-mgmt-compute=4.6.2',                          state: 'present' }
-    - { tier: 'ha',    package: 'jq',                                                       state: 'present' }
     - { tier: 'ha',    package: 'sap-suse-cluster-connector',         node_tier: 'scs',     state: 'present' }
   # -------------------------- End - packages required for Clustering ------------------------------------8
   suse12.4:
@@ -168,16 +168,16 @@ packages:
     - { tier: 'sapos', package: 'uuidd',                                                    state: 'present' }
   # ----------------------- Begin - Packages required for Clustering -------------------------------------8
     - { tier: 'ha',    package: 'socat',                                                    state: 'present' }
-    - { tier: 'ha',    package: 'corosync',                           node_tier: 'hana',          state: 'present' }
-    - { tier: 'ha',    package: 'resource-agents>=4.3',               node_tier: 'hana',          state: 'present' }
-    - { tier: 'ha',    package: 'fence-agents>=4.4.0',                node_tier: 'hana',          state: 'present' }
-    - { tier: 'ha',    package: 'cloud-netconfig-azure>=1.3',         node_tier: 'hana',          state: 'present' }
+    - { tier: 'ha',    package: 'corosync',                           node_tier: 'hana',    state: 'present' }
+    - { tier: 'ha',    package: 'resource-agents>=4.3',               node_tier: 'hana',    state: 'present' }
+    - { tier: 'ha',    package: 'fence-agents>=4.4.0',                node_tier: 'hana',    state: 'present' }
+    - { tier: 'ha',    package: 'cloud-netconfig-azure>=1.3',         node_tier: 'hana',    state: 'present' }
   # Assumption: Public_Cloud_Module_x86_64 already available
-    - { tier: 'ha',    package: 'python3-azure-mgmt-compute=4.6.2',   node_tier: 'hana',          state: 'present' }
-    - { tier: 'ha',    package: 'python3-azure-mgmt-compute=4.6.2',   node_tier: 'scs',           state: 'present' }
-    - { tier: 'ha',    package: 'jq',                                 node_tier: 'scs',           state: 'present' }
-    - { tier: 'ha',    package: 'jq',                                 node_tier: 'hana',          state: 'present' }
-    - { tier: 'ha',    package: 'sap-suse-cluster-connector',         node_tier: 'scs',           state: 'present' }
+    - { tier: 'ha',    package: 'python3-azure-mgmt-compute=4.6.2',   node_tier: 'hana',    state: 'present' }
+    - { tier: 'ha',    package: 'python3-azure-mgmt-compute=4.6.2',   node_tier: 'scs',     state: 'present' }
+    - { tier: 'ha',    package: 'jq',                                 node_tier: 'scs',     state: 'present' }
+    - { tier: 'ha',    package: 'jq',                                 node_tier: 'hana',    state: 'present' }
+    - { tier: 'ha',    package: 'sap-suse-cluster-connector',         node_tier: 'scs',     state: 'present' }
   # ------------------------ End - packages required for Clustering --------------------------------------8
     # TODO(rtamalin): Ensure SLE 15 SP2 uses /usr/bin/python3 rather
     # than /usr/bin/python.

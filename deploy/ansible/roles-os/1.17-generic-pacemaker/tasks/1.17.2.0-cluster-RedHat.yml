@@ -40,12 +40,12 @@
 
     # Ref https://docs.microsoft.com/en-us/azure/virtual-machines/maintenance-and-updates#maintenance-that-doesnt-require-a-reboot
     - name:                            Ensure the cluster is created with a token large enough to allow memory preserving maintenance
-      ansible.builtin.command:         "pcs cluster setup --name {{ hdb_sid | upper }}_cluster {{ primary_instance_name }} {{ secondary_instance_name }}
+      ansible.builtin.command:         "pcs cluster setup --name {{ db_sid | upper }}_cluster {{ primary_instance_name }} {{ secondary_instance_name }}
                                         --token {{ cluster_totem.token }}"
       when:                            ansible_distribution_major_version == "7"
 
     - name:                            Ensure the cluster is created with a token large enough to allow memory preserving maintenance
-      ansible.builtin.command:         "pcs cluster setup {{ hdb_sid | upper }}_cluster {{ primary_instance_name }} {{ secondary_instance_name }}
+      ansible.builtin.command:         "pcs cluster setup {{ db_sid | upper }}_cluster {{ primary_instance_name }} {{ secondary_instance_name }}
                                         totem token={{ cluster_totem.token }}"
       when:                            ansible_distribution_major_version == "8"
 
