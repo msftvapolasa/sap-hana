@@ -36,12 +36,12 @@ materials:
       url:          https://softwaredownloads.sap.com/file/0020000002208852020               #Note update the links
 
     - name:         Oracle Client
-      archive:      51054541.zip
+      archive:      51055071.zip
       extract:      true
       extractDir:   oraclient
       path:         download_basket
       download:     true
-      url:         https://softwaredownloads.sap.com/file/0030000001432222020
+      url:         https://softwaredownloads.sap.com/file/0030000001424202021
 
     - name:         Oracle Software Server
       archive:      51053828.zip
@@ -121,21 +121,21 @@ materials:
 
     
     - name:         "Oracle DBATOOLS"
-      archive:      DBATL740O11_46-80002605.SAR
+      archive:      DBATL740O11_47-70001657.SAR
       extract:      false
       #download:     true
       path:         download_basket
       #creates:     SIGNATURE.SMF
-      url:          https://softwaredownloads.sap.com/file/0020000000816512021
+      url:          https://softwaredownloads.sap.com/file/0020000001291502021
 
     
       # SWPM
     - name:         "SWPM20SP09 OS: Linux on x86_64 64bit"
-      archive:      SWPM10SP32_5-20009701.SAR
+      archive:      SWPM10SP33_0-20009701.SAR
       extract:      true
       extractDir:   SWPM
       creates:      SIGNATURE.SMF
-      url:          https://softwaredownloads.sap.com/file/0020000001253802021
+      url:          https://softwaredownloads.sap.com/file/0020000001456032021
 
 
     - name:       "Oracle installation dump"

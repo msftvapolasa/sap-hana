@@ -82,6 +82,51 @@ admin_groups:
     enabled:      true
     node_tier:    oracle
 
+ #Admin groups for Oracle Non-ASM Multi-SID
+  - name:         dba
+    gid:          "{{ dba_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle-msid
+  
+  - name:         oper
+    gid:          "{{ oper_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle-msid
+  
+  - name:         asmoper
+    gid:          "{{ asmoper_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle-msid
+  
+  - name:         asmadmin
+    gid:          "{{ asmadmin_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle-msid
+  
+  - name:         asmdba
+    gid:          "{{ asmdba_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle-msid
+  
+  - name:         oinstall
+    gid:          "{{ oinstall_gid }}"
+    state:        present
+    tier:         ora
+    enabled:      true
+    node_tier:    oracle-msid
+  
+
+# Admin groups for Oracle-ASM
   - name:         dba
     gid:          "{{ dba_gid }}"
     state:        present
@@ -199,6 +244,91 @@ admin_users:
     tier:         ora
     node_tier:    oracle
     enabled:      true
+
+#Admin users for Oracle Multi-SID Non-ASM
+  
+  - name:         "ora{{ ora_sid1|lower }}"
+    comment:      "Oracle Database System Administrator"
+    uid:          "{{ ora_sid1_uid }}"
+    group:        dba
+    groups:       ["oper","sapinst","oinstall"]
+    sudoers_role: "admin_no_password"
+    password:     "{{ main_password }}"
+    shell:        /bin/csh
+    state:        present
+    tier:         ora
+    node_tier:    oracle-msid
+    enabled:      true
+
+  - name:         "ora{{ ora_sid2|lower }}"
+    comment:      "Oracle Database System Administrator"
+    uid:          "{{ ora_sid2_uid }}"
+    group:        dba
+    groups:       ["oper","sapinst","oinstall"]
+    sudoers_role: "admin_no_password"
+    password:     "{{ main_password }}"
+    shell:        /bin/csh
+    state:        present
+    tier:         ora
+    node_tier:    oracle-msid
+    enabled:      true
+  
+  - name:         "ora{{ ora_sid3|lower }}"
+    comment:      "Oracle Database System Administrator"
+    uid:          "{{ ora_sid3_uid }}"
+    group:        dba
+    groups:       ["oper","sapinst","oinstall"]
+    sudoers_role: "admin_no_password"
+    password:     "{{ main_password }}"
+    shell:        /bin/csh
+    state:        present
+    tier:         ora
+    node_tier:    oracle-msid
+    enabled:      true
+
+  - name:         "ora{{ ora_sid4|lower }}"
+    comment:      "Oracle Database System Administrator"
+    uid:          "{{ ora_sid4_uid }}"
+    group:        dba
+    groups:       ["oper","sapinst","oinstall"]
+    sudoers_role: "admin_no_password"
+    password:     "{{ main_password }}"
+    shell:        /bin/csh
+    state:        present
+    tier:         ora
+    node_tier:    oracle-msid
+    enabled:      true  
+
+
+  - name:         "ora{{ ora_sid5|lower }}"
+    comment:      "Oracle Database System Administrator"
+    uid:          "{{ ora_sid5_uid }}"
+    group:        dba
+    groups:       ["oper","sapinst","oinstall"]
+    sudoers_role: "admin_no_password"
+    password:     "{{ main_password }}"
+    shell:        /bin/csh
+    state:        present
+    tier:         ora
+    node_tier:    oracle-msid
+    enabled:      true
+
+  - name:         "oracle"
+    comment:      "Oracle Database software Administrator"
+    uid:          "{{ oracle_uid }}"
+    group:        oinstall
+    groups:       ["oper","sapsys","sapinst","asmdba","dba","asmadmin","asmoper"]
+    sudoers_role: "admin_no_password"
+    password:     "{{ main_password }}"
+    shell:        /bin/csh
+    state:        present
+    tier:         ora
+    node_tier:    oracle-msid
+    enabled:      true
+
+
+
+
 
 #Admin users for Oracle ASM
 
