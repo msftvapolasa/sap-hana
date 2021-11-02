@@ -92,8 +92,7 @@
     state:                             present
   loop:                                "{{ volume_groups }}"
   register:                            vgscreated
-  when:
-    - item.tier == "sapos"
+  
    
     
   

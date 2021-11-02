@@ -6,6 +6,18 @@
 # |                                                                            |
 # +------------------------------------4--------------------------------------*/
 
+# Import this task only if the tier is ora.
+- import_tasks:                        "oracle.yaml"
+  when: 
+    - node_tier == "oracle"
+    - node_tier != "oracle-asm"
+
+- import_tasks:                        "oracle-msid.yaml"
+  when: 
+    - node_tier == "oracle-msid"
+    - node_tier != "oracle-asm"
+
+
 # Mount Filesystems
 - name:                                Mount Filesystems
   ansible.builtin.mount:
@@ -24,7 +36,9 @@
     - { node_tier: 'hana', type: 'xfs',   src: '/dev/vg_hana_data/lv_hana_data',        path: '/hana/data'       }
     - { node_tier: 'hana', type: 'xfs',   src: '/dev/vg_hana_log/lv_hana_log',          path: '/hana/log'        }
     - { node_tier: 'hana', type: 'xfs',   src: '/dev/vg_hana_backup/lv_hana_backup',    path: '/hana/backup'     }
-  when:         (item.node_tier == "all" or item.node_tier == node_tier)
+  when:         
+    -  (item.node_tier == "all" or item.node_tier == node_tier )
+    
 
 - name:                                Set the NFS Server name
   ansible.builtin.set_fact:
@@ -37,7 +51,7 @@
     path:                              "{{ item.path }}"
     fstype:                            "{{ item.type }}"
     opts:                              defaults
-    state:                             mounted
+    state:                             remounted
   loop:
     - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
     - { type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install'            }                # Special Install Structure; Destroy on Completion
@@ -53,7 +67,7 @@
     path:                              "{{ item.path }}"
     fstype:                            "{{ item.type }}"
     opts:                              defaults
-    state:                             remounted
+    state:                             mounted
   loop:
     - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
   when:
@@ -105,10 +119,4 @@
     - sap_mnt is defined or sap_trans is defined
     - sap_mnt | trim | length != 0
     - tier == 'sapos'
-
-# Import this task only if the tier is ora.
-- import_tasks:                        "oracle.yaml"
-  when: 
-    - node_tier == "oracle"
-    - node_tier != "oracle-asm"
 

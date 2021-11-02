@@ -8,33 +8,35 @@ disktypes: >-
       map(attribute='type') | sort | unique |
       list }}
 
+  
+# Mapping table from disk type to volume group name suffix
+disk_type_to_name_map:
+  # sapdata1_sid1:  sapdata1_{{ ora_sid1 | lower }}
+  # sapdata2_sid1:  sapdata2_{{ ora_sid1 | lower }}
+  # sapdata3_sid1:  sapdata3_'{{ ora_sid1 | lower }}'
+  # sapdata4_sid1:  sapdata4_'{{ ora_sid1 | lower }}'
+  # origloga_sid1:  origlogA_'{{ ora_sid1 | lower }}'
+  # origlogb_sid1:  origlogB_'{{ ora_sid1 | lower }}'
+  # mirrloga_sid1:  mirrlogA_'{{ ora_sid1 | lower }}'
+  # mirrlogb_sid1:  mirrlogB_'{{ ora_sid1 | lower }}'
+  # oraarch_sid1:   oraarch_'{{ ora_sid1 | lower }}'
+  # sapdata1_sid2:  sapdata1_'{{ ora_sid2 | lower }}'
+  # sapdata2_sid2:  sapdata2_'{{ ora_sid2 | lower }}'
+  # sapdata3_sid2:  sapdata3_'{{ ora_sid2 | lower }}'
+  # sapdata4_sid2:  sapdata4_'{{ ora_sid2 | lower }}'
+  # origloga_sid2:  origlogA_'{{ ora_sid2 | lower }}'
+  # origlogb_sid2:  origlogB_'{{ ora_sid2 | lower }}'
+  # mirrloga_sid2:  mirrlogA_'{{ ora_sid2 | lower }}'
+  # mirrlogb_sid2:  mirrlogB_'{{ ora_sid2 | lower }}'
+  # oraarch_sid2:   oraarch_'{{ ora_sid2 | lower }}'
+
+
 # Dynamically determine list of volume groups associated with
 # the current node.
 volume_groups: "{{ lookup ('template', 'volume_groups.j2') }}"
 
-logical_volume_groups: "{{ lookup ('template', 'logical_volume_groups.j2') }}"
+logical_volume_groups: "{{ lookup ('template', 'logical_volume_group.j2') }}"
 
-  
-# Mapping table from disk type to volume group name suffix
-disk_type_to_name_map:
-  # sapdata1_sid1: '{{ ora_sid1 | lower }}_sapdata1'
-  # sapdata2_sid1: '{{ ora_sid1 | lower }}_sapdata2'
-  # sapdata3_sid1: '{{ ora_sid1 | lower }}_sapdata3'
-  # sapdata4_sid1: '{{ ora_sid1 | lower }}_sapdata4'
-  # origloga_sid1: '{{ ora_sid1 | lower }}_origlogA'
-  # origlogb_sid1: '{{ ora_sid1 | lower }}_origlogB'
-  # mirrloga_sid1: '{{ ora_sid1 | lower }}_mirrlogA'
-  # mirrlogb_sid1: '{{ ora_sid1 | lower }}_mirrlogB'
-  # oraarch_sid1:  '{{ ora_sid1 | lower }}_oraarch'
-  # sapdata1_sid2: '{{ ora_sid2 | lower }}_sapdata1'
-  # sapdata2_sid2: '{{ ora_sid2 | lower }}_sapdata2'
-  # sapdata3_sid2: '{{ ora_sid2 | lower }}_sapdata3'
-  # sapdata4_sid2: '{{ ora_sid2 | lower }}_sapdata4'
-  # origloga_sid2: '{{ ora_sid2 | lower }}_origlogA'
-  # origlogb_sid2: '{{ ora_sid2 | lower }}_origlogB'
-  # mirrloga_sid2: '{{ ora_sid2 | lower }}_mirrlogA'
-  # mirrlogb_sid2: '{{ ora_sid2 | lower }}_mirrlogB'
-  # oraarch_sid2:  '{{ ora_sid2 | lower }}_oraarch'
 
 # Table of possible logical volumes that need to be managed.
 #
