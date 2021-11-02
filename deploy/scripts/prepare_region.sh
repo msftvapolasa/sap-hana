@@ -367,6 +367,8 @@ if [ 0 == $step ]; then
     
     allParams=$(printf " -p %s %s" "${deployer_file_parametername}" "${approveparam}")
     
+    cd "${deployer_dirname}" || exit
+    
     "${DEPLOYMENT_REPO_PATH}"/deploy/scripts/install_deployer.sh $allParams
     if (($? > 0)); then
         exit $?
@@ -386,8 +388,6 @@ if [ 0 == $step ]; then
     if [ ! -z "$tenant_id" ]; then
         save_config_var "tenant_id" "${deployer_config_information}"
     fi
-    
-    cd "${deployer_dirname}" || exit
     
     if [ $force == 1 ]; then
         rm -Rf .terraform terraform.tfstate*
