@@ -58,7 +58,7 @@ variable "deployer_vnet" {
 }
 
 variable "use_deployer" {
-  default = true
+  default = false
 }
 
 /*
