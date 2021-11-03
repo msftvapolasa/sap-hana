@@ -677,7 +677,6 @@ if [ 0 == $return_value ] ; then
     exit $return_value
 fi
 if [ 2 == $return_value ] ; then
-    echo "foo" 
     fatal_errors=0
     # HANA VM
     test=$(grep vm_dbnode plan_output.log | grep -m1 replaced)

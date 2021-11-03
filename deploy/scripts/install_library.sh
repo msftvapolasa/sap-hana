@@ -317,13 +317,40 @@ echo ""
 
 if [ -n "${deployer_statefile_foldername}" ]; then
     echo "Deployer folder specified:" "${deployer_statefile_foldername}"
-    terraform -chdir="${terraform_module_directory}" plan -no-color -var-file="${var_file}" -var deployer_statefile_foldername="${deployer_statefile_foldername}" > plan_output.log 2>&1
+    terraform -chdir="${terraform_module_directory}" plan -no-color -detailed-exitcode -var-file="${var_file}" -var deployer_statefile_foldername="${deployer_statefile_foldername}" > plan_output.log 2>&1
 else
-    terraform -chdir="${terraform_module_directory}" plan -no-color -var-file="${var_file}"  > plan_output.log 2>&1
+    terraform -chdir="${terraform_module_directory}" plan -no-color -detailed-exitcode -var-file="${var_file}"  > plan_output.log 2>&1
 fi
-str1=$(grep "Error: KeyVault " plan_output.log)
+return_value=$?
 
-if [ -n "${str1}" ]; then
+if [ 0 == $return_value ] ; then
+    echo ""
+    echo "#########################################################################################"
+    echo "#                                                                                       #"
+    echo -e "#                          $cyan Infrastructure is up to date $resetformatting                               #"
+    echo "#                                                                                       #"
+    echo "#########################################################################################"
+    echo ""
+    if [ -f plan_output.log ]
+    then
+        rm plan_output.log
+    fi
+    
+    tfstate_resource_id=$(terraform -chdir="${terraform_module_directory}" output tfstate_resource_id| tr -d \")
+    STATE_SUBSCRIPTION=$(echo $tfstate_resource_id | cut -d/ -f3 | tr -d \" | xargs)
+
+    az account set --sub $STATE_SUBSCRIPTION
+
+    REMOTE_STATE_SA=$(terraform -chdir="${terraform_module_directory}" output remote_state_storage_account_name| tr -d \")
+    
+    get_and_store_sa_details ${REMOTE_STATE_SA} "${system_config_information}"
+
+    unset TF_DATA_DIR
+    exit $return_value
+fi
+
+if [ 1 == $return_value ]
+then
     echo ""
     echo "#########################################################################################"
     echo "#                                                                                       #"
@@ -361,10 +388,8 @@ else
     terraform -chdir="${terraform_module_directory}" apply ${approve} -var-file="${var_file}" 
 fi
 return_value=$?
- 
-str1=$(grep "Error: " error.log)
-if [ -n "${str1}" ]
-then
+
+if [ 1 == $return_value ] ; then
     echo ""
     echo "#########################################################################################"
     echo "#                                                                                       #"
