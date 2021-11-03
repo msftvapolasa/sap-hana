@@ -63,14 +63,6 @@
             - 1.4-packages
 
         - block:
-            - name:                    Run the hana sudoers role
-              include_role:
-                name:                  roles-os/1.11-accounts
-                tasks_from:            setup_hanausers_sudoers.yml
-          tags:
-            - 1.11-accounts
-    
-        - block:
             - name:                    Run the db/hdb-hsr role
               include_role:
                 name:                  roles-db/4.0.1-hdb-hsr
