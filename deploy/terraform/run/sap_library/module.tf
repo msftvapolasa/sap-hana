@@ -14,7 +14,7 @@ module "sap_library" {
   software                = var.software
   deployer                = local.deployer
   key_vault               = local.key_vault
-  service_principal       = local.service_principal
+  service_principal       = local.use_deployer ? local.service_principal : local.account
   deployer_tfstate        = try(data.terraform_remote_state.deployer[0].outputs, [])
   naming                  = module.sap_namegenerator.naming
   dns_label               = var.dns_label
