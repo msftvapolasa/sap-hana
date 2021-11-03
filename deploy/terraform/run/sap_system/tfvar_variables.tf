@@ -55,7 +55,7 @@ This block describes the variables for the VNet block in the json file
 
 */
 
-variable "network_name" {
+variable "network_logical_name" {
   default = ""
 }
 

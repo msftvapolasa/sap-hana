@@ -9,11 +9,11 @@
 - name:                                 Enqueue Server 2 Setup
   block:
 
-    - name:                             "Set the variable for ENSA1"
+    - name:                             "Get the variable for ENSA1"
       become_user:                      "{{ sap_sid | lower }}adm"
       ansible.builtin.shell:            >
                                         source ~/.bashrc ;
-                                        {{ sapcontrolscs_command }}  -function GetProcessList | grep enserver
+                                        {{ sapcontrolscs_command }} -host {{ scs_virtual_hostname }} -function GetProcessList | grep enserver
       register:                         enq_server1
       failed_when:                      enq_server1.stdout != 'enserver'
       changed_when:                     false
@@ -29,7 +29,7 @@
     - name:                             "Set the variable for ENSA2"
       become_user:                      "{{ sap_sid | lower }}adm"
       become:                           true
-      ansible.builtin.shell:            "{{ sapcontrolscs_command }}  -function GetProcessList | grep enq_server"
+      ansible.builtin.shell:            "{{ sapcontrolscs_command }} -host {{ scs_virtual_hostname }} -function GetProcessList | grep enq_server"
       register:                         enq_server2
       failed_when:                      enq_server2.stdout != 'enq_server'
 
@@ -133,16 +133,13 @@
     - inventory_hostname == primary_instance_name
 
 
-# [A] Configure Keep Alive - Ref- SAP Note 1410736 - # added in 1.9-kernelparameters.yaml
-
-# [A] Configure the SAP users after the installation - Add sidadm to the haclient group
-# could this be moved to 1.11-accounts. This has to be done after Installation.
+# [A] Configure Keep Alive - Ref- SAP Note 1410736 - # added in 1.9-stallation.
 - name:                                "Add the user 'sidadm to haclient group"
   ansible.builtin.user:
     name:                              "{{ sap_sid | lower }}adm"
-    comment:                           "{ sap_sid }}adm User "
+    comment:                           "{{} sap_sid }}adm User "
     group:                             haclient
-  when:  ansible_os_family|upper == "SUSE"
+  when:                                ansible_os_family|upper == "SUSE"
 
 ## [1] Add the ASCS and ERS SAP services to the sapservice file
 # - name:                            "Add the ASCS and ERS SAP services to the sapservice file"

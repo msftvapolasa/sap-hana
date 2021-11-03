@@ -41,9 +41,9 @@ variable "infrastructure" {
 
   validation {
     condition = (
-      length(trimspace(try(var.infrastructure.vnets.sap.name, ""))) != 0
+      length(trimspace(try(var.infrastructure.vnets.sap.logical_name, ""))) != 0
     )
-    error_message = "Please specify the logical VNet identifier in the infrastructure.vnets.sap.name field. For deployments prior to version '2.3.3.1' please use the identifier 'sap'."
+    error_message = "Please specify the logical VNet identifier in the network_logical_name field. For deployments prior to version '2.3.3.1' please use the identifier 'sap'."
   }
 
   validation {

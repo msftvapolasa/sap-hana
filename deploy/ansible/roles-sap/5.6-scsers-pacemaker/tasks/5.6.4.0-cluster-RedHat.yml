@@ -15,8 +15,8 @@
                                        pcs resource defaults resource-stickiness=1
                                        pcs resource defaults migration-threshold=3
 
-    # - name:                            "Put Secondary host on standby"
-    #   ansible.builtin.shell:           pcs node standby {{ secondary_instance_name }}
+    - name:                            "Put Secondary host on standby"
+      ansible.builtin.shell:           pcs node standby {{ secondary_instance_name }}
 
     - name:                            "SCS - Configure File system resources"
       ansible.builtin.command: >
@@ -102,10 +102,14 @@
 
 # [2] Install SAP NetWeaver ERS - Build a new role for ERS Installation - done
 
-- name:                                "SCS - Install SCS on Primary host"
+- name:                                "SCS - Install ERS on Secondary host"
   block:
+
     - name:                            "Bring Secondary host online "
       ansible.builtin.command:         pcs node unstandby {{ secondary_instance_name }}
+
+    - name:                            "Put Primary host on standby"
+      ansible.builtin.command:         pcs node standby {{ primary_instance_name }}
 
     - name:                            "ERS - Install on Secondary host"
       include_role:

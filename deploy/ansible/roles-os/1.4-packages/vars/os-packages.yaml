@@ -180,9 +180,11 @@ packages:
     - { tier: 'ha',    package: 'fence-agents>=4.4.0',                node_tier: 'hana',    state: 'present' }
     - { tier: 'ha',    package: 'cloud-netconfig-azure>=1.3',         node_tier: 'hana',    state: 'present' }
   # Assumption: Public_Cloud_Module_x86_64 already available
-    - { tier: 'ha',    package: 'python3-azure-mgmt-compute=4.6.2',   node_tier: 'hana',    state: 'present' }
-    - { tier: 'ha',    package: 'python3-azure-mgmt-compute=4.6.2',   node_tier: 'scs',     state: 'present' }
+    - { tier: 'ha',    package: 'python3-azure-mgmt-compute>=4.6.2',  node_tier: 'hana',    state: 'present' }
+    - { tier: 'ha',    package: 'python3-azure-mgmt-compute>=4.6.2',  node_tier: 'scs',     state: 'present' }
     - { tier: 'ha',    package: 'sap-suse-cluster-connector',         node_tier: 'scs',     state: 'present' }
+    - { tier: 'ha',    package: 'python3-azure-mgmt-compute>=4.6.2',  node_tier: 'ers',     state: 'present' }
+    - { tier: 'ha',    package: 'sap-suse-cluster-connector',         node_tier: 'ers',     state: 'present' }
   # ------------------------ End - packages required for Clustering --------------------------------------8
   suse15.1:
   suse15.2:
