@@ -32,9 +32,9 @@ location="westeurope"
 
 # RESOURCEGROUP
 # The two resource group name and arm_id can be used to control the naming and the creation of the resource group
-# The resource_group_name value is optional, it can be used to override the name of the resource group that will be provisioned
-# The resource_group_name arm_id is optional, it can be used to provide an existing resource group for the deployment
-#resource_group_name=""
+# The resourcegroup_name value is optional, it can be used to override the name of the resource group that will be provisioned
+# The resourcegroup_name arm_id is optional, it can be used to provide an existing resource group for the deployment
+#resourcegroup_name=""
 #resourcegroup_arm_id=""
 
 # PPG

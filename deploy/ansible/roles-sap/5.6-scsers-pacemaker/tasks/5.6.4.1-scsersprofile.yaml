@@ -11,13 +11,12 @@
 
     - name:                             "Set the variable for ENSA1"
       become_user:                      "{{ sap_sid | lower }}adm"
-      become:                           true
       ansible.builtin.shell:            >
                                         source ~/.bashrc ;
                                         {{ sapcontrolscs_command }}  -function GetProcessList | grep enserver
       register:                         enq_server1
       failed_when:                      enq_server1.stdout != 'enserver'
-      changed_when: false
+      changed_when:                     false
 
     - name:                             Capture the Enqueue server version
       ansible.builtin.set_fact:
@@ -43,8 +42,7 @@
         var:                            ensa2
 
   when:
-    - inventory_hostname == primary_instance_name
-    - 1 == 2
+    - inventory_hostname == secondary_instance_name
 
 # Following are the changes in ASCS/ERS profiles based if ENSA1 is applicable
 
@@ -57,6 +55,7 @@
     - name:                            "ASCS Profile - Comment Restart_Program_01 If Using ENSA1"
       ansible.builtin.replace:
         path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ASCS{{ scs_instance_number }}_{{ scs_virtual_hostname }}
+        backup:                        yes
         regexp:                        '^Restart_Program_01'
         replace:                       '#Restart_Program_01'
       tags:
@@ -73,6 +72,7 @@
     - name:                            "ERS Profile - Comment Restart_Program_00 in ERS Profile if using ENSA1"
       ansible.builtin.replace:
         path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
+        backup:                        yes
         regexp:                        '^Restart_Program_00'
         replace:                       '#Restart_Program_00'
       tags:
@@ -80,24 +80,24 @@
 
     - name:                            "ERS Profile - Change the restart command to a start command if using ENSA1"
       lineinfile:
-        path: /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
-        line: Start_Program_00 = local $(_ER) pf=$(_PFL) NR=$(SCSID)
-        insertafter: Restart_Program_01
+        path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
+        line:                          Start_Program_00 = local $(_ER) pf=$(_PFL) NR=$(SCSID)
+        insertafter:                   Restart_Program_01
       tags:
         - erspara
 
-    - name:                                "ERS Profile - Remove Autostart from ERS profile if using ENSA1"
+    - name:                            "ERS Profile - Remove Autostart from ERS profile if using ENSA1"
       ansible.builtin.replace:
-        path: /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
-        regexp: '^Autostart = 1'
-        replace: '#Autostart = 1'
+        path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
+        regexp:                        '^Autostart = 1'
+        replace:                       '#Autostart = 1'
       tags:
         - ersautostart
 
-    - name:                                 "Add the keep alive parameter, if using ENSA1"
+    - name:                            "Add the keep alive parameter, if using ENSA1"
       lineinfile:
-        path: /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ASCS{{ ascs_instance_number }}_{{ ascs_virtual_hostname }}
-        line: enque/encni/set_so_keepalive = true
+        path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ASCS{{ ascs_instance_number }}_{{ ascs_virtual_hostname }}
+        line:                          enque/encni/set_so_keepalive = true
       tags:
         - keepalive
 
@@ -111,18 +111,18 @@
 - name:                                "ASCS, ERS profile changes "
   block:
 
-    - name:                               " ASCS Profile - add service/halib"
+    - name:                            " ASCS Profile - add service/halib"
       ansible.builtin.blockinfile:
-        path: /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ASCS{{ scs_instance_number }}_{{ scs_virtual_hostname }}
+        path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ASCS{{ scs_instance_number }}_{{ scs_virtual_hostname }}
         block: |
-                                      service/halib = $(DIR_CT_RUN)/saphascriptco.so
-                                      service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
+                                        service/halib = $(DIR_CT_RUN)/saphascriptco.so
+                                        service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
 
       register: scsservicehalib
 
-    - name:                               " ERS Profile - add service/halib"
+    - name:                            " ERS Profile - add service/halib"
       ansible.builtin.blockinfile:
-        path: /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
+        path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
         block: |
                                       service/halib = $(DIR_CT_RUN)/saphascriptco.so
                                       service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
@@ -130,7 +130,7 @@
       register: ersservicehalib
   when:
     - ansible_os_family|upper  == "SUSE"
-    - inventory_hostname == secondary_instance_name
+    - inventory_hostname == primary_instance_name
 
 
 # [A] Configure Keep Alive - Ref- SAP Note 1410736 - # added in 1.9-kernelparameters.yaml
