@@ -60,7 +60,8 @@ location="westeurope"
 # for the brownfield scenario the Azure resource identifier for the subnet must be specified
 
 # The network logical name is mandatory - it is used in the naming convention and should map to the workload virtual network logical name 
-network_name="SAP01"
+#network_name="SAP01"
+network_logical_name="SAP01"
 
 # ADMIN subnet
 # If defined these parameters control the subnet name and the subnet prefix
