@@ -64,7 +64,7 @@ locals {
   // The environment of sap landscape and sap system
   environment = upper(local.infrastructure.environment)
 
-  vnet_logical_name = local.infrastructure.vnets.sap.name
+  vnet_logical_name = local.infrastructure.vnets.sap.logical_name
 
 
   // Locate the tfstate storage account
