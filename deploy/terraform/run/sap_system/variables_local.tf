@@ -128,7 +128,7 @@ locals {
 
   deployer_subscription_id = length(local.spn_key_vault_arm_id) > 0 ? split("/", local.spn_key_vault_arm_id)[2] : ""
 
-  use_spn = !try(var.options.nospn, false)
+  use_spn = !try(var.options.no_spn, false)
 
 
   spn = {
