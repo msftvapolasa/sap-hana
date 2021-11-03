@@ -6,7 +6,61 @@
 # Starting with ABAP Platform 1809, enqueue server 2 is installed by default.                 #
 # See SAP note 2630416 for enqueue server 2 support.                                          #
 ###############################################################################################
-- name:                                 Enqueue Server 2 Setup
+
+- name:                                "Add the user '{{ sap_sid | lower }}adm' to haclient group"
+  ansible.builtin.user:
+    name:                              "{{ sap_sid | lower }}adm"
+    comment:                           "{{ sap_sid | lower }}adm User account"
+    group:                             haclient
+  when:                                ansible_os_family|upper == "SUSE"
+
+- name:                                "SUSE - Remove the ASCS and ERS service definitions from sapservices file"
+  ansible.builtin.lineinfile:
+    backup:                            true
+    path:                              /usr/sap/sapservices
+    regexp:                            "{{ item.regexp }}"
+    line:                              "{{ item.lif }}"
+    state:                             present
+  loop:
+    - {regexp: "LD_LIBRARY_PATH=/usr/sap/{{ sap_sid }}/ASCS{{ scs_instance_number }}/exe", lif: "LD_LIBRARY_PATH=/usr/sap/{{ sap_sid }}/ASCS{{ scs_instance_number }}/exe:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH; /usr/sap/{{ sap_sid }}/ASCS{{ scs_instance_number }}/exe/sapstartsrv pf=/usr/sap/{{ sap_sid }}/SYS/profile/{{ sap_sid }}_ASCS{{ scs_instance_number }}_{{ scs_virtual_hostname }} -D -u {{ sap_sid | lower }}adm" }
+    - {regexp: "LD_LIBRARY_PATH=/usr/sap/{{ sap_sid }}/ERS{{ ers_instance_number }}/exe", lif: "LD_LIBRARY_PATH=/usr/sap/{{ sap_sid }}/ERS{{ ers_instance_number }}/exe:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH; /usr/sap/{{ sap_sid }}/ERS{{ ers_instance_number }}/exe/sapstartsrv pf=/usr/sap/{{ sap_sid }}/SYS/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }} -D -u {{ sap_sid | lower }}adm"     }
+  when:
+    - ansible_os_family|upper == "SUSE"
+
+- name:                                "REDHAT - Comment the ASCS and ERS service definitions from sapservices file"
+  ansible.builtin.replace:
+    backup:                            true
+    path:                              /usr/sap/sapservices
+    regexp:                            '^LD_LIBRARY_PATH='
+    replace:                           "#LD_LIBRARY_PATH="
+  when:
+    - ansible_os_family|upper == "REDHAT"
+
+- name:                                ASCS, ERS profile changes
+  block:
+
+    - name:                            ASCS Profile - add service/halib
+      ansible.builtin.blockinfile:
+        path:                          /sapmnt/{{ sap_sid | upper }}/profile/{{ sap_sid }}_ASCS{{ scs_instance_number }}_{{ scs_virtual_hostname }}
+        block: |
+                                       service/halib = $(DIR_CT_RUN)/saphascriptco.so
+                                       service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
+
+      register: scsservicehalib
+
+    - name:                            "ERS Profile - add service/halib"
+      ansible.builtin.blockinfile:
+        path:                          /sapmnt/{{ sap_sid | upper }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
+        block: |
+                                       service/halib = $(DIR_CT_RUN)/saphascriptco.so
+                                       service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
+
+      register: ersservicehalib
+  when:
+    - ansible_os_family|upper  == "SUSE"
+    - inventory_hostname == primary_instance_name
+
+- name:                                 Enqueue Server Setup
   block:
 
     - name:                             "Get the variable for ENSA1"
@@ -15,7 +69,7 @@
                                         source ~/.bashrc ;
                                         {{ sapcontrolscs_command }} -host {{ scs_virtual_hostname }} -function GetProcessList | grep enserver
       register:                         enq_server1
-      failed_when:                      enq_server1.stdout != 'enserver'
+      failed_when:                      enq_server1.stdout != 'enserver' 
       changed_when:                     false
 
     - name:                             Capture the Enqueue server version
@@ -107,73 +161,6 @@
 #    - ensa1 == "enserver"
 
 # The following SCS/ERS profile changes are applicable irrespective of ENSA1/2
-
-- name:                                "ASCS, ERS profile changes "
-  block:
-
-    - name:                            " ASCS Profile - add service/halib"
-      ansible.builtin.blockinfile:
-        path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ASCS{{ scs_instance_number }}_{{ scs_virtual_hostname }}
-        block: |
-                                        service/halib = $(DIR_CT_RUN)/saphascriptco.so
-                                        service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
-
-      register: scsservicehalib
-
-    - name:                            " ERS Profile - add service/halib"
-      ansible.builtin.blockinfile:
-        path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
-        block: |
-                                      service/halib = $(DIR_CT_RUN)/saphascriptco.so
-                                      service/halib_cluster_connector = /usr/bin/sap_suse_cluster_connector
-
-      register: ersservicehalib
-  when:
-    - ansible_os_family|upper  == "SUSE"
-    - inventory_hostname == primary_instance_name
-
-
-# [A] Configure Keep Alive - Ref- SAP Note 1410736 - # added in 1.9-stallation.
-- name:                                "Add the user 'sidadm to haclient group"
-  ansible.builtin.user:
-    name:                              "{{ sap_sid | lower }}adm"
-    comment:                           "{{} sap_sid }}adm User "
-    group:                             haclient
-  when:                                ansible_os_family|upper == "SUSE"
-
-## [1] Add the ASCS and ERS SAP services to the sapservice file
-# - name:                            "Add the ASCS and ERS SAP services to the sapservice file"
-#   become:                          true
-#   ansible.builtin.shell: |
-#                                    cat /usr/sap/sapservices | grep ASCS{{ scs_instance_number }} | ssh {{ secondary_instance_name }} "cat >>/usr/sap/sapservices"
-#                                    ssh {{ secondary_instance_name }} "cat /usr/sap/sapservices" | grep ERS{{ ers_instance_number }} | sudo tee -a /usr/sap/sapservices
-#   when:
-#     - inventory_hostname == primary_instance_name
-#     - ansible_os_family|upper == "SUSE"
-#     - 1 == 2
-
-- name:                                "SUSE - Remove the ASCS and ERS service definitions from sapservices file"
-  ansible.builtin.lineinfile:
-    backup:                            true
-    path:                              /usr/sap/sapservices
-    regexp:                            "{{ item.regexp }}"
-    line:                              "{{ item.lif }}"
-    state:                             present
-  loop:
-    - {regexp: "LD_LIBRARY_PATH=/usr/sap/{{ sap_sid }}/ASCS{{ scs_instance_number }}/exe", lif: "LD_LIBRARY_PATH=/usr/sap/{{ sap_sid }}/ASCS{{ scs_instance_number }}/exe:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH; /usr/sap/{{ sap_sid }}/ASCS{{ scs_instance_number }}/exe/sapstartsrv pf=/usr/sap/{{ sap_sid }}/SYS/profile/{{ sap_sid }}_ASCS{{ scs_instance_number }}_{{ scs_virtual_hostname }} -D -u {{ sap_sid | lower }}adm" }
-    - {regexp: "LD_LIBRARY_PATH=/usr/sap/{{ sap_sid }}/ERS{{ ers_instance_number }}/exe", lif: "LD_LIBRARY_PATH=/usr/sap/{{ sap_sid }}/ERS{{ ers_instance_number }}/exe:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH; /usr/sap/{{ sap_sid }}/ERS{{ ers_instance_number }}/exe/sapstartsrv pf=/usr/sap/{{ sap_sid }}/SYS/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }} -D -u {{ sap_sid | lower }}adm"     }
-  when:
-    - ansible_os_family|upper == "SUSE"
-
-- name:                                "REDHAT - Comment the ASCS and ERS service definitions from sapservices file"
-  ansible.builtin.replace:
-    backup:                            true
-    path:                              /usr/sap/sapservices
-    regexp:                            '^LD_LIBRARY_PATH='
-    replace:                           "#LD_LIBRARY_PATH="
-  when:
-    - ansible_os_family|upper == "REDHAT"
-
 # - name:                                "Add ASCS and ERS services to the sapservices file"
 #   ansible.builtin.blockinfile:
 #     path:                              /usr/sap/sapservices

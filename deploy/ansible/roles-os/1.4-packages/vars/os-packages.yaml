@@ -173,7 +173,7 @@ packages:
     - { tier: 'sapos', package: 'libatomic1',                                               state: 'present' }
     - { tier: 'sapos', package: 'uuidd',                                                    state: 'present' }
   # ----------------------- Begin - Packages required for Clustering -------------------------------------8
-    - { tier: 'ha',    package: 'acl',                                                      state: 'present' }
+    - { tier: 'hdb',   package: 'acl',                                node_tier: 'hana',    state: 'present' }
     - { tier: 'ha',    package: 'socat',                                                    state: 'present' }
     - { tier: 'ha',    package: 'corosync',                           node_tier: 'hana',    state: 'present' }
     - { tier: 'ha',    package: 'resource-agents>=4.3',               node_tier: 'hana',    state: 'present' }
