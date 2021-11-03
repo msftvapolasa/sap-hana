@@ -17,6 +17,7 @@
 
 - name:                                Determine if HANA is running
   become_user:                         "{{ db_sid | lower }}adm"
+  become:                              true
   ansible.builtin.shell: >
                                        source ~/.bashrc ;
                                        {{ sapcontrol_command }} -function GetProcessList
