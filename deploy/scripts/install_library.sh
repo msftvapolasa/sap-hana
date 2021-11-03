@@ -143,9 +143,6 @@ then
     exit -1
 fi
 
-
-echo "Use Deployer: $use_deployer"
-
 if [ false != "$use_deployer" ]
 then
     if [ ! -d "${deployer_statefile_foldername}" ]
