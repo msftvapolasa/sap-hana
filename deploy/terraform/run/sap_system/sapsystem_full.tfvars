@@ -5,7 +5,7 @@ landscape_tfstate_key = null
 
 environment = "NP"
 location    = "westeurope"
-#resource_group_name=""
+#resourcegroup_name=""
 #resourcegroup_arm_id=""
 #proximityplacementgroup_names=[]
 #proximityplacementgroup_arm_ids=[]

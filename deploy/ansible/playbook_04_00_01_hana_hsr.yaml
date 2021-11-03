@@ -29,13 +29,13 @@
 #   01) Hana DB system replication
 #
 
-- hosts:          "{{ sap_sid|upper }}_DB"
+- hosts:                               "{{ sap_sid|upper }}_DB"
 
-  name:           HANA HA Configuration
-  remote_user:    "{{ orchestration_ansible_user }}"
-  become:         true
-  become_user:    root
-  gather_facts:   true
+  name:                                HANA HA Configuration
+  remote_user:                         "{{ orchestration_ansible_user }}"
+  become:                              true
+  become_user:                         root
+  gather_facts:                        true
   vars_files:
     - vars/ansible-input-api.yaml                               # API Input template with defaults
 
@@ -61,6 +61,14 @@
                 name:                  roles-os/1.4-packages
           tags:
             - 1.4-packages
+
+        - block:
+            - name:                    Run the hana sudoers role
+              include_role:
+                name:                  roles-os/1.11-accounts
+                tasks_from:            setup_hanausers_sudoers.yml
+          tags:
+            - 1.11-accounts
     
         - block:
             - name:                    Run the db/hdb-hsr role
@@ -90,7 +98,6 @@
               include_role:
                 name:                  roles-os/1.11-accounts
                 tasks_from:            setup_hanausers_sudoers.yml
-              when:                    db_high_availability
           tags:
             - 1.11-accounts
         - block:

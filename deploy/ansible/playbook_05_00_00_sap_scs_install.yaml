@@ -164,9 +164,10 @@
             - 1.16-services
 
         - block:
-            - name:                    Include 1.11-accounts role
-              ansible.builtin.include_role:
+            - name:                    Run the hana sudoers role
+              include_role:
                 name:                  roles-os/1.11-accounts
+                tasks_from:            setup_hanausers_sudoers.yml
           tags:
             - 1.11-accounts
 

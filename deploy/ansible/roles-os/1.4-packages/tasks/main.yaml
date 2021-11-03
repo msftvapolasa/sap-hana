@@ -14,8 +14,10 @@
     var:                               tier
     verbosity:                         2
 
-- name:                                "1.4 - Update OS packages: {{ distro_name }}"
-  ansible.builtin.command:             "zypper -n install python-xml"
+- name:                                "1.4 - Update Python: {{ distro_full_id }}"
+  zypper:
+    name:                              'python-xml'
+    state:                             latest
   when:                                distro_id == "suse15"
 
 # Analyse the package list for this distribution selecting only those
