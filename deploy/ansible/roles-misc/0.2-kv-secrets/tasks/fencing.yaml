@@ -42,7 +42,6 @@
     var:                               keyvault_secret_show_fencing_spn_client_id
     verbosity:                         2
 
-
 - name:                                "SPN Secrets: Extract Fencing agent SPN Client ID"
   ansible.builtin.set_fact:
     sap_fencing_spn_client_id: >-

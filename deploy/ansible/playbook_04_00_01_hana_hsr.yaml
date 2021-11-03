@@ -11,6 +11,9 @@
   vars_files:
     - vars/ansible-input-api.yaml      # API Input template with defaults
   tasks:
+    - name:                            Initialize facts
+      set_fact:
+        tier:                          fencing
 
     - name:                            Run the misc/password role
       include_role:
@@ -18,6 +21,12 @@
         public:                        true
       tags:
         - 0.1-passwords
+
+    - name:                            Run the keyvault role
+      include_role:
+        name:                          roles-misc/0.2-kv-secrets
+      tags:
+        - kv-secrets
 
     - name:                            Ensure step file is removed
       ansible.builtin.file:
@@ -71,6 +80,7 @@
 
     - name:                            "Install HANA Pacemaker resources"
       block:
+
         - name:                        Initialize facts
           set_fact:
             tier:                      ha
@@ -78,6 +88,9 @@
             main_password:             "{{ hostvars.localhost.sap_password }}"
             primary_instance_name:     "{{ ansible_play_hosts_all[0] }}"         # Setting up Primary Instance Name
             secondary_instance_name:   "{{ ansible_play_hosts_all[1] }}"         # Setting up Secondary Instance Name
+            sap_hana_fencing_spn_client_id:  "{{ hostvars.localhost.sap_fencing_spn_client_id }}"
+            sap_hana_fencing_spn_client_pwd: "{{ hostvars.localhost.sap_fencing_spn_pwd }}"
+            sap_hana_fencing_spn_tenant_id:  "{{ hostvars.localhost.sap_fencing_spn_tenant_id }}"
           tags:
             - always
     

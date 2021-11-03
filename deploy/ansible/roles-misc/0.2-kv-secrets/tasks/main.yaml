@@ -25,7 +25,6 @@
   when:
     - tier == "bom"
 
-
 - name:                                "BoM Secrets: Retrieve S User details"
   ansible.builtin.command: >-
     az keyvault secret show
@@ -35,7 +34,6 @@
   register:                            keyvault_secret_show_s_user
   when:
     - tier == "bom"
-
 
 - name:                                "BoM Secrets: Extract S User secret details"
   ansible.builtin.set_fact:
