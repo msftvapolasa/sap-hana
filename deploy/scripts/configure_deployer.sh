@@ -314,10 +314,13 @@ rel=$(lsb_release -a | grep Release | cut -d':' -f2 | xargs)
 # Ubuntu 20.04 (Focal Fossa) and 20.10 (Groovy Gorilla) include an azure-cli package with version 2.0.81 provided by the universe repository. 
 # This package is outdated and not recommended. If this package is installed, remove the package
 if [ "$rel" == "20.04" ]; then
-  echo "Removing Azure CLI"
-  sudo apt remove azure-cli -y 
-  sudo apt autoremove -y
-  sudo apt update -y
+  if [ -z /etc/az_removed ]; then
+    echo "Removing Azure CLI"
+    sudo apt remove azure-cli -y 
+    sudo apt autoremove -y
+    sudo apt update -y
+    touch /etc/az_removed
+  fi
 fi
 #
 # Install az cli using provided scripting
@@ -423,21 +426,6 @@ if [ -f /tmp/requirements-azure.txt ]; then
   sudo ${ansible_venv_bin}/pip3 install  -r /tmp/requirements-azure.txt 
 fi
 
-
-az login --identity 2>error.log || :
-
-if [ ! -f error.log ]; then
-  az account show > az.json
-  client_id=$(jq --raw-output .id az.json)
-  tenant_id=$(jq --raw-output .tenantId az.json)
-  rm az.json
-else
-  client_id=''
-  tenant_id=''
-
-fi
-
-
 curl -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | jq > vm.json
 
 rg_name=$(jq --raw-output .compute.resourceGroupName vm.json )
@@ -454,7 +442,6 @@ mkdir -p \
     ${asad_ws}/LANDSCAPE \
     ${asad_ws}/DEPLOYER/${rg_name}
 
-
 #
 # Update current session
 #
@@ -462,7 +449,14 @@ echo '# Configure environment settings for deployer interactive session'
 
 # Add new /opt bin directories to start of PATH to ensure the versions we installed
 # are preferred over any installed standard system versions.
-export "PATH=${ansible_bin}:${tf_bin}:"'${PATH}'
+
+export ARM_SUBSCRIPTION_ID=${subscription_id}
+export DEPLOYMENT_REPO_PATH=$HOME/Azure_SAP_Automated_Deployment/sap-hana
+
+export "PATH=${ansible_bin}:${tf_bin}:"'${PATH}':$HOME/Azure_SAP_Automated_Deployment/sap-hana/deploy/scripts:$HOME/Azure_SAP_Automated_Deployment/sap-hana/deploy/ansible
+
+# Add new /opt bin directories to start of PATH to ensure the versions we installed
+# are preferred over any installed standard system versions.
 
 # Set env for ansible
 export ANSIBLE_HOST_KEY_CHECKING=False 
@@ -471,26 +465,19 @@ export ANSIBLE_COLLECTIONS_PATHS=${ansible_collections}
 # Set env for MSI
 export ARM_USE_MSI=true
 
-if [ ! -n "${client_id}" ]; then
-  export ARM_CLIENT_ID=${client_id}
-fi
-
-if [ ! -n "${tenant_id}" ]; then
-  export ARM_TENANT_ID=${tenant_id}
-fi
-
-export ARM_SUBSCRIPTION_ID=${subscription_id}
-export DEPLOYMENT_REPO_PATH=$HOME/Azure_SAP_Automated_Deployment/sap-hana
-
 # Ensure that the user's account is logged in to Azure with specified creds
 az login --identity --output none
 'echo ${USER} account ready for use with Azure SAP Automated Deployment'
-
 
 #
 # Create /etc/profile.d script to setup environment for future interactive sessions
 #
 echo '# Configure environment settings for deployer interactive sessions' | sudo tee /etc/profile.d/deploy_server.sh
+
+echo export ARM_SUBSCRIPTION_ID=${subscription_id} | sudo tee -a /etc/profile.d/deploy_server.sh
+echo export DEPLOYMENT_REPO_PATH=$HOME/Azure_SAP_Automated_Deployment/sap-hana | sudo tee -a /etc/profile.d/deploy_server.sh
+
+echo export "PATH=${ansible_bin}:${tf_bin}:"'${PATH}':$HOME/Azure_SAP_Automated_Deployment/sap-hana/deploy/scripts:$HOME/Azure_SAP_Automated_Deployment/sap-hana/deploy/ansible | sudo tee -a /etc/profile.d/deploy_server.sh
 
 
 # Set env for ansible
@@ -500,21 +487,28 @@ echo export ANSIBLE_COLLECTIONS_PATHS=${ansible_collections} | sudo tee -a /etc/
 # Set env for MSI
 echo export ARM_USE_MSI=true | sudo tee -a /etc/profile.d/deploy_server.sh
 
+az login --identity 2>error.log || :
+
+if [ ! -f error.log ]; then
+  az account show > az.json
+  client_id=$(jq --raw-output .id az.json)
+  tenant_id=$(jq --raw-output .tenantId az.json)
+  rm az.json
+else
+  client_id=''
+  tenant_id=''
+
+fi
+
 if [ ! -n "${client_id}" ]; then
+  export ARM_CLIENT_ID=${client_id}
   echo export ARM_CLIENT_ID=${client_id} | sudo tee -a /etc/profile.d/deploy_server.sh
 fi
 
 if [ ! -n "${tenant_id}" ]; then
+  export ARM_TENANT_ID=${tenant_id}
   echo export ARM_TENANT_ID=${tenant_id} | sudo tee -a /etc/profile.d/deploy_server.sh
 fi
-
-echo export ARM_SUBSCRIPTION_ID=${subscription_id} | sudo tee -a /etc/profile.d/deploy_server.sh
-echo export DEPLOYMENT_REPO_PATH=$HOME/Azure_SAP_Automated_Deployment/sap-hana | sudo tee -a /etc/profile.d/deploy_server.sh
-
-# Add new /opt bin directories to start of PATH to ensure the versions we installed
-# are preferred over any installed standard system versions.
-echo export "PATH=${ansible_bin}:${tf_bin}:"'${PATH}':$HOME/Azure_SAP_Automated_Deployment/sap-hana/deploy/scripts | sudo tee -a /etc/profile.d/deploy_server.sh
-
 
 # Ensure that the user's account is logged in to Azure with specified creds
 echo az login --identity --output none | sudo tee -a /etc/profile.d/deploy_server.sh
