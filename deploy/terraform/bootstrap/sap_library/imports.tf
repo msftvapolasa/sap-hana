@@ -5,7 +5,7 @@
 
 data "terraform_remote_state" "deployer" {
   backend = "local"
-  count   = length(var.deployer_statefile_foldername) > 0 || local.use_deployer ? 1 : 0
+  count   = length(var.deployer_statefile_foldername) > 0 || var.use_deployer ? 1 : 0
   config = {
     path = length(var.deployer_statefile_foldername) > 0 ? "${var.deployer_statefile_foldername}/terraform.tfstate" : "${abspath(path.cwd)}/../../LOCAL/${local.deployer_rg_name}/terraform.tfstate"
   }
@@ -18,28 +18,28 @@ data "azurerm_key_vault_secret" "subscription_id" {
 }
 
 data "azurerm_key_vault_secret" "client_id" {
-  count        = local.use_deployer ? 1 : 0
+  count        = var.use_deployer ? 1 : 0
   provider     = azurerm.deployer
-  name         = format("%s-client-id", upper(var.infrastructure.environment))
+  name         = format("%s-client-id", upper(local.infrastructure.environment))
   key_vault_id = local.spn_key_vault_arm_id
 }
 
 data "azurerm_key_vault_secret" "client_secret" {
-  count        = local.use_deployer ? 1 : 0
+  count        = var.use_deployer ? 1 : 0
   provider     = azurerm.deployer
-  name         = format("%s-client-secret", upper(var.infrastructure.environment))
+  name         = format("%s-client-secret", upper(local.infrastructure.environment))
   key_vault_id = local.spn_key_vault_arm_id
 }
 
 data "azurerm_key_vault_secret" "tenant_id" {
-  count        = local.use_deployer ? 1 : 0
+  count        = var.use_deployer ? 1 : 0
   provider     = azurerm.deployer
-  name         = format("%s-tenant-id", upper(var.infrastructure.environment))
+  name         = format("%s-tenant-id", upper(local.infrastructure.environment))
   key_vault_id = local.spn_key_vault_arm_id
 }
 
 // Import current service principal
 data "azuread_service_principal" "sp" {
-  count          = local.use_deployer ? 1 : 0
+  count          = var.use_deployer ? 1 : 0
   application_id = local.spn.client_id
 }
