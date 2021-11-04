@@ -18,7 +18,7 @@ locals {
   // If custom names are used for deployer, providing resource_group_name and msi_name will override the naming convention
   deployer_rg_name = try(local.deployer.resource_group_name, format("%s%s", local.deployer_prefix, module.sap_namegenerator.naming.resource_suffixes.deployer_rg))
 
-  use_deployer = try(local.deployer.use, false)
+  use_deployer = var.use_deployer
 
   // Retrieve the arm_id of deployer's Key Vault from deployer's terraform.tfstate
   spn_key_vault_arm_id = try(local.key_vault.kv_spn_id, try(data.terraform_remote_state.deployer[0].outputs.deployer_kv_user_arm_id, ""))
