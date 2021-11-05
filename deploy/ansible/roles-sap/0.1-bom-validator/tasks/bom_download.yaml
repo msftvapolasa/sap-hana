@@ -44,8 +44,21 @@
 #   03) Upload files to Azure
 - name:                                "BOM: {{ bom_name }} Upload File {{ item.archive }}"
 
+<<<<<<< HEAD
   ansible.builtin.shell: >-
                                        az storage blob upload --account-name {{ account }} --account-key '{{ sapbits_access_key }}' --container-name {{ container }} --name {{ item.archive }}  --file {{ result.dest }} --no-progress
+=======
+  ansible.builtin.command: >-
+                                       az storage blob upload
+                                         --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}
+                                         --account-key {{ sapbits_access_key }}
+                                         --container-name {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives
+                                         --name {{ item.archive }}
+                                         --file {{ download_directory }}/files/{{ item.archive }}
+                                         --if-none-match "*"
+                                         --no-progress
+  delegate_to:                         localhost
+>>>>>>> 1dc56ce3c406279ddbb5cd53a202192deb43a28a
   register:                            azresult
   ignore_errors:                       true
   failed_when:
