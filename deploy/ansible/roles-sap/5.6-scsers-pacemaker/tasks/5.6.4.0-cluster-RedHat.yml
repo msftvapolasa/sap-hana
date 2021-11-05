@@ -16,7 +16,7 @@
                                        pcs resource defaults migration-threshold=3
 
     - name:                            "Put Secondary host on standby"
-      ansible.builtin.shell:           pcs node standby {{ secondary_instance_name }}
+      ansible.builtin.command:         pcs node standby {{ secondary_instance_name }}
 
     - name:                            "SCS - Configure File system resources"
       ansible.builtin.command: >

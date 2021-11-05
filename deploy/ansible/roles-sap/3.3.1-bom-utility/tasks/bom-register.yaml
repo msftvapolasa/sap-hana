@@ -37,10 +37,6 @@
     name:                              bom
   when:                                microsoft_supplied_bom.stat.exists or microsoft_supplied_bom_archive.stat.exists
 
-- name:                                Check for Microsoft Supplied BOM ({{ bom_name }})
-  ansible.builtin.debug:
-    var: bom
-
 # If Microsoft supplied BOM not found
 
 - name:                                Retrieve BOM ({{ bom_name }}) from Storage Account

@@ -18,6 +18,25 @@
   delay:                               1
   no_log:                              false
 
+# - name:                                "BOM: Verify Files"
+#   ansible.builtin.stat:
+#     path:                              "{{ target_media_location }}/{% if item.path is undefined %}downloads{% else %}{{ item.path }}{% endif %}/\
+#                                            {% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
+#     checksum_algorithm:                sha256
+#   register:                            fs_check
+ 
+# - name:                                "BOM: Show"
+#   ansible.builtin.debug:
+#     msg:                               "{{ fs_check.stat.path | basename}}, {{ fs_check.stat.checksum }}"
+#   when:                                fs_check is defined
+
+# - name:                                "BOM: Line"
+#   ansible.builtin.lineinfile:
+#     path:                              foo.txt
+#     regexp:                            '^NOTFOUND'
+#     line:                              "{{ fs_check.stat.path | basename}}, {{ fs_check.stat.checksum }}"
+#   when:                                fs_check is defined
+
 #   03) Upload files to Azure
 - name:                                "BOM: {{ bom_name }} Upload File {{ item.archive }}"
 
