@@ -37,6 +37,12 @@
     name:                              bom
   when:                                microsoft_supplied_bom.stat.exists or microsoft_supplied_bom_archive.stat.exists
 
+- name:                                Register Microsoft Supplied BOM {{ bom_name }} path
+  ansible.builtin.set_fact:
+    bom_file:                          "{% if microsoft_supplied_bom.stat.exists %}{{ microsoft_supplied_bom.stat.path }}{% else %}{{ microsoft_supplied_bom_archive.stat.path }}{% endif %}"
+  when:                                microsoft_supplied_bom.stat.exists or microsoft_supplied_bom_archive.stat.exists
+
+
 # If Microsoft supplied BOM not found
 
 - name:                                Retrieve BOM ({{ bom_name }}) from Storage Account
@@ -65,6 +71,7 @@
       ansible.builtin.include_vars:
         file:                          "{{ inventory_dir }}/{{ bom_name }}.yaml"
         name:                          bom
+
 
   when:                                bom is not defined
 # -------------------------------------+---------------------------------------8

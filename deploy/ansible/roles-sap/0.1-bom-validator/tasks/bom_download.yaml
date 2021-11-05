@@ -18,47 +18,66 @@
   delay:                               1
   no_log:                              false
 
-- name:                                "BOM: {{ bom_name }} Upload File {{ item.archive }}"
+- name:                                "BOM: {{ bom_name }} Download File {{ item.archive }}"
   ansible.builtin.debug: 
     var:                               result
+    verbosity:                         2
 
+- name:                                "BOM: Create checksums"
+  block:
+    - name:                                "BOM: Verify Files"
+      ansible.builtin.stat:
+        path:                              "{{ result.dest }}"
+        checksum_algorithm:                sha256
+      register:                            fs_check
+     
+    - name:                                "BOM: Show"
+      ansible.builtin.debug:
+        var:                               fs_check
+        verbosity:                         2
+      when:                                create_checksums is defined
+    
+    - name:                                "BOM: Line"
+      ansible.builtin.blockinfile:
+        path:                              "{{ bom_file }}"
+        regexp:                            '      archive:      {{ item.archive }}'
+        insertafter:                       '      archive:      {{ item.archive }}'
+        block:                             "      checksum:     {{ fs_check.stat.checksum }}"
+        marker:                            "# {mark} ANSIBLE MANAGED BLOCK {{ item.archive }}" 
+      when:                                
+        - fs_check is defined
+        - create_checksums is defined
+        - bom_file is defined
+    
+    - name:                                "BOM: Remove marker"
+      ansible.builtin.lineinfile:
+        path:                              "{{ bom_file }}"
+        regexp:                            '# BEGIN ANSIBLE MANAGED BLOCK {{ item.archive }}'
+        state:                             absent
+    
+    - name:                                "BOM: Remove marker"
+      ansible.builtin.lineinfile:
+        path:                              "{{ bom_file }}"
+        regexp:                            '# END ANSIBLE MANAGED BLOCK {{ item.archive }}'
+        state:                             absent
+  when: 
+    - item.checksum is not defined
+    - create_checksums is defined
 
-- name:                                "BOM: Verify Files"
-  ansible.builtin.stat:
-    path:                              "{{ result.dest }}"
-    checksum_algorithm:                sha256
-  register:                            fs_check
- 
-- name:                                "BOM: Show"
-  ansible.builtin.debug:
-    var:                               fs_check
-#   when:                                fs_check is defined
-
-# - name:                                "BOM: Line"
-#   ansible.builtin.lineinfile:
-#     path:                              foo.txt
-#     regexp:                            '^NOTFOUND'
-#     line:                              "{{ fs_check.stat.path | basename}}, {{ fs_check.stat.checksum }}"
-#   when:                                fs_check is defined
-
+    
 #   03) Upload files to Azure
 - name:                                "BOM: {{ bom_name }} Upload File {{ item.archive }}"
 
-<<<<<<< HEAD
-  ansible.builtin.shell: >-
-                                       az storage blob upload --account-name {{ account }} --account-key '{{ sapbits_access_key }}' --container-name {{ container }} --name {{ item.archive }}  --file {{ result.dest }} --no-progress
-=======
   ansible.builtin.command: >-
                                        az storage blob upload
-                                         --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}
+                                         --account-name {{ account }}
                                          --account-key {{ sapbits_access_key }}
-                                         --container-name {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives
+                                         --container-name {{ container }}
                                          --name {{ item.archive }}
-                                         --file {{ download_directory }}/files/{{ item.archive }}
+                                         --file {{ result.dest }}
                                          --if-none-match "*"
                                          --no-progress
   delegate_to:                         localhost
->>>>>>> 1dc56ce3c406279ddbb5cd53a202192deb43a28a
   register:                            azresult
   ignore_errors:                       true
   failed_when:
