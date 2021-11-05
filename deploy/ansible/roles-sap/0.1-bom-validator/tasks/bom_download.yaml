@@ -18,16 +18,20 @@
   delay:                               1
   no_log:                              false
 
-# - name:                                "BOM: Verify Files"
-#   ansible.builtin.stat:
-#     path:                              "{{ target_media_location }}/{% if item.path is undefined %}downloads{% else %}{{ item.path }}{% endif %}/\
-#                                            {% if item.filename is undefined %}{{ item.archive }}{% else %}{{ item.filename }}{% endif %}"
-#     checksum_algorithm:                sha256
-#   register:                            fs_check
+- name:                                "BOM: {{ bom_name }} Upload File {{ item.archive }}"
+  ansible.builtin.debug: 
+    var:                               result
+
+
+- name:                                "BOM: Verify Files"
+  ansible.builtin.stat:
+    path:                              "{{ result.dest }}"
+    checksum_algorithm:                sha256
+  register:                            fs_check
  
-# - name:                                "BOM: Show"
-#   ansible.builtin.debug:
-#     msg:                               "{{ fs_check.stat.path | basename}}, {{ fs_check.stat.checksum }}"
+- name:                                "BOM: Show"
+  ansible.builtin.debug:
+    var:                               fs_check
 #   when:                                fs_check is defined
 
 # - name:                                "BOM: Line"
@@ -40,25 +44,14 @@
 #   03) Upload files to Azure
 - name:                                "BOM: {{ bom_name }} Upload File {{ item.archive }}"
 
-  ansible.builtin.command: >-
-                                       "az storage blob upload
-                                         --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}
-                                         --account-key {{ sapbits_access_key }}
-                                         --container-name {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives
-                                         --name {{ item.archive }}
-                                         --file {{ download_directory }}/files/{{ item.archive }}
-                                         --if-none-match "*"
-                                         --no-progress"
-  delegate_to:                         localhost
+  ansible.builtin.shell: >-
+                                       az storage blob upload --account-name {{ account }} --account-key '{{ sapbits_access_key }}' --container-name {{ container }} --name {{ item.archive }}  --file {{ result.dest }} --no-progress
   register:                            azresult
   ignore_errors:                       true
   failed_when:
     - azresult.rc != 0
     - azresult.stderr is defined
     - azresult.stderr.find("BlobAlreadyExists") == -1
-  when:
-    - item.archive is defined
-
 
 ...
 # /*---------------------------------------------------------------------------8
