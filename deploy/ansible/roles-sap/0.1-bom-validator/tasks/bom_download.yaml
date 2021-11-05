@@ -41,14 +41,14 @@
 - name:                                "BOM: {{ bom_name }} Upload File {{ item.archive }}"
 
   ansible.builtin.command: >-
-                                       "az storage blob upload
+                                       az storage blob upload
                                          --account-name {{ sapbits_location_base_path.rpartition('//')[2].split('.')[0] }}
                                          --account-key {{ sapbits_access_key }}
                                          --container-name {{ sapbits_location_base_path.rpartition('//')[2].split('/')[1] }}/{{ sapbits_bom_files }}/archives
                                          --name {{ item.archive }}
                                          --file {{ download_directory }}/files/{{ item.archive }}
                                          --if-none-match "*"
-                                         --no-progress"
+                                         --no-progress
   delegate_to:                         localhost
   register:                            azresult
   ignore_errors:                       true
