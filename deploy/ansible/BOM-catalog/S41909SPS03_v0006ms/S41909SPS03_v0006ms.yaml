@@ -13,6 +13,7 @@ product_ids:
   app:    NW_DI:S4HANA1909.CORE.HDB.PD
   web:    NW_Webdispatcher:NW750.IND.PD
   ers:    NW_ERS:S4HANA1909.CORE.HDB.ABAPHA
+  scsha:  NW_ABAP_ASCS:S4HANA1909.CORE.HDB.ABAPHA
 
 materials:
   dependencies:
