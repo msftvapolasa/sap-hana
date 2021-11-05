@@ -69,7 +69,7 @@
                                         source ~/.bashrc ;
                                         {{ sapcontrolscs_command }} -host {{ scs_virtual_hostname }} -function GetProcessList | grep enserver
       register:                         enq_server1
-      failed_when:                      enq_server1.stdout != 'enserver' 
+      failed_when:                      enq_server1.stdout != 'enserver'
       changed_when:                     false
 
     - name:                             Capture the Enqueue server version
@@ -109,7 +109,7 @@
     - name:                            "ASCS Profile - Comment Restart_Program_01 If Using ENSA1"
       ansible.builtin.replace:
         path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ASCS{{ scs_instance_number }}_{{ scs_virtual_hostname }}
-        backup:                        yes
+        backup:                        true
         regexp:                        '^Restart_Program_01'
         replace:                       '#Restart_Program_01'
       tags:
@@ -126,7 +126,7 @@
     - name:                            "ERS Profile - Comment Restart_Program_00 in ERS Profile if using ENSA1"
       ansible.builtin.replace:
         path:                          /sapmnt/{{ sap_sid }}/profile/{{ sap_sid }}_ERS{{ ers_instance_number }}_{{ ers_virtual_hostname }}
-        backup:                        yes
+        backup:                        true
         regexp:                        '^Restart_Program_00'
         replace:                       '#Restart_Program_00'
       tags:
