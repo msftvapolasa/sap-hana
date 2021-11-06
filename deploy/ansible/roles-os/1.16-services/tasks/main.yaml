@@ -45,6 +45,15 @@
                                          map(attribute='service') |
                                          list }}"
 
+- name:                                "1.16 - Reload Services : {{ distro_name }}"
+  ansible.builtin.service:
+    name:                              "{{ item }}"
+    state:                             restarted
+  loop:                                "{{ services_to_process |
+                                         selectattr('state', 'equalto', 'reloded') |
+                                         map(attribute='service') |
+                                         list }}"
+
 
 - name:                                "1.16 - Enable Services : {{ distro_name }}"
   ansible.builtin.service:
