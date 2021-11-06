@@ -11,11 +11,11 @@ resource "azurerm_network_interface" "anchor" {
   ip_configuration {
     name      = "IPConfig1"
     subnet_id = local.sub_db_exists ? data.azurerm_subnet.db[0].id : azurerm_subnet.db[0].id
-    private_ip_address = local.anchor_use_DHCP ? (
+    private_ip_address = try(var.infrastructure.anchor_vms.use_DHCP, false) ? (
       null) : (
       try(var.infrastructure.anchor_vms.nic_ips[count.index], cidrhost(local.sub_db_exists ? data.azurerm_subnet.db[0].address_prefixes[0] : azurerm_subnet.db[0].address_prefixes[0], (count.index + 5)))
     )
-    private_ip_address_allocation = local.anchor_use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = try(var.infrastructure.anchor_vms.use_DHCP, false) ? "Dynamic" : "Static"
   }
 }
 
@@ -33,7 +33,7 @@ resource "azurerm_linux_virtual_machine" "anchor" {
   network_interface_ids = [
     azurerm_network_interface.anchor[count.index].id
   ]
-  size = local.anchor_size
+  size = try(var.infrastructure.anchor_vms.sku, "")
 
   admin_username                  = local.sid_auth_username
   admin_password                  = local.enable_anchor_auth_key ? null : local.sid_auth_password
@@ -94,7 +94,7 @@ resource "azurerm_windows_virtual_machine" "anchor" {
     azurerm_network_interface.anchor[count.index].id
   ]
 
-  size           = local.anchor_size
+  size           = try(var.infrastructure.anchor_vms.sku, "")
   admin_username = local.sid_auth_username
   admin_password = local.sid_auth_password
 

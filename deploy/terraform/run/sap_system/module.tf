@@ -13,17 +13,17 @@ module "sap_namegenerator" {
   sap_vnet_name    = local.vnet_logical_name
   sap_sid          = local.sap_sid
   db_sid           = local.db_sid
-  app_ostype       = local.app_ostype
-  anchor_ostype    = local.anchor_ostype
-  db_ostype        = local.db_ostype
-  db_server_count  = local.db_server_count
-  app_server_count = local.app_server_count
-  web_server_count = local.webdispatcher_count
-  scs_server_count = local.scs_server_count
-  app_zones        = local.app_zones
-  scs_zones        = local.scs_zones
-  web_zones        = local.web_zones
-  db_zones         = local.db_zones
+  app_ostype       = try(local.application.os.os_type, "LINUX")
+  anchor_ostype    = upper(try(local.anchor_vms.os.os_type, "LINUX"))
+  db_ostype        = try(local.databases[0].os.os_type, "LINUX")
+  db_server_count  = var.database_server_count
+  app_server_count = try(local.application.application_server_count, 0)
+  web_server_count = try(local.application.webdispatcher_count, 0)
+  scs_server_count = local.application.scs_high_availability ? 2 * local.application.scs_server_count : local.application.scs_server_count
+  app_zones        = []
+  scs_zones        = try(local.application.scs_zones, [])
+  web_zones        = try(local.application.web_zones, [])
+  db_zones         = try(local.databases[0].zones, [])
   resource_offset  = try(var.options.resource_offset, 0)
   custom_prefix    = var.custom_prefix
 }
@@ -42,7 +42,7 @@ module "common_infrastructure" {
   key_vault                          = local.key_vault
   naming                             = module.sap_namegenerator.naming
   service_principal                  = local.use_spn ? local.service_principal : local.account
-  deployer_tfstate                   = length(local.deployer_tfstate_key) > 0 ? data.terraform_remote_state.deployer[0].outputs : null
+  deployer_tfstate                   = length(var.deployer_tfstate_key) > 0 ? data.terraform_remote_state.deployer[0].outputs : null
   landscape_tfstate                  = data.terraform_remote_state.landscape.outputs
   custom_disk_sizes_filename         = var.db_disk_sizes_filename
   authentication                     = local.authentication
@@ -54,7 +54,6 @@ module "common_infrastructure" {
   anf_sapmnt_volume_size             = var.anf_sapmnt_volume_size
   use_ANF                            = var.use_ANF
   custom_prefix                      = var.custom_prefix
-
 }
 
 # // Create HANA database nodes
@@ -69,7 +68,6 @@ module "hdb_node" {
   infrastructure                               = local.infrastructure
   options                                      = local.options
   resource_group                               = module.common_infrastructure.resource_group
-  vnet_sap                                     = module.common_infrastructure.vnet_sap
   storage_bootdiag_endpoint                    = module.common_infrastructure.storage_bootdiag_endpoint
   ppg                                          = module.common_infrastructure.ppg
   sid_kv_user_id                               = module.common_infrastructure.sid_kv_user_id
@@ -90,7 +88,14 @@ module "hdb_node" {
   license_type                                 = var.license_type
   use_loadbalancers_for_standalone_deployments = var.use_loadbalancers_for_standalone_deployments
   hana_dual_nics                               = var.hana_dual_nics
-
+  database_vm_names                            = var.database_vm_names
+  database_vm_db_nic_ips                       = var.database_vm_db_nic_ips
+  database_vm_admin_nic_ips                    = var.database_vm_admin_nic_ips
+  database_vm_storage_nic_ips                  = var.database_vm_storage_nic_ips
+  database_server_count = upper(try(local.databases[0].platform, "HANA")) == "HANA" ? (
+    local.databases[0].high_availability ? 2 * var.database_server_count : var.database_server_count) : (
+    0
+  )
 }
 
 # // Create Application Tier nodes
@@ -100,20 +105,17 @@ module "app_tier" {
     azurerm.main     = azurerm
     azurerm.deployer = azurerm.deployer
   }
-  depends_on                                   = [module.common_infrastructure]
+  depends_on                                   = [module.hdb_node, module.anydb_node]
   application                                  = local.application
   infrastructure                               = local.infrastructure
   options                                      = local.options
   resource_group                               = module.common_infrastructure.resource_group
-  vnet_sap                                     = module.common_infrastructure.vnet_sap
   storage_bootdiag_endpoint                    = module.common_infrastructure.storage_bootdiag_endpoint
   ppg                                          = module.common_infrastructure.ppg
   sid_kv_user_id                               = module.common_infrastructure.sid_kv_user_id
   naming                                       = module.sap_namegenerator.naming
   admin_subnet                                 = module.common_infrastructure.admin_subnet
   custom_disk_sizes_filename                   = var.app_disk_sizes_filename
-  anydb_vm_ids                                 = module.anydb_node.anydb_vms // Workaround to create dependency from anchor to db to app
-  hdb_vm_ids                                   = module.hdb_node.hdb_vms
   sid_password                                 = module.common_infrastructure.sid_password
   sid_username                                 = module.common_infrastructure.sid_username
   sdu_public_key                               = module.common_infrastructure.sdu_public_key
@@ -123,10 +125,11 @@ module "app_tier" {
   landscape_tfstate                            = data.terraform_remote_state.landscape.outputs
   terraform_template_version                   = var.terraform_template_version
   deployment                                   = var.deployment
+  network_location                             = module.common_infrastructure.network_location
+  network_resource_group                       = module.common_infrastructure.network_resource_group
   cloudinit_growpart_config                    = null # This needs more consideration module.common_infrastructure.cloudinit_growpart_config
   license_type                                 = var.license_type
   use_loadbalancers_for_standalone_deployments = var.use_loadbalancers_for_standalone_deployments
-
 }
 
 # // Create anydb database nodes
@@ -141,7 +144,6 @@ module "anydb_node" {
   infrastructure                               = local.infrastructure
   options                                      = local.options
   resource_group                               = module.common_infrastructure.resource_group
-  vnet_sap                                     = module.common_infrastructure.vnet_sap
   storage_bootdiag_endpoint                    = module.common_infrastructure.storage_bootdiag_endpoint
   ppg                                          = module.common_infrastructure.ppg
   sid_kv_user_id                               = module.common_infrastructure.sid_kv_user_id
@@ -160,9 +162,15 @@ module "anydb_node" {
   cloudinit_growpart_config                    = null # This needs more consideration module.common_infrastructure.cloudinit_growpart_config
   license_type                                 = var.license_type
   use_loadbalancers_for_standalone_deployments = var.use_loadbalancers_for_standalone_deployments
-
+  database_vm_names                            = var.database_vm_names
+  database_vm_db_nic_ips                       = var.database_vm_db_nic_ips
+  database_vm_admin_nic_ips                    = var.database_vm_admin_nic_ips
+  database_vm_storage_nic_ips                  = var.database_vm_storage_nic_ips
+  database_server_count = upper(try(local.databases[0].platform, "HANA")) == "HANA" ? (
+    0) : (
+    local.databases[0].high_availability ? 2 * var.database_server_count : var.database_server_count
+  )
 }
-
 # // Generate output files
 module "output_files" {
   source = "../../terraform-units/modules/sap_system/output_files"
@@ -180,7 +188,6 @@ module "output_files" {
   loadbalancers         = module.hdb_node.loadbalancers
   sap_sid               = local.sap_sid
   db_sid                = local.db_sid
-  hana_database_info    = module.hdb_node.hana_database_info
   nics_scs              = module.app_tier.nics_scs
   nics_app              = module.app_tier.nics_app
   nics_web              = module.app_tier.nics_web
@@ -189,11 +196,9 @@ module "output_files" {
   nics_app_admin        = module.app_tier.nics_app_admin
   nics_web_admin        = module.app_tier.nics_web_admin
   nics_anydb_admin      = module.anydb_node.nics_anydb_admin
-  any_database_info     = module.anydb_node.any_database_info
   anydb_loadbalancers   = module.anydb_node.anydb_loadbalancers
   random_id             = module.common_infrastructure.random_id
   landscape_tfstate     = data.terraform_remote_state.landscape.outputs
-  tfstate_resource_id   = var.tfstate_resource_id
   naming                = module.sap_namegenerator.naming
   app_tier_os_types     = module.app_tier.app_tier_os_types
   sid_kv_user_id        = module.common_infrastructure.sid_kv_user_id
@@ -211,5 +216,8 @@ module "output_files" {
   bom_name              = var.bom_name
   scs_instance_number   = var.scs_instance_number
   ers_instance_number   = var.ers_instance_number
+  platform              = upper(try(local.databases[0].platform, "HANA"))
+  db_auth_type          = try(local.databases[0].authentication.type, "key")
+  tfstate_resource_id   = var.tfstate_resource_id
 
 }

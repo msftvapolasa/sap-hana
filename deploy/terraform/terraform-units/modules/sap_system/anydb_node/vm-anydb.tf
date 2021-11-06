@@ -3,9 +3,10 @@
 #############################################################################
 
 resource "azurerm_network_interface" "anydb_db" {
-  provider                      = azurerm.main
-  count                         = local.enable_deployment ? local.db_server_count : 0
-  name                          = format("%s%s", local.anydb_vms[count.index].name, local.resource_suffixes.db_nic)
+  provider = azurerm.main
+  count    = local.enable_deployment ? var.database_server_count : 0
+  name     = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.ANYDB_VMNAME[count.index], local.resource_suffixes.db_nic)
+
   location                      = var.resource_group[0].location
   resource_group_name           = var.resource_group[0].name
   enable_accelerated_networking = true
@@ -15,21 +16,21 @@ resource "azurerm_network_interface" "anydb_db" {
     name      = "ipconfig1"
     subnet_id = var.db_subnet.id
 
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.databases[0].use_DHCP ? (
       null) : (
-      try(local.anydb_vms[count.index].db_nic_ip, "false") != "false" ? (
-        local.anydb_vms[count.index].db_nic_ip) : (
+      length(try(var.database_vm_db_nic_ips[count.index], "")) > 0 ? (
+        var.database_vm_db_nic_ips[count.index]) : (
         cidrhost(var.db_subnet.address_prefixes[0], tonumber(count.index) + local.anydb_ip_offsets.anydb_db_vm)
       )
     )
 
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.databases[0].use_DHCP ? "Dynamic" : "Static"
   }
 }
 
 resource "azurerm_network_interface_application_security_group_association" "db" {
   provider                      = azurerm.main
-  count                         = local.enable_deployment ? local.db_server_count : 0
+  count                         = local.enable_deployment ? var.database_server_count : 0
   network_interface_id          = azurerm_network_interface.anydb_db[count.index].id
   application_security_group_id = var.db_asg_id
 }
@@ -37,8 +38,8 @@ resource "azurerm_network_interface_application_security_group_association" "db"
 # Creates the Admin traffic NIC and private IP address for database nodes
 resource "azurerm_network_interface" "anydb_admin" {
   provider                      = azurerm.main
-  count                         = local.enable_deployment && local.anydb_dual_nics ? local.db_server_count : 0
-  name                          = format("%s%s", local.anydb_vms[count.index].name, local.resource_suffixes.admin_nic)
+  count                         = local.enable_deployment && local.anydb_dual_nics ? var.database_server_count : 0
+  name                          = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.ANYDB_VMNAME[count.index], local.resource_suffixes.admin_nic)
   location                      = var.resource_group[0].location
   resource_group_name           = var.resource_group[0].name
   enable_accelerated_networking = true
@@ -48,14 +49,14 @@ resource "azurerm_network_interface" "anydb_admin" {
     name      = "ipconfig1"
     subnet_id = var.admin_subnet.id
 
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.databases[0].use_DHCP ? (
       null) : (
-      try(local.anydb_vms[count.index].admin_nic_ip, "false") != "false" ? (
-        local.anydb_vms[count.index].admin_nic_ip) : (
+      length(try(var.database_vm_admin_nic_ips[count.index], "")) > 0 ? (
+        var.database_vm_admin_nic_ips[count.index]) : (
         cidrhost(var.admin_subnet.address_prefixes[0], tonumber(count.index) + local.anydb_ip_offsets.anydb_admin_vm)
       )
     )
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.databases[0].use_DHCP ? "Dynamic" : "Static"
   }
 }
 
@@ -63,9 +64,9 @@ resource "azurerm_network_interface" "anydb_admin" {
 resource "azurerm_linux_virtual_machine" "dbserver" {
   provider            = azurerm.main
   depends_on          = [var.anchor_vm]
-  count               = local.enable_deployment ? ((upper(local.anydb_ostype) == "LINUX") ? local.db_server_count : 0) : 0
-  name                = local.anydb_vms[count.index].name
-  computer_name       = local.anydb_vms[count.index].computername
+  count               = local.enable_deployment ? ((upper(local.anydb_ostype) == "LINUX") ? var.database_server_count : 0) : 0
+  name                = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.ANYDB_VMNAME[count.index], local.resource_suffixes.vm)
+  computer_name       = var.naming.virtualmachine_names.ANYDB_COMPUTERNAME[count.index]
   resource_group_name = var.resource_group[0].name
   location            = var.resource_group[0].location
 
@@ -87,7 +88,7 @@ resource "azurerm_linux_virtual_machine" "dbserver" {
     iterator = disk
     for_each = range(length(local.os_disk))
     content {
-      name                   = format("%s%s", local.anydb_vms[count.index].name, local.resource_suffixes.osdisk)
+      name                   = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.ANYDB_VMNAME[count.index], local.resource_suffixes.osdisk)
       caching                = local.os_disk[0].caching
       storage_account_type   = local.os_disk[0].storage_account_type
       disk_size_gb           = local.os_disk[0].disk_size_gb
@@ -119,7 +120,7 @@ resource "azurerm_linux_virtual_machine" "dbserver" {
     [azurerm_network_interface.anydb_db[count.index].id]
   )
 
-  size = local.anydb_vms[count.index].size
+  size = local.anydb_sku
 
   source_image_id = local.anydb_custom_image ? local.anydb_os.source_image_id : null
 
@@ -144,12 +145,12 @@ resource "azurerm_linux_virtual_machine" "dbserver" {
 
   tags = local.tags
 
-  lifecycle  {
-  ignore_changes = [
-    // Ignore changes to computername
-    tags,
-    computer_name
-  ]
+  lifecycle {
+    ignore_changes = [
+      // Ignore changes to computername
+      tags,
+      computer_name
+    ]
   }
 
 }
@@ -158,9 +159,9 @@ resource "azurerm_linux_virtual_machine" "dbserver" {
 resource "azurerm_windows_virtual_machine" "dbserver" {
   provider            = azurerm.main
   depends_on          = [var.anchor_vm]
-  count               = local.enable_deployment ? ((upper(local.anydb_ostype) == "WINDOWS") ? local.db_server_count : 0) : 0
-  name                = local.anydb_vms[count.index].name
-  computer_name       = local.anydb_vms[count.index].computername
+  count               = local.enable_deployment ? ((upper(local.anydb_ostype) == "WINDOWS") ? var.database_server_count : 0) : 0
+  name                = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.ANYDB_VMNAME[count.index], local.resource_suffixes.vm)
+  computer_name       = var.naming.virtualmachine_names.ANYDB_COMPUTERNAME[count.index]
   resource_group_name = var.resource_group[0].name
   location            = var.resource_group[0].location
   admin_username      = var.sid_username
@@ -170,7 +171,7 @@ resource "azurerm_windows_virtual_machine" "dbserver" {
     iterator = disk
     for_each = range(length(local.os_disk))
     content {
-      name                   = format("%s%s", local.anydb_vms[count.index].name, local.resource_suffixes.osdisk)
+      name                   = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.ANYDB_VMNAME[count.index], local.resource_suffixes.osdisk)
       caching                = local.os_disk[0].caching
       storage_account_type   = local.os_disk[0].storage_account_type
       disk_size_gb           = local.os_disk[0].disk_size_gb
@@ -202,7 +203,7 @@ resource "azurerm_windows_virtual_machine" "dbserver" {
     [azurerm_network_interface.anydb_db[count.index].id]
   )
 
-  size = local.anydb_vms[count.index].size
+  size = local.anydb_sku
 
   source_image_id = local.anydb_custom_image ? local.anydb_os.source_image_id : null
 
@@ -229,12 +230,12 @@ resource "azurerm_windows_virtual_machine" "dbserver" {
   license_type = length(var.license_type) > 0 ? var.license_type : null
 
   tags = local.tags
-  lifecycle  {
-  ignore_changes = [
-    // Ignore changes to computername
-    computer_name, 
-    tags
-  ]
+  lifecycle {
+    ignore_changes = [
+      // Ignore changes to computername
+      computer_name,
+      tags
+    ]
   }
 }
 
@@ -242,7 +243,7 @@ resource "azurerm_windows_virtual_machine" "dbserver" {
 resource "azurerm_managed_disk" "disks" {
   provider               = azurerm.main
   count                  = local.enable_deployment ? length(local.anydb_disks) : 0
-  name                   = local.anydb_disks[count.index].name
+  name                   = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.ANYDB_VMNAME[local.anydb_disks[count.index].vm_index], local.anydb_disks[count.index].suffix)
   location               = var.resource_group[0].location
   resource_group_name    = var.resource_group[0].name
   create_option          = "Empty"
@@ -279,7 +280,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "vm_disks" {
 # VM Extension 
 resource "azurerm_virtual_machine_extension" "anydb_lnx_aem_extension" {
   provider             = azurerm.main
-  count                = local.enable_deployment ? upper(local.anydb_ostype) == "LINUX" ? local.db_server_count : 0 : 0
+  count                = local.enable_deployment ? upper(local.anydb_ostype) == "LINUX" ? var.database_server_count : 0 : 0
   name                 = "MonitorX64Linux"
   virtual_machine_id   = azurerm_linux_virtual_machine.dbserver[count.index].id
   publisher            = "Microsoft.AzureCAT.AzureEnhancedMonitoring"
@@ -295,7 +296,7 @@ SETTINGS
 
 resource "azurerm_virtual_machine_extension" "anydb_win_aem_extension" {
   provider             = azurerm.main
-  count                = local.enable_deployment ? (upper(local.anydb_ostype) == "WINDOWS" ? local.db_server_count : 0) : 0
+  count                = local.enable_deployment ? (upper(local.anydb_ostype) == "WINDOWS" ? var.database_server_count : 0) : 0
   name                 = "MonitorX64Windows"
   virtual_machine_id   = azurerm_windows_virtual_machine.dbserver[count.index].id
   publisher            = "Microsoft.AzureCAT.AzureEnhancedMonitoring"

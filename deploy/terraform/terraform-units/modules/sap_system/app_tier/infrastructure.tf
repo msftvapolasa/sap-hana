@@ -1,14 +1,12 @@
-
 # Creates app subnet of SAP VNET
 resource "azurerm_subnet" "subnet_sap_app" {
   provider             = azurerm.main
   count                = local.enable_deployment ? (local.sub_app_exists ? 0 : 1) : 0
   name                 = local.sub_app_name
-  resource_group_name  = local.vnet_sap_resource_group_name
-  virtual_network_name = local.vnet_sap_name
+  resource_group_name  = split("/", var.landscape_tfstate.vnet_sap_arm_id)[4]
+  virtual_network_name = split("/", var.landscape_tfstate.vnet_sap_arm_id)[8]
   address_prefixes     = [local.sub_app_prefix]
 }
-
 
 # Imports data of existing SAP app subnet
 data "azurerm_subnet" "subnet_sap_app" {
@@ -24,8 +22,8 @@ resource "azurerm_subnet" "subnet_sap_web" {
   provider             = azurerm.main
   count                = local.enable_deployment && local.sub_web_defined ? (local.sub_web_exists ? 0 : 1) : 0
   name                 = local.sub_web_name
-  resource_group_name  = local.vnet_sap_resource_group_name
-  virtual_network_name = local.vnet_sap_name
+  resource_group_name  = split("/", var.landscape_tfstate.vnet_sap_arm_id)[4]
+  virtual_network_name = split("/", var.landscape_tfstate.vnet_sap_arm_id)[8]
   address_prefixes     = [local.sub_web_prefix]
 }
 
@@ -121,7 +119,6 @@ resource "azurerm_lb_rule" "scs" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_alb_feip)
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.scs[0].id
   probe_id                       = azurerm_lb_probe.scs[0].id
   enable_floating_ip             = true
   enable_tcp_reset               = true
@@ -138,7 +135,6 @@ resource "azurerm_lb_rule" "ers" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_ers_feip)
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.scs[0].id
   probe_id                       = azurerm_lb_probe.scs[1].id
   enable_floating_ip             = true
   enable_tcp_reset               = true
@@ -154,7 +150,6 @@ resource "azurerm_lb_rule" "clst" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_clst_feip)
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.scs[0].id
   probe_id                       = azurerm_lb_probe.clst[0].id
   enable_floating_ip             = true
 }
@@ -169,7 +164,6 @@ resource "azurerm_lb_rule" "fs" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_fs_feip)
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.scs[0].id
   probe_id                       = azurerm_lb_probe.fs[0].id
   enable_floating_ip             = true
 }
@@ -248,7 +242,6 @@ resource "azurerm_lb_rule" "web" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = azurerm_lb.web[0].frontend_ip_configuration[0].name
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.web[0].id
   enable_floating_ip             = true
 }
 
@@ -281,16 +274,17 @@ resource "azurerm_application_security_group" "app" {
   provider            = azurerm.main
   count               = local.enable_deployment ? 1 : 0
   name                = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.app_asg)
-  resource_group_name = local.nsg_asg_with_vnet ? local.vnet_sap_resource_group_name : var.resource_group[0].name
-  location            = local.nsg_asg_with_vnet ? local.vnet_sap_resource_group_location : var.resource_group[0].location
+  resource_group_name = var.options.nsg_asg_with_vnet ? var.network_resource_group : var.resource_group[0].name
+  location            = var.options.nsg_asg_with_vnet ? var.network_location : var.resource_group[0].location
 }
+  
 
 resource "azurerm_application_security_group" "web" {
   provider            = azurerm.main
   count               = local.webdispatcher_count > 0 ? 1 : 0
   name                = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.web_asg)
-  resource_group_name = local.nsg_asg_with_vnet ? local.vnet_sap_resource_group_name : var.resource_group[0].name
-  location            = local.nsg_asg_with_vnet ? local.vnet_sap_resource_group_location : var.resource_group[0].location
+  resource_group_name = var.options.nsg_asg_with_vnet ? var.network_resource_group : var.resource_group[0].name
+  location            = var.options.nsg_asg_with_vnet ? var.network_location : var.resource_group[0].location
 }
 
 resource "azurerm_subnet_route_table_association" "subnet_sap_app" {
@@ -310,7 +304,7 @@ resource "azurerm_subnet_route_table_association" "subnet_sap_web" {
 resource "azurerm_private_dns_a_record" "scs" {
   provider            = azurerm.deployer
   count               = local.enable_scs_lb_deployment && length(local.dns_label) > 0 ? 1 : 0
-  name                = lower(format("%sscs%scl1", local.sid, local.scs_instance_number))
+  name                = lower(format("%sscs%scl1", local.sid, var.application.scs_instance_number))
   resource_group_name = local.dns_resource_group_name
   zone_name           = local.dns_label
   ttl                 = 300

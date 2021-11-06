@@ -9,15 +9,15 @@ resource "azurerm_network_security_group" "db" {
   provider = azurerm.main
   count    = local.enable_db_deployment ? (local.sub_db_nsg_exists ? 0 : 1) : 0
   name     = local.sub_db_nsg_name
-  resource_group_name = local.nsg_asg_with_vnet ? (
-    local.vnet_sap_resource_group_name) : (
+  resource_group_name = var.options.nsg_asg_with_vnet ? (
+    data.azurerm_virtual_network.vnet_sap.resource_group_name) : (
     local.rg_exists ? (
       data.azurerm_resource_group.resource_group[0].name) : (
       azurerm_resource_group.resource_group[0].name
     )
   )
-  location = local.nsg_asg_with_vnet ? (
-    local.vnet_sap_resource_group_location) : (
+  location = var.options.nsg_asg_with_vnet ? (
+    data.azurerm_virtual_network.vnet_sap.location) : (
     local.rg_exists ? (
       data.azurerm_resource_group.resource_group[0].location) : (
       azurerm_resource_group.resource_group[0].location
@@ -46,15 +46,15 @@ resource "azurerm_network_security_group" "admin" {
   provider = azurerm.main
   count    = !local.sub_admin_nsg_exists && local.enable_admin_subnet ? 1 : 0
   name     = local.sub_admin_nsg_name
-  resource_group_name = local.nsg_asg_with_vnet ? (
-    local.vnet_sap_resource_group_name) : (
+  resource_group_name = var.options.nsg_asg_with_vnet ? (
+    data.azurerm_virtual_network.vnet_sap.resource_group_name) : (
     local.rg_exists ? (
       data.azurerm_resource_group.resource_group[0].name) : (
       azurerm_resource_group.resource_group[0].name
     )
   )
-  location = local.nsg_asg_with_vnet ? (
-    local.vnet_sap_resource_group_location) : (
+  location = var.options.nsg_asg_with_vnet ? (
+    data.azurerm_virtual_network.vnet_sap.location) : (
     local.rg_exists ? (
       data.azurerm_resource_group.resource_group[0].location) : (
       azurerm_resource_group.resource_group[0].location
@@ -94,7 +94,7 @@ resource "azurerm_network_security_rule" "nsr_internal_db" {
   protocol                     = "Tcp"
   source_port_range            = "*"
   destination_port_range       = "*"
-  source_address_prefixes      = local.vnet_sap_addr
+  source_address_prefixes      = data.azurerm_virtual_network.vnet_sap.address_space
   destination_address_prefixes = azurerm_subnet.db[0].address_prefixes
 }
 

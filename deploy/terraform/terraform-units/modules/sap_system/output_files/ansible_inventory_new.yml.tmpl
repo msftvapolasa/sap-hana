@@ -1,8 +1,7 @@
-# SAPSID: ${sid}
 ${sid}_DB:
   hosts:
 %{~ for idx,ips_dbnode in ips_dbnodes }
-    ${dbnodes[idx].name}:
+    ${dbnodes[idx]}:
       ansible_host        : ${ips_dbnode}
       ansible_user        : ${ansible_user}
       ansible_connection  : ${dbconnection} 

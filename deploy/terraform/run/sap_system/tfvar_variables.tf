@@ -238,6 +238,11 @@ Database
 
 */
 
+variable "database_server_count" {
+  default = 1
+}
+
+
 variable "database_vm_authentication_type" {
   default = "key"
 }
@@ -278,9 +283,8 @@ variable "database_sid" {
 }
 
 variable "database_instance_number" {
-  default = "01"
+  default = "00"
 }
-
 
 variable "database_vm_zones" {
   default = []
@@ -306,13 +310,20 @@ variable "database_tags" {
   default = {}
 }
 
-variable "database_vm_nodes" {
-  default = [{
-    "name"            = ""
-    "db_nic_ips"      = ["", ""]
-    "admin_nic_ips"   = ["", ""]
-    "storage_nic_ips" = ["", ""]
-  }]
+variable "database_vm_names" {
+  default = [""]
+}
+
+variable "database_vm_db_nic_ips" {
+  default = [""]
+}
+
+variable "database_vm_admin_nic_ips" {
+  default = [""]
+}
+
+variable "database_vm_storage_nic_ips" {
+  default = [""]
 }
 
 variable "database_HANA_use_ANF_scaleout_scenario" {

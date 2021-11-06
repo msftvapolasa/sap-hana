@@ -6,10 +6,6 @@ output "resource_group" {
   value = local.rg_exists ? data.azurerm_resource_group.resource_group : azurerm_resource_group.resource_group
 }
 
-output "vnet_sap" {
-  value = local.vnet_sap
-}
-
 output "storage_bootdiag_endpoint" {
   value = data.azurerm_storage_account.storage_bootdiag.primary_blob_endpoint
 }
@@ -26,7 +22,6 @@ output "ppg" {
   value = local.ppg_exists ? data.azurerm_proximity_placement_group.ppg : azurerm_proximity_placement_group.ppg
 }
 
-
 output "admin_subnet" {
   value = local.enable_admin_subnet ? (
     local.sub_admin_exists ? data.azurerm_subnet.admin[0] : azurerm_subnet.admin[0]) : (
@@ -37,6 +32,15 @@ output "admin_subnet" {
 output "db_subnet" {
   value = local.sub_db_exists ? data.azurerm_subnet.db[0] : azurerm_subnet.db[0]
 }
+
+output "network_location" {
+  value = data.azurerm_virtual_network.vnet_sap.location
+}
+
+output "network_resource_group" {
+  value = split("/", var.landscape_tfstate.vnet_sap_arm_id)[4]
+}
+
 
 output "sid_kv_user_id" {
   value = local.enable_sid_deployment && local.use_local_credentials ? (
@@ -77,11 +81,11 @@ output "sdu_public_key" {
 }
 
 output "route_table_id" {
-  value = local.route_table_id
+  value = var.landscape_tfstate.route_table_id
 }
 
 output "firewall_id" {
-  value = local.firewall_id
+  value =  try(var.deployer_tfstate.firewall_id, "")
 }
 
 output "db_asg_id" {

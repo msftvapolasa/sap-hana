@@ -68,6 +68,10 @@ export           ANSIBLE_CALLBACK_WHITELIST=profile_tasks
 #export          PROFILE_TASKS_TASK_OUTPUT_LIMIT=20
 #export          PROFILE_TASKS_SORT_ORDER=descending
 
+
+# Don't show the skipped hosts
+export ANSIBLE_DISPLAY_SKIPPED_HOSTS=false
+
 # NOTE: In the short term, keep any modifications to the above in sync with
 # ../terraform/terraform-units/modules/sap_system/output_files/ansible.cfg.tmpl
 
