@@ -83,7 +83,7 @@
     - name:                            SAP ERS install command
       ansible.builtin.debug:
         msg:                           "./sapinst SAPINST_INPUT_PARAMETERS_URL=/usr/sap/install/downloads/{{ sap_inifile }}
-                                        SAPINST_EXECUTE_PRODUCT_ID={{ bom.product_ids.ers }} SAPINST_SKIP_DIALOGS=true SAPINST_START_GUISERVER=false SAPINST_USE_HOSTNAME={{ ers_virtual_hostname }}"
+                                        SAPINST_EXECUTE_PRODUCT_ID={{ bom.product_ids.ers_ha }} SAPINST_SKIP_DIALOGS=true SAPINST_START_GUISERVER=false SAPINST_USE_HOSTNAME={{ ers_virtual_hostname }}"
         verbosity:                     2
 
 # *====================================4=======================================8
