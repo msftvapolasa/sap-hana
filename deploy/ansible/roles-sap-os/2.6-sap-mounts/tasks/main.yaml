@@ -100,7 +100,7 @@
 
 
 # Mount Filesystems
-- name:                                Mount Filesystems when not using ANF (hana)
+- name:                                Mount Install folder
   ansible.builtin.mount:
     src:                               "{{ item.src }}"
     path:                              "{{ item.path }}"
@@ -111,11 +111,10 @@
     - { type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install'  }
   when:
     - tier == 'sapos'
-    - sap_mnt is undefined
     - node_tier != 'scs'
 
 # Mount Filesystems
-- name:                                Mount Filesystems when not using ANF (scs)
+- name:                                Mount local sapmnt (scs)
   ansible.builtin.mount:
     src:                               "{{ item.src }}"
     path:                              "{{ item.path }}"

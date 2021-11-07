@@ -78,7 +78,7 @@
 
     - name:                            "SCS Install: install variables"
       debug:
-        msg:                           "{{ bom.product_ids.scsha }}"
+        msg:                           "{{ bom.product_ids.scs_ha }}"
         verbosity:                     2
 
 # *====================================4=======================================8

@@ -118,8 +118,15 @@
 # -------------------------------------+---------------------------------------8
     - name:                            HA SCS Setup
       block:
+        - name:                        Assertions
+          ansible.builtin.assert:
+            that:
+              - sap_mnt is defined
+            fail_msg:                  A highly available SCS deployment requires a shared sap_mnt
+
+
         - name:                        Print the fencing tenant id
-          debug:
+          ansible.builtin.debug:
             msg:                       "{{ hostvars.localhost.sap_fencing_spn_tenant_id }}"
             verbosity:                 2
 

@@ -15,7 +15,8 @@ product_ids:
   app:       NW_DI:NW750.HDB.ABAP
   app_ha:    NW_DI:NW750.HDB.ABAPHA
   web:     
-  ers:       NW_ERS:NW750.HDB.ABAPHA
+  ers:       NW_ERS:NW750.HDB.ABAP
+  ers_ha:    NW_ERS:NW750.HDB.ABAPHA
 
 
 materials:
