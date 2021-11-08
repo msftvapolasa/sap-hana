@@ -29,7 +29,7 @@
 
   - ansible.builtin.set_fact:
       tier:     ora                                                        # Actions for Oracle DB Servers
-      node_tier: oracle
+#      node_tier: oracle
     tags:
       - always
 
@@ -68,8 +68,11 @@
   tasks:
   - include_role:
       name:     roles-db/4.1.0-ora-install
+    when:     node_tier == "oracle"
       
-
+  - include_role:
+      name:     roles-db/4.1.3-ora-msid
+    when:     node_tier == "oracle-msid"
 
 # # Oracle Post installation scripts
 # - hosts:          "{{ sap_sid|upper }}_DB"

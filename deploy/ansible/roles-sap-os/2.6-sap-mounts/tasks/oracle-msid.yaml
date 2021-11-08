@@ -98,7 +98,9 @@
   ansible.builtin.shell: | 
                       chown -R oracle:oinstall /oracle
                       chmod -R 777 /usr/sap/install/
-
+                      touch  /etc/sap_deployment_automation/oracleowner.txt
+  args:
+    creates:          /etc/sap_deployment_automation/oracleowner.txt
 
 #Debug for testing
 - name:                           "Print oracle filesystems"

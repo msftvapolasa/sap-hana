@@ -68,6 +68,7 @@ ora_sid2:                     "QAS"
 ora_sid3:                     ""
 ora_sid4:                     ""
 ora_sid5:                     ""
+ora_msids:                   []
 
 hdbadm_uid:                   2200
 scs_lb_ip:                    ""                                                        # SAP HA
