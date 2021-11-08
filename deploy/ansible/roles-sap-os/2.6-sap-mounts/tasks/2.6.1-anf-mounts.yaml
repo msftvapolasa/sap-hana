@@ -40,6 +40,7 @@
     - name:                            "ANF Mount: Ensure the NFS ID Map service is restarted"
       ansible.builtin.systemd:
         name:                          "nfs-idmapd"
+        daemon-reload:                 true
         state:                         restarted
     - name:                            "ANF Mount: Pause for 15 seconds"
       ansible.builtin.pause:
@@ -98,6 +99,7 @@
     - name:                            "ANF Mount: Ensure the rpcbind service is restarted"
       ansible.builtin.systemd:
         name:                          rpcbind
+        daemon-reload:                 true
         state:                         restarted
 
   # Mount Filesystem on ANF
@@ -407,6 +409,21 @@
   when:
     - scs_high_availability
     - tier in ['sapos']
+    - node_tier != 'hana'
+    - sap_mnt is defined
+
+- name:                                "ANF Mount: sapmnt/{{ sap_sid|upper }}"
+  ansible.builtin.mount:
+    src:                               "{{ item.src }}"
+    path:                              "{{ item.path }}"
+    fstype:                            "{{ item.type }}"
+    opts:                              'rw,hard,rsize=65536,wsize=65536,sec=sys,vers=4.1,tcp'
+    state:                             remounted
+  loop:
+    - { type: 'nfs4',  src: '{{ sap_mnt }}/sapmnt{{ sap_sid|upper }}',    path: '/sapmnt/{{ sap_sid|upper }}'      }
+  when:
+    - scs_high_availability
+    - tier in ['ha']
     - node_tier != 'hana'
     - sap_mnt is defined
 

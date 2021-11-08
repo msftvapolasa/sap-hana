@@ -1,3 +1,4 @@
+
 # Creates app subnet of SAP VNET
 resource "azurerm_subnet" "subnet_sap_app" {
   provider             = azurerm.main
@@ -5,8 +6,9 @@ resource "azurerm_subnet" "subnet_sap_app" {
   name                 = local.sub_app_name
   resource_group_name  = split("/", var.landscape_tfstate.vnet_sap_arm_id)[4]
   virtual_network_name = split("/", var.landscape_tfstate.vnet_sap_arm_id)[8]
-  address_prefixes     = [local.sub_app_prefix]
+ address_prefixes     = [local.sub_app_prefix]
 }
+
 
 # Imports data of existing SAP app subnet
 data "azurerm_subnet" "subnet_sap_app" {
@@ -70,7 +72,6 @@ resource "azurerm_lb_backend_address_pool" "scs" {
   loadbalancer_id = azurerm_lb.scs[0].id
 }
 
-
 resource "azurerm_lb_probe" "scs" {
   provider            = azurerm.main
   count               = local.enable_scs_lb_deployment ? (local.scs_high_availability ? 2 : 1) : 0
@@ -80,7 +81,7 @@ resource "azurerm_lb_probe" "scs" {
   port                = local.hp_ports[count.index]
   protocol            = "Tcp"
   interval_in_seconds = 5
-  number_of_probes    = 2
+  number_of_probes    = local.enable_scs_lb_deployment && (local.scs_high_availability && upper(local.scs_ostype) == "WINDOWS") ? 4 : 2
 }
 
 resource "azurerm_lb_probe" "clst" {
@@ -92,7 +93,7 @@ resource "azurerm_lb_probe" "clst" {
   port                = local.hp_ports[count.index]
   protocol            = "Tcp"
   interval_in_seconds = 5
-  number_of_probes    = 2
+  number_of_probes    = local.enable_scs_lb_deployment && (local.scs_high_availability && upper(local.scs_ostype) == "WINDOWS") ? 4 : 2
 }
 
 resource "azurerm_lb_probe" "fs" {
@@ -104,7 +105,7 @@ resource "azurerm_lb_probe" "fs" {
   port                = local.hp_ports[count.index]
   protocol            = "Tcp"
   interval_in_seconds = 5
-  number_of_probes    = 2
+  number_of_probes    = local.enable_scs_lb_deployment && (local.scs_high_availability && upper(local.scs_ostype) == "WINDOWS") ? 4 : 2
 }
 
 
@@ -119,6 +120,7 @@ resource "azurerm_lb_rule" "scs" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_alb_feip)
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.scs[0].id]
   probe_id                       = azurerm_lb_probe.scs[0].id
   enable_floating_ip             = true
   enable_tcp_reset               = true
@@ -135,6 +137,7 @@ resource "azurerm_lb_rule" "ers" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_ers_feip)
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.scs[0].id]
   probe_id                       = azurerm_lb_probe.scs[1].id
   enable_floating_ip             = true
   enable_tcp_reset               = true
@@ -142,7 +145,7 @@ resource "azurerm_lb_rule" "ers" {
 
 resource "azurerm_lb_rule" "clst" {
   provider                       = azurerm.main
-  count                          = local.enable_scs_lb_deployment && local.win_ha_scs ? 1 : 0
+  count                          = local.enable_scs_lb_deployment && local.win_ha_scs ? 0 : 0
   resource_group_name            = var.resource_group[0].name
   loadbalancer_id                = azurerm_lb.scs[0].id
   name                           = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_clst_rule)
@@ -150,13 +153,14 @@ resource "azurerm_lb_rule" "clst" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_clst_feip)
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.scs[0].id]
   probe_id                       = azurerm_lb_probe.clst[0].id
   enable_floating_ip             = true
 }
 
 resource "azurerm_lb_rule" "fs" {
   provider                       = azurerm.main
-  count                          = local.enable_scs_lb_deployment && local.win_ha_scs ? 1 : 0
+  count                          = local.enable_scs_lb_deployment && local.win_ha_scs ? 0 : 0
   resource_group_name            = var.resource_group[0].name
   loadbalancer_id                = azurerm_lb.scs[0].id
   name                           = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_fs_rule)
@@ -164,6 +168,7 @@ resource "azurerm_lb_rule" "fs" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.scs_fs_feip)
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.scs[0].id]
   probe_id                       = azurerm_lb_probe.fs[0].id
   enable_floating_ip             = true
 }
@@ -242,6 +247,7 @@ resource "azurerm_lb_rule" "web" {
   frontend_port                  = 0
   backend_port                   = 0
   frontend_ip_configuration_name = azurerm_lb.web[0].frontend_ip_configuration[0].name
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.web[0].id]
   enable_floating_ip             = true
 }
 
@@ -277,7 +283,6 @@ resource "azurerm_application_security_group" "app" {
   resource_group_name = var.options.nsg_asg_with_vnet ? var.network_resource_group : var.resource_group[0].name
   location            = var.options.nsg_asg_with_vnet ? var.network_location : var.resource_group[0].location
 }
-  
 
 resource "azurerm_application_security_group" "web" {
   provider            = azurerm.main

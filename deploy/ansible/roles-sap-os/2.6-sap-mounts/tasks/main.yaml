@@ -67,7 +67,7 @@
 # Mount Filesystems
 - name:                                Re-mount Filesystems block
   block:
-    - name:                            Mount Filesystems when not using ANF (app & pas)
+    - name:                            Mount Filesystems when not using ANF
       ansible.builtin.mount:
         src:                           "{{ item.src }}"
         path:                          "{{ item.path }}"
@@ -77,8 +77,7 @@
       loop:
         - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
       when:
-        - tier in ['dbload', 'app']
-        - node_tier in ['pas', 'app']
+        - node_tier in ['pas', 'app', 'scs', 'ers']
         - sap_mnt is undefined
   rescue:
     - name:                            Re-mount Filesystems when not using ANF (app & pas)

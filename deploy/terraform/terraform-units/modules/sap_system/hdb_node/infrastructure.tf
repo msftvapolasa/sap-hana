@@ -80,5 +80,6 @@ resource "azurerm_lb_rule" "hdb" {
   backend_port                   = 0
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.db_alb_feip)
   probe_id                       = azurerm_lb_probe.hdb[0].id
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.hdb[0].id]
   enable_floating_ip             = true
 }

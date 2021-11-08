@@ -102,6 +102,8 @@
                                        crm configure group g_ip_{{ db_sid | upper }}_HDB{{ hdb_instance_number }}
                                        rsc_ip_{{ db_sid | upper }}_HDB{{ hdb_instance_number }}
                                        rsc_nc_{{ db_sid | upper }}_HDB{{ hdb_instance_number }}
+      register:                        sap_hana_g_ip
+      failed_when:                     sap_hana_g_ip.rc > 1
 
     - name:                            Ensure Co-Location constraint is configured
       ansible.builtin.shell: >
@@ -109,6 +111,8 @@
                                        4000:
                                        g_ip_{{ db_sid | upper }}_HDB{{ hdb_instance_number }}:Started
                                        msl_SAPHana_{{ db_sid | upper }}_HDB{{ hdb_instance_number }}:Master
+      register:                        sap_hana_g_col_ip
+      failed_when:                     sap_hana_g_col_ip.rc > 1
 
     - name:                            Ensure Resource order is configured
       ansible.builtin.shell: >
@@ -116,6 +120,8 @@
                                        Optional:
                                        cln_SAPHanaTopology_{{ db_sid | upper }}_HDB{{ hdb_instance_number }}
                                        msl_SAPHana_{{ db_sid | upper }}_HDB{{ hdb_instance_number }}
+      register:                        sap_hana_ord_ip
+      failed_when:                     sap_hana_ord_ip.rc > 1
 
     - name:                            Ensure any required cluster resources are cleaned up
       ansible.builtin.command:         "crm resource cleanup rsc_SAPHana_{{ db_sid | upper }}_HDB{{ hdb_instance_number }}"
