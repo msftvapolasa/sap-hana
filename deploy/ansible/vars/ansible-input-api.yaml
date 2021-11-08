@@ -31,7 +31,7 @@ aas_instance_number:          ""
 sap_sid:                      ""                                                        # REQUIRED - SAP Install
 download_basket_dir:          "{{ target_media_location }}/download_basket"
 hdb_hostname:                 ""
-db_sid:                      "XDB"                                                     # Default
+db_sid:                       "XDB"                                                     # Default
 hdb_instance_number:          "00"                                                      # Default
 pas_hostname:                 ""
 pas_instance_number:          "00"

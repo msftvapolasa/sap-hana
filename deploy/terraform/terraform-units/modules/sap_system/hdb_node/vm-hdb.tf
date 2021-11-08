@@ -13,8 +13,8 @@ HANA DB Linux Server private IP range: .10 -
 # Creates the admin traffic NIC and private IP address for database nodes
 resource "azurerm_network_interface" "nics_dbnodes_admin" {
   provider = azurerm.main
-  count    = local.enable_deployment && var.hana_dual_nics ? length(local.hdb_vms) : 0
-  name     = format("%s%s", local.hdb_vms[count.index].name, local.resource_suffixes.admin_nic)
+  count    = local.enable_deployment && var.hana_dual_nics ? var.database_server_count : 0
+  name     = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.HANA_VMNAME[count.index], local.resource_suffixes.admin_nic)
 
   location                      = var.resource_group[0].location
   resource_group_name           = var.resource_group[0].name
@@ -23,23 +23,24 @@ resource "azurerm_network_interface" "nics_dbnodes_admin" {
   ip_configuration {
     name      = "ipconfig1"
     subnet_id = var.admin_subnet.id
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.databases[0].use_DHCP ? (
       null) : (
-      lookup(local.hdb_vms[count.index], "admin_nic_ip", false) != false ? (
-        local.hdb_vms[count.index].admin_nic_ip) : (
+      length(try(var.database_vm_admin_nic_ips[count.index], "")) > 0 ? (
+        var.database_vm_admin_nic_ips[count.index]) : (
         cidrhost(var.admin_subnet.address_prefixes[0], tonumber(count.index) + local.hdb_ip_offsets.hdb_admin_vm)
       )
     )
 
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.databases[0].use_DHCP ? "Dynamic" : "Static"
   }
 }
 
 # Creates the DB traffic NIC and private IP address for database nodes
 resource "azurerm_network_interface" "nics_dbnodes_db" {
   provider = azurerm.main
-  count    = local.enable_deployment ? length(local.hdb_vms) : 0
-  name     = format("%s%s", local.hdb_vms[count.index].name, local.resource_suffixes.db_nic)
+  count    = local.enable_deployment ? var.database_server_count : 0
+  name     = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.HANA_VMNAME[count.index], local.resource_suffixes.db_nic)
+
 
   location                      = var.resource_group[0].location
   resource_group_name           = var.resource_group[0].name
@@ -50,20 +51,20 @@ resource "azurerm_network_interface" "nics_dbnodes_db" {
     name      = "ipconfig1"
     subnet_id = var.db_subnet.id
 
-    private_ip_address = local.use_DHCP ? (
+    private_ip_address = var.databases[0].use_DHCP ? (
       null) : (
-      try(local.hdb_vms[count.index].db_nic_ip, false) != false ? (
-        local.hdb_vms[count.index].db_nic_ip) : (
+      length(try(var.database_vm_db_nic_ips[count.index], "")) > 0 ? (
+        var.database_vm_db_nic_ips[count.index]) : (
         cidrhost(var.db_subnet.address_prefixes[0], tonumber(count.index) + local.hdb_ip_offsets.hdb_db_vm)
       )
     )
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.databases[0].use_DHCP ? "Dynamic" : "Static"
   }
 }
 
 resource "azurerm_network_interface_application_security_group_association" "db" {
   provider                      = azurerm.main
-  count                         = local.enable_deployment ? length(local.hdb_vms) : 0
+  count                         = local.enable_deployment ? var.database_server_count : 0
   network_interface_id          = azurerm_network_interface.nics_dbnodes_db[count.index].id
   application_security_group_id = var.db_asg_id
 }
@@ -72,8 +73,8 @@ resource "azurerm_network_interface_application_security_group_association" "db"
 // Creates the NIC for Hana storage
 resource "azurerm_network_interface" "nics_dbnodes_storage" {
   provider = azurerm.main
-  count    = local.enable_deployment && local.enable_storage_subnet ? length(local.hdb_vms) : 0
-  name     = format("%s%s", local.hdb_vms[count.index].name, local.resource_suffixes.storage_nic)
+  count    = local.enable_deployment && local.enable_storage_subnet ? var.database_server_count : 0
+  name     = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.HANA_VMNAME[count.index], local.resource_suffixes.storage_nic)
 
   location                      = var.resource_group[0].location
   resource_group_name           = var.resource_group[0].name
@@ -84,12 +85,15 @@ resource "azurerm_network_interface" "nics_dbnodes_storage" {
     name      = "ipconfig1"
     subnet_id = var.storage_subnet.id
 
-    private_ip_address = local.use_DHCP ? null : try(local.hdb_vms[count.index].scaleout_nic_ip, false) != false ? (
-      local.hdb_vms[count.index].scaleout_nic_ip) : (
-      cidrhost(var.storage_subnet[0].address_prefixes[0], tonumber(count.index) + local.hdb_ip_offsets.hdb_scaleout_vm)
+    private_ip_address = var.databases[0].use_DHCP ? (
+      null) : (
+      length(try(var.database_vm_storage_nic_ips[count.index], "")) > 0 ? (
+        var.database_vm_storage_nic_ips[count.index]) : (
+        cidrhost(var.storage_subnet[0].address_prefixes[0], tonumber(count.index) + local.hdb_ip_offsets.hdb_scaleout_vm)
+      )
 
     )
-    private_ip_address_allocation = local.use_DHCP ? "Dynamic" : "Static"
+    private_ip_address_allocation = var.databases[0].use_DHCP ? "Dynamic" : "Static"
   }
 }
 
@@ -97,11 +101,12 @@ resource "azurerm_network_interface" "nics_dbnodes_storage" {
 
 # Manages Linux Virtual Machine for HANA DB servers
 resource "azurerm_linux_virtual_machine" "vm_dbnode" {
-  provider            = azurerm.main
-  depends_on          = [var.anchor_vm]
-  count               = local.enable_deployment ? length(local.hdb_vms) : 0
-  name                = local.hdb_vms[count.index].name
-  computer_name       = local.hdb_vms[count.index].computername
+  provider      = azurerm.main
+  depends_on    = [var.anchor_vm]
+  count         = local.enable_deployment ? var.database_server_count : 0
+  name          = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.HANA_VMNAME[count.index], local.resource_suffixes.vm)
+  computer_name = var.naming.virtualmachine_names.HANA_COMPUTERNAME[count.index]
+
   resource_group_name = var.resource_group[0].name
   location            = var.resource_group[0].location
 
@@ -151,7 +156,7 @@ resource "azurerm_linux_virtual_machine" "vm_dbnode" {
     )
   )
 
-  size = local.hdb_vms[count.index].size
+  size = local.hdb_vm_sku
 
   custom_data = var.deployment == "new" ? var.cloudinit_growpart_config : null
 
@@ -159,7 +164,7 @@ resource "azurerm_linux_virtual_machine" "vm_dbnode" {
     iterator = disk
     for_each = range(length(local.os_disk))
     content {
-      name                   = format("%s%s", local.hdb_vms[count.index].name, local.resource_suffixes.osdisk)
+      name = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.HANA_VMNAME[count.index], local.resource_suffixes.osdisk)
       caching                = local.os_disk[0].caching
       storage_account_type   = local.os_disk[0].storage_account_type
       disk_size_gb           = local.os_disk[0].disk_size_gb
@@ -168,16 +173,16 @@ resource "azurerm_linux_virtual_machine" "vm_dbnode" {
     }
   }
 
-  source_image_id = local.hdb_vms[count.index].os.source_image_id != "" ? local.hdb_vms[count.index].os.source_image_id : null
+  source_image_id = local.hdb_custom_image ? local.hdb_os.source_image_id : null
 
   # If source_image_id is not defined, deploy with source_image_reference
   dynamic "source_image_reference" {
-    for_each = range(local.hdb_vms[count.index].os.source_image_id == "" ? 1 : 0)
+    for_each = range(local.hdb_custom_image ? 0 : 1)
     content {
-      publisher = local.hdb_vms[count.index].os.publisher
-      offer     = local.hdb_vms[count.index].os.offer
-      sku       = local.hdb_vms[count.index].os.sku
-      version   = local.hdb_vms[count.index].os.version
+      publisher = local.hdb_os.publisher
+      offer     = local.hdb_os.offer
+      sku       = local.hdb_os.sku
+      version   = local.hdb_os.version
     }
   }
 
@@ -198,7 +203,7 @@ resource "azurerm_linux_virtual_machine" "vm_dbnode" {
 resource "azurerm_managed_disk" "data_disk" {
   provider             = azurerm.main
   count                = local.enable_deployment ? length(local.data_disk_list) : 0
-  name                 = local.data_disk_list[count.index].name
+  name                 = format("%s%s%s%s", local.prefix, var.naming.separator, var.naming.virtualmachine_names.HANA_VMNAME[local.data_disk_list[count.index].vm_index], local.data_disk_list[count.index].suffix)
   location             = var.resource_group[0].location
   resource_group_name  = var.resource_group[0].name
   create_option        = "Empty"
@@ -229,7 +234,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "vm_dbnode_data_disk" {
 # VM Extension 
 resource "azurerm_virtual_machine_extension" "hdb_linux_extension" {
   provider             = azurerm.main
-  count                = local.enable_deployment ? length(local.hdb_vms) : 0
+  count                = local.enable_deployment ? var.database_server_count : 0
   name                 = "MonitorX64Linux"
   virtual_machine_id   = azurerm_linux_virtual_machine.vm_dbnode[count.index].id
   publisher            = "Microsoft.AzureCAT.AzureEnhancedMonitoring"

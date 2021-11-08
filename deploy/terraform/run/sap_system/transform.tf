@@ -87,8 +87,6 @@ locals {
 
   }
 
-  dbnodes = try(compact(var.database_vm_nodes, var.databases[0].dbnodes), {})
-
   db_os = {
     os_type         = try(coalesce(var.database_vm_image.os_type, try(var.databases[0].os.os_type, "")), "LINUX")
     source_image_id = try(coalesce(var.database_vm_image.source_image_id, try(var.databases[0].os.source_image_id, "")), "")
@@ -321,7 +319,6 @@ locals {
     local.db_os_specified ? { os = local.db_os } : null), (
     local.db_authentication_defined ? { authentication = local.db_authentication } : null), (
     local.db_avset_arm_ids_defined ? { avset_arm_ids = local.avset_arm_ids } : null), (
-    length(local.dbnodes) > 0 ? { dbnodes = local.dbnodes } : null), (
     length(local.db_zones_temp) > 0 ? { zones = local.db_zones_temp } : null), (
     length(local.frontend_ip) > 0 ? { loadbalancer = { frontend_ip = local.frontend_ip } } : { loadbalancer = {} }), (
     length(local.db_tags) > 0 ? { tags = local.db_tags } : null), (

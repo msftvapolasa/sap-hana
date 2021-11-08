@@ -118,8 +118,15 @@
 # -------------------------------------+---------------------------------------8
     - name:                            HA SCS Setup
       block:
+        - name:                        Assertions
+          ansible.builtin.assert:
+            that:
+              - sap_mnt is defined
+            fail_msg:                  A highly available SCS deployment requires a shared sap_mnt
+
+
         - name:                        Print the fencing tenant id
-          debug:
+          ansible.builtin.debug:
             msg:                       "{{ hostvars.localhost.sap_fencing_spn_tenant_id }}"
             verbosity:                 2
 
@@ -177,6 +184,13 @@
                 name:                  roles-os/1.17-generic-pacemaker       # Configures the Pacemaker cluster with Azure fence agent
           tags:
             - 1.17-generic-pacemaker
+
+        - block:
+            - name:                        Include 2.6-sap-mounts role
+              ansible.builtin.include_role:
+                name:                      roles-sap-os/2.6-sap-mounts
+          tags:
+            - 2.6-sap-mounts
 
         - block:
             - name:                    Run the pacemaker role

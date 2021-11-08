@@ -1,131 +1,7 @@
-##################################################################################################################
-# OUTPUT Files
-##################################################################################################################
-
-# Generates the output JSON with IP address and disk details
-/*
-resource "local_file" "output_json" {
-  content = jsonencode({
-    "infrastructure" = merge(var.infrastructure_w_defaults, { "iscsi" = { "iscsi_nic_ips" = [local.ips_iscsi] } })
-    "databases" = flatten([
-      [
-        for database in local.databases : {
-          platform          = database.platform,
-          db_version        = database.db_version,
-          os                = database.os,
-          size              = database.size,
-          filesystem        = database.filesystem,
-          high_availability = database.high_availability,
-          instance          = database.instance,
-          authentication    = database.authentication,
-          credentials       = database.credentials,
-          components        = database.components,
-          xsa               = database.xsa,
-          shine             = database.shine,
-
-          nodes = [for ip_dbnode_admin in local.ips_dbnodes_admin : {
-            // Hostname is required for Ansible, therefore set dbname from resource name to hostname
-            dbname       = replace(local.hdb_vms[index(local.ips_dbnodes_admin, ip_dbnode_admin)].name, "_", "")
-            ip_admin_nic = ip_dbnode_admin,
-            ip_db_nic    = local.ips_dbnodes_db[index(local.ips_dbnodes_admin, ip_dbnode_admin)]
-            role         = local.hdb_vms[index(local.ips_dbnodes_admin, ip_dbnode_admin)].role
-            } if local.hdb_vms[index(local.ips_dbnodes_admin, ip_dbnode_admin)].platform == database.platform
-          ],
-          loadbalancer = {
-            frontend_ip = var.loadbalancers[0].private_ip_address
-          }
-        }
-        if database != {}
-      ],
-      [
-        for database in local.anydatabases : {
-          platform          = database.platform,
-          db_version        = database.db_version,
-          os                = database.os,
-          size              = database.size,
-          filesystem        = database.filesystem,
-          high_availability = database.high_availability,
-          authentication    = database.authentication,
-          credentials       = database.credentials,
-          nodes = [for ip_anydbnode in local.ips_anydbnodes : {
-            # Check for maximum length and for "_"
-            dbname    = substr(replace(local.anydb_vms[index(local.ips_anydbnodes, ip_anydbnode)].name, "_", ""), 0, 13)
-            ip_db_nic = local.ips_anydbnodes[index(local.ips_anydbnodes, ip_anydbnode)],
-            role      = local.anydb_vms[index(local.ips_anydbnodes, ip_anydbnode)].role
-            } if upper(local.anydb_vms[index(local.ips_anydbnodes, ip_anydbnode)].platform) == upper(database.platform)
-          ],
-          loadbalancer = {
-            frontend_ip = var.anydb_loadbalancers[0].private_ip_address
-          }
-        }
-        if database != {}
-      ]
-      ]
-    ),
-    "software" = merge(
-      { "downloader" = local.downloader },
-      { "storage_account_sapbits" = {
-        name                = ""
-        storage_access_key  = ""
-        file_share_name     = ""
-        blob_container_name = ""
-        }
-      }
-    ),
-    "options" = var.options
-    }
-  )
-  filename             = "${path.cwd}/ansible_config_files/output.json"
-  file_permission      = "0660"
-  directory_permission = "0770"
-}
-
-# Generates the Ansible Inventory file
-resource "local_file" "ansible_inventory" {
-  content = templatefile(path.module/ansible_inventory.tmpl, {
-    iscsi             = local.iscsi,
-    ips_iscsi         = local.ips_iscsi,
-    ips_dbnodes_admin = local.ips_dbnodes_admin,
-    ips_dbnodes_db    = local.ips_dbnodes_db,
-    dbnodes           = local.hdb_vms,
-    application       = var.application,
-    ips_scs           = local.ips_scs,
-    ips_app           = local.ips_app,
-    ips_web           = local.ips_web
-    anydbnodes        = local.anydb_vms,
-    ips_anydbnodes    = local.ips_anydbnodes
-    }
-  )
-  filename             = "${path.cwd}/ansible_config_files/hosts"
-  file_permission      = "0660"
-  directory_permission = "0770"
-}
-
-# Generates the Ansible Inventory file
-resource "local_file" "ansible_inventory_yml" {
-  content = templatefile(path.module/ansible_inventory.yml.tmpl", {
-    iscsi             = local.iscsi,
-    ips_iscsi         = local.ips_iscsi,
-    ips_dbnodes_admin = local.ips_dbnodes_admin,
-    ips_dbnodes_db    = local.ips_dbnodes_db,
-    dbnodes           = local.hdb_vms,
-    application       = var.application,
-    ips_scs           = local.ips_scs,
-    ips_app           = local.ips_app,
-    ips_web           = local.ips_web
-    anydbnodes        = local.anydb_vms,
-    ips_anydbnodes    = local.ips_anydbnodes,
-    }
-  )
-  filename             = "${path.cwd}/ansible_config_files/hosts.yml"
-  file_permission      = "0660"
-  directory_permission = "0770"
-}
-*/
 resource "local_file" "ansible_inventory_new_yml" {
   content = templatefile(format("%s%s", path.module, "/ansible_inventory_new.yml.tmpl"), {
     ips_dbnodes = var.database_admin_ips,
-    dbnodes     = length(local.hdb_vms) > 0 ? local.hdb_vms : local.anydb_vms
+    dbnodes     = var.platform == "HANA" ? var.naming.virtualmachine_names.HANA_COMPUTERNAME : var.naming.virtualmachine_names.ANYDB_COMPUTERNAME
     ips_scs = length(local.ips_scs) > 0 ? (
       length(local.ips_scs) > 1 ? (
         slice(local.ips_scs, 0, 1)) : (
@@ -170,8 +46,8 @@ resource "local_file" "ansible_inventory_new_yml" {
     webservers        = length(local.ips_web) > 0 ? var.naming.virtualmachine_names.WEB_COMPUTERNAME : [],
     prefix            = var.naming.prefix.SDU,
     separator         = var.naming.separator,
-    platform          = lower(length(local.hdb_vms) > 0 ? "HANA" : local.anydb_vms[0].platform)
-    dbconnection      = length(local.hdb_vms) > 0 ? "ssh" : upper(local.anydb_vms[0].platform) == "SQLSERVER" ? "winrm" : "ssh"
+    platform          = lower(var.platform)
+    dbconnection      = var.platform == "SQLSERVER" ? "winrm" : "ssh"
     scsconnection     = upper(var.app_tier_os_types["scs"]) == "LINUX" ? "ssh" : "winrm"
     ersconnection     = upper(var.app_tier_os_types["scs"]) == "LINUX" ? "ssh" : "winrm"
     appconnection     = upper(var.app_tier_os_types["app"]) == "LINUX" ? "ssh" : "winrm"
@@ -180,7 +56,7 @@ resource "local_file" "ansible_inventory_new_yml" {
     webconnectiontype = try(var.authentication_type, "key")
     scsconnectiontype = try(var.authentication_type, "key")
     ersconnectiontype = try(var.authentication_type, "key")
-    dbconnectiontype  = length(local.hdb_vms) > 0 ? local.hdb_vms[0].auth_type : local.anydb_vms[0].auth_type
+    dbconnectiontype  = try(var.db_auth_type, "key")
     ansible_user      = var.ansible_user
     }
   )
@@ -211,7 +87,7 @@ resource "local_file" "sap-parameters_yml" {
       format("sap_trans:                     %s", var.sap_transport)) : (
       ""
     )
-    platform            = length(local.hdb_vms) > 0 ? "HANA" : upper(local.anydb_vms[0].platform)
+    platform            = var.platform
     scs_instance_number = var.scs_instance_number
     ers_instance_number = var.ers_instance_number
 
@@ -267,7 +143,7 @@ locals {
     trimspace(split(":", strValue)[0]) => trimspace(substr(strValue, length(split(":", strValue)[0]) + 1, -1))
   })
 
-  bom = trimspace(coalesce(var.bom_name, lookup(local.itemvalues, "bom_base_name", "")," "))
+  bom = trimspace(coalesce(var.bom_name, lookup(local.itemvalues, "bom_base_name", ""), " "))
 
   token = lookup(local.itemvalues, "sapbits_sas_token", "")
 }

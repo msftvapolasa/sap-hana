@@ -23,11 +23,6 @@ variable "db_sid" {
   description = "Database SID"
 }
 
-variable "hana_database_info" {
-  sensitive   = false
-  description = "Updated hana database json"
-}
-
 variable "nics_scs" {
   description = "List of NICs for the SCS Application VMs"
 }
@@ -68,11 +63,6 @@ variable "random_id" {
 
 variable "anydb_loadbalancers" {
   description = "List of LoadBalancers created for HANA Databases"
-}
-
-variable "any_database_info" {
-  sensitive   = false
-  description = "Updated anydb database json"
 }
 
 variable "software" {
@@ -170,6 +160,17 @@ variable "ers_instance_number" {
   default = "02"
 }
 
+variable "platform" {
+  default = "HANA"
+}
+
+
+variable "db_auth_type" {
+  default = "key"
+}
+
+
+
 locals {
 
   tfstate_resource_id          = try(var.tfstate_resource_id, "")
@@ -191,34 +192,6 @@ locals {
     }
   }
 
-  databases = [
-    var.hana_database_info
-  ]
-  hdb_vms = flatten([
-    for database in local.databases : flatten([
-      [
-
-        for dbnode in database.dbnodes : {
-          role      = dbnode.role,
-          platform  = database.platform,
-          name      = dbnode.computername,
-          auth_type = try(database.auth_type, "key")
-        }
-        if try(database.platform, "NONE") == "HANA"
-      ],
-      [
-        for dbnode in database.dbnodes : {
-          role      = dbnode.role,
-          platform  = database.platform,
-          name      = dbnode.computername,
-          auth_type = try(database.auth_type, "key")
-        }
-        if try(database.platform, "NONE") == "HANA" && database.high_availability
-      ]
-    ])
-    if database != {}
-  ])
-
   ips_primary_scs = var.nics_scs
   ips_primary_app = var.nics_app
   ips_primary_web = var.nics_web
@@ -229,35 +202,6 @@ locals {
 
   ips_primary_anydb = var.nics_anydb
   ips_anydbnodes    = [for key, value in local.ips_primary_anydb : value.private_ip_address]
-
-  anydatabases = [
-    var.any_database_info
-  ]
-  anydb_vms = flatten([
-    for adatabase in local.anydatabases : flatten([
-      [
-
-        for dbnode in adatabase.dbnodes : {
-          role      = dbnode.role,
-          platform  = upper(adatabase.platform),
-          name      = dbnode.computername,
-          auth_type = try(adatabase.auth_type, "key")
-
-        }
-        if contains(["ORACLE", "DB2", "SQLSERVER", "ASE"], upper(try(adatabase.platform, "NONE")))
-      ],
-      [
-        for dbnode in adatabase.dbnodes : {
-          role      = dbnode.role,
-          platform  = upper(adatabase.platform),
-          name      = dbnode.computername,
-          auth_type = try(adatabase.auth_type, "key")
-        }
-        if adatabase.high_availability && contains(["ORACLE", "DB2", "SQLSERVER", "ASE"], upper(try(adatabase.platform, "NONE")))
-      ]
-    ])
-    if adatabase != {}
-  ])
 
   secret_prefix = var.use_local_credentials ? var.naming.prefix.SDU : var.naming.prefix.VNET
   dns_label     = try(var.landscape_tfstate.dns_label, "")

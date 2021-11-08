@@ -20,29 +20,24 @@ output "hdb_sid" {
   value     = local.hdb_sid
 }
 
-output "hana_database_info" {
-  sensitive = false
-  value     = try(local.enable_deployment ? local.hana_database : map(false), {})
-}
-
 // Output for DNS
 output "dns_info_vms" {
   value = local.enable_deployment ? (
     zipmap(
       concat(
         (
-          var.hana_dual_nics ? local.hdb_vms[*].name : [""]
+          var.hana_dual_nics ? var.naming.virtualmachine_names.HANA_VMNAME : [""]
         ),
         (
-          slice(var.naming.virtualmachine_names.HANA_SECONDARY_DNSNAME, 0, local.db_server_count)
+          slice(var.naming.virtualmachine_names.HANA_SECONDARY_DNSNAME, 0, var.database_server_count)
         )
       ),
       concat(
         (
-          var.hana_dual_nics ? slice(azurerm_network_interface.nics_dbnodes_admin[*].private_ip_address, 0, local.db_server_count) : [""]
+          var.hana_dual_nics ? slice(azurerm_network_interface.nics_dbnodes_admin[*].private_ip_address, 0, var.database_server_count) : [""]
         ),
         (
-          slice(azurerm_network_interface.nics_dbnodes_db[*].private_ip_address, 0, local.db_server_count)
+          slice(azurerm_network_interface.nics_dbnodes_db[*].private_ip_address, 0, var.database_server_count)
         )
     ))) : (
     null

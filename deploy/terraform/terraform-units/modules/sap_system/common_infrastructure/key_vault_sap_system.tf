@@ -31,7 +31,7 @@ resource "azurerm_key_vault" "sid_kv_prvt" {
   provider                   = azurerm.main
   count                      = local.enable_sid_deployment && local.use_local_credentials ? 1 : 0
   name                       = local.prvt_kv_name
-  location                   = local.region
+  location                   = var.infrastructure.region
   resource_group_name        = local.rg_exists ? data.azurerm_resource_group.resource_group[0].name : azurerm_resource_group.resource_group[0].name
   tenant_id                  = local.service_principal.tenant_id
   soft_delete_retention_days = 7
@@ -68,7 +68,7 @@ resource "azurerm_key_vault" "sid_kv_user" {
   provider                   = azurerm.main
   count                      = local.enable_sid_deployment && local.use_local_credentials ? 1 : 0
   name                       = local.user_kv_name
-  location                   = local.region
+  location                   = var.infrastructure.region
   resource_group_name        = local.rg_exists ? data.azurerm_resource_group.resource_group[0].name : azurerm_resource_group.resource_group[0].name
   tenant_id                  = local.service_principal.tenant_id
   soft_delete_retention_days = 7

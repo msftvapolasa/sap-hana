@@ -9,7 +9,6 @@ variable "custom_prefix" {
   default     = ""
 }
 
-
 variable "is_single_node_hana" {
   description = "Checks if single node hana architecture scenario is being deployed"
   default     = false
@@ -55,7 +54,6 @@ variable "terraform_template_version" {
 variable "license_type" {
   description = "Specifies the license type for the OS"
   default     = ""
-
 }
 
 variable "enable_purge_control_for_keyvaults" {
@@ -109,33 +107,10 @@ locals {
   //Flag to control if nsg is creates in virtual network resource group
   nsg_asg_with_vnet = var.options.nsg_asg_with_vnet
 
-  // Retrieve information about Deployer from tfstate file
-  deployer_tfstate = var.deployer_tfstate
-
-  storageaccount_name    = try(var.landscape_tfstate.storageaccount_name, "")
-  storageaccount_rg_name = try(var.landscape_tfstate.storageaccount_rg_name, "")
-  // Retrieve information about Sap Landscape from tfstate file
-  landscape_tfstate = var.landscape_tfstate
-
-  iscsi_private_ip = try(local.landscape_tfstate.iscsi_private_ip, [])
-
-  // Firewall routing logic
   // If the environment deployment created a route table use it to populate a route
-
-  route_table_id   = try(var.landscape_tfstate.route_table_id, "")
   route_table_name = try(split("/", var.landscape_tfstate.route_table_id)[8], "")
 
-  firewall_ip = try(var.deployer_tfstate.firewall_ip, "")
-
-  // Firewall
-  firewall_id     = try(var.deployer_tfstate.firewall_id, "")
-  firewall_exists = length(local.firewall_id) > 0
-  firewall_name   = local.firewall_exists ? try(split("/", local.firewall_id)[8], "") : ""
-  firewall_rgname = local.firewall_exists ? try(split("/", local.firewall_id)[4], "") : ""
-
-  firewall_service_tags = format("AzureCloud.%s", local.region)
-
-  //Filter the list of databases to only HANA platform entries
+  //Filter the list of databases 
   databases = [
     for database in var.databases : database
     if try(database.platform, "NONE") != "NONE"
@@ -170,11 +145,21 @@ locals {
 
   enable_hdb_deployment = (length(local.hdb_list) > 0) ? true : false
 
+  //Enable xDB deployment 
+  xdb_list = [
+    for db in var.databases : db
+    if contains(["ORACLE", "DB2", "SQLSERVER", "ASE"], upper(try(db.platform, "NONE")))
+  ]
+
+  enable_xdb_deployment = (length(local.xdb_list) > 0) ? true : false
+  enable_db_deployment  = local.enable_xdb_deployment || local.enable_hdb_deployment
+
+  dbnode_per_site = length(try(local.db.dbnodes, [{}]))
+
   default_filepath = local.enable_hdb_deployment ? (
     format("%s%s", path.module, "/../../../../../configs/hdb_sizes.json")) : (
     format("%s%s", path.module, "/../../../../../configs/anydb_sizes.json")
   )
-
   custom_sizing = length(var.custom_disk_sizes_filename) > 0
 
   // Imports database sizing information
@@ -184,18 +169,8 @@ locals {
       format("%s/%s", path.cwd, var.custom_disk_sizes_filename)
     )) : (
     local.default_filepath
-
   )
 
-
-  //Enable xDB deployment 
-  xdb_list = [
-    for db in var.databases : db
-    if contains(["ORACLE", "DB2", "SQLSERVER", "ASE"], upper(try(db.platform, "NONE")))
-  ]
-
-  enable_xdb_deployment = (length(local.xdb_list) > 0) ? true : false
-  enable_db_deployment  = local.enable_xdb_deployment || local.enable_hdb_deployment
 
   //Enable APP deployment
   enable_app_deployment = try(var.application.enable_deployment, false)
@@ -215,19 +190,16 @@ locals {
     )[0],
     false
   )
+
   //ANF support
   use_ANF = try(local.db.use_ANF, false)
   //Scalout subnet is needed if ANF is used and there are more than one hana node 
-  dbnode_per_site       = length(try(local.db.dbnodes, [{}]))
   enable_storage_subnet = local.use_ANF && local.dbnode_per_site > 1
-
-  var_infra = try(var.infrastructure, {})
 
   //Anchor VM
   deploy_anchor               = try(var.infrastructure.anchor_vms.deploy, false)
-  anchor_size                 = try(var.infrastructure.anchor_vms.sku, "")
   anchor_auth_type            = try(var.infrastructure.anchor_vms.authentication.type, "key")
-  enable_anchor_auth_password = local.deploy_anchor && local.anchor_auth_type == "password"
+  enable_anchor_auth_password = local.anchor_auth_type == "password"
   enable_anchor_auth_key      = !local.enable_anchor_auth_password
 
   //If the db uses ultra disks ensure that the anchore sets the ultradisk flag but only for the zones that will contain db servers
@@ -250,35 +222,18 @@ locals {
   )
 
   anchor_ostype = upper(try(var.infrastructure.anchor_vms.os.os_type, local.db_ostype))
-  // Support dynamic addressing
-  anchor_use_DHCP = try(var.infrastructure.anchor_vms.use_DHCP, false)
 
   //PPG
-  var_ppg     = try(local.var_infra.ppg, {})
-  ppg_arm_ids = try(local.var_ppg.arm_ids, [])
+  var_ppg     = try(var.infrastructure.ppg, {})
+  ppg_arm_ids = try(var.infrastructure.ppg.arm_ids, [])
   ppg_exists  = length(local.ppg_arm_ids) > 0 ? true : false
   ppg_names   = try(local.var_ppg.names, [format("%s%s", local.prefix, local.resource_suffixes.ppg)])
-
-  /* Comment out code with users.object_id for the time being
-  // Additional users add to user KV
-  kv_users = var.deployer_user
-  */
-
-  //SAP vnet
-  vnet_sap_arm_id              = try(var.landscape_tfstate.vnet_sap_arm_id, "")
-  vnet_sap_name                = split("/", local.vnet_sap_arm_id)[8]
-  vnet_sap_resource_group_name = split("/", local.vnet_sap_arm_id)[4]
-
-  vnet_sap                         = data.azurerm_virtual_network.vnet_sap
-  vnet_sap_resource_group_location = try(local.vnet_sap.location, local.region)
-  vnet_sap_addr                    = local.vnet_sap.address_space
-  var_vnet_sap                     = try(local.var_infra.vnets.sap, {})
 
   //Admin subnet
   enable_admin_subnet = try(var.application.dual_nics, false) || try(var.databases[0].dual_nics, false) || (try(upper(local.db.platform), "NONE") == "HANA")
 
   sub_admin_defined = length(try(var.infrastructure.vnets.sap.subnet_admin, {})) > 0
-  sub_admin_arm_id  = try(var.infrastructure.vnets.sap.subnet_admin.arm_id, try(var.landscape_tfstate.admin_subnet_id, ""))
+  sub_admin_arm_id  = coalesce(try(var.infrastructure.vnets.sap.subnet_admin.arm_id, ""), var.landscape_tfstate.admin_subnet_id)
   sub_admin_exists  = length(local.sub_admin_arm_id) > 0
 
   sub_admin_name = local.sub_admin_exists ? (
@@ -372,8 +327,8 @@ locals {
   )
 
   // If the user specifies arm id of key vaults in input, the key vault will be imported instead of using the landscape key vault
-  user_key_vault_id = length(try(var.key_vault.kv_user_id, "")) > 0 ? var.key_vault.kv_user_id : local.landscape_tfstate.landscape_key_vault_user_arm_id
-  prvt_key_vault_id = length(try(var.key_vault.kv_prvt_id, "")) > 0 ? var.key_vault.kv_prvt_id : local.landscape_tfstate.landscape_key_vault_private_arm_id
+  user_key_vault_id = length(try(var.key_vault.kv_user_id, "")) > 0 ? var.key_vault.kv_user_id : var.landscape_tfstate.landscape_key_vault_user_arm_id
+  prvt_key_vault_id = length(try(var.key_vault.kv_prvt_id, "")) > 0 ? var.key_vault.kv_prvt_id : var.landscape_tfstate.landscape_key_vault_private_arm_id
 
 
   // Extract information from the specified key vault arm ids

@@ -34,3 +34,4 @@ deploy/scripts/pwsh/SAPDeploymentUtilities/Output/stats.json
 
 # Ignore python bytecode files
 *.pyc
+deploy/ansible/BOM-catalog/NW750SPS20_v0002ms/NW750SPS20_v0002ms.yaml

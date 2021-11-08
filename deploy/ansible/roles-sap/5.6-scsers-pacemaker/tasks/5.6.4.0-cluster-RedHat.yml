@@ -56,6 +56,16 @@
     - name:                            "Put Secondary host on standby"
       ansible.builtin.command:         pcs node standby {{ secondary_instance_name }}
 
+    - name:                            "SCS - Assign ownership"
+      ansible.builtin.file:            
+        path:                          "{{ item.path }}"
+        owner:                         "{{ sidadm_uid }}" 
+        group:                         sapsys
+      loop:
+        -  { path: '/sapmnt/{{ sap_sid|upper }}' }
+        -  { path: '/usr/sap/{{ sap_sid|upper }}/SYS' }
+        -  { path: '/usr/sap/{{ sap_sid }}/ASCS{{ scs_instance_number }}' }
+
     - name:                            "SCS - Install SCS on Primary host"
       include_role:
         name:                          roles-sap/5.0.1-scs-ha-install
@@ -105,17 +115,25 @@
 - name:                                "SCS - Install ERS on Secondary host"
   block:
 
-    - name:                            "Bring Secondary host online "
+    - name:                            "Bring Secondary host online"
       ansible.builtin.command:         pcs node unstandby {{ secondary_instance_name }}
 
     - name:                            "Put Primary host on standby"
       ansible.builtin.command:         pcs node standby {{ primary_instance_name }}
 
+    - name:                            "ERS - Assign ownership"
+      ansible.builtin.file:            
+        path:                          "{{ item.path }}"
+        owner:                         "{{ sidadm_uid }}" 
+        group:                         sapsys
+      loop:
+        -  { path: '/sapmnt/{{ sap_sid|upper }}' }
+        -  { path: '/usr/sap/{{ sap_sid|upper }}/SYS' }
+        -  { path: '/usr/sap/{{ sap_sid }}/ERS{{ ers_instance_number }}' }
+
     - name:                            "ERS - Install on Secondary host"
       include_role:
         name:                          roles-sap/5.0.2-ers-ha-install
-      vars:
-        sap_scs_hostname:              "{{ ers_virtual_hostname }}"
 
     - name:                            "Put Primary host on line"
       ansible.builtin.command:         pcs node unstandby {{ primary_instance_name }}

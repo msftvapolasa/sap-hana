@@ -97,13 +97,12 @@
         main_password:                 " {{ main_password }}"
 
     - name:                            "SAP HANA: Execute hdblcm on {{ ansible_hostname }}"
-      ansible.builtin.command:         "./hdblcm --batch --action=install  --configfile='{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_install.rsp'
-                                         --batch"
+      ansible.builtin.command:         ./hdblcm --batch --action=install  --configfile='{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_install.rsp'
       args:
-        chdir:                         "/usr/sap/install/CD_HDBSERVER/SAP_HANA_DATABASE"
+        chdir:                         /usr/sap/install/CD_HDBSERVER/SAP_HANA_DATABASE
         creates:                       /etc/sap_deployment_automation/sap_deployment_hdb.txt
       register:                        hana_installation
-      failed_when:                     hana_installation.rc > 0
+      failed_when:                     hana_installation.rc > 1
 
     - name:                            "Installation results"
       ansible.builtin.debug:
@@ -111,9 +110,14 @@
         verbosity:                     2
 
 
-    - name:                            "REMOVE password file Install: flag"
+    - name:                            "REMOVE install password file "
       ansible.builtin.file:
         path:                          "{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_passwords.xml"
+        state:                         absent
+
+    - name:                            "REMOVE install response file"
+      ansible.builtin.file:
+        path:                          "{{ dir_params }}/hdbserver_{{ ansible_hostname }}_{{ sap_sid }}_install.rsp"
         state:                         absent
 
     - name:                            "HANA Install: flag"

@@ -6,10 +6,6 @@ variable "resource_group" {
   description = "Details of the resource group"
 }
 
-variable "vnet_sap" {
-  description = "Details of the SAP Vnet"
-}
-
 variable "storage_bootdiag_endpoint" {
   description = "Details of the boot diagnostics storage account"
 }
@@ -82,6 +78,28 @@ variable "use_loadbalancers_for_standalone_deployments" {
   default     = true
 }
 
+variable "database_vm_names" {
+  default = [""]
+}
+
+variable "database_vm_db_nic_ips" {
+  default = [""]
+}
+
+variable "database_vm_admin_nic_ips" {
+  default = [""]
+}
+
+variable "database_vm_storage_nic_ips" {
+  default = [""]
+}
+
+variable "database_server_count" {
+  default = 1
+}
+
+
+
 locals {
   // Imports database sizing information
 
@@ -102,19 +120,13 @@ locals {
 
   faults = jsondecode(file(format("%s%s", path.module, "/../../../../../configs/max_fault_domain_count.json")))
 
-  computer_names       = var.naming.virtualmachine_names.ANYDB_COMPUTERNAME
-  virtualmachine_names = var.naming.virtualmachine_names.ANYDB_VMNAME
-
-  observer_computer_names       = var.naming.virtualmachine_names.OBSERVER_COMPUTERNAME
-  observer_virtualmachine_names = var.naming.virtualmachine_names.OBSERVER_VMNAME
-
   storageaccount_names = var.naming.storageaccount_names.SDU
   resource_suffixes    = var.naming.resource_suffixes
 
   region    = var.infrastructure.region
   anydb_sid = (length(local.anydb_databases) > 0) ? try(local.anydb.instance.sid, lower(substr(local.anydb_platform, 0, 3))) : lower(substr(local.anydb_platform, 0, 3))
   sid       = length(var.sap_sid) > 0 ? var.sap_sid : local.anydb_sid
-  prefix  = trimspace(var.naming.prefix.SDU)
+  prefix    = trimspace(var.naming.prefix.SDU)
   rg_exists = length(try(var.infrastructure.resource_group.arm_id, "")) > 0
   rg_name = local.rg_exists ? (
     try(split("/", var.infrastructure.resource_group.arm_id)[4], "")) : (
@@ -133,12 +145,9 @@ locals {
   // Return the max fault domain count for the region
   faultdomain_count = try(tonumber(compact(
     [for pair in local.faults :
-      upper(pair.Location) == upper(local.region) ? pair.MaximumFaultDomainCount : ""
+      upper(pair.Location) == upper(var.infrastructure.region) ? pair.MaximumFaultDomainCount : ""
   ])[0]), 2)
 
-
-  // Support dynamic addressing
-  use_DHCP = var.databases[0].use_DHCP
 
   // Dual network cards
   anydb_dual_nics = try(local.anydb.dual_nics, false)
@@ -173,10 +182,7 @@ locals {
 
   db_sid       = lower(substr(local.anydb_platform, 0, 3))
   loadbalancer = try(local.anydb.loadbalancer, {})
-
-  node_count              = local.enable_deployment ? try(length(var.databases[0].dbnodes), 1) : 0
-  db_server_count         = local.anydb_ha ? local.node_count * 2 : local.node_count
-  enable_db_lb_deployment = local.db_server_count > 0 && (var.use_loadbalancers_for_standalone_deployments || local.db_server_count > 1)
+  enable_db_lb_deployment = var.database_server_count > 0 && (var.use_loadbalancers_for_standalone_deployments || var.database_server_count > 1)
 
   anydb_cred = try(local.anydb.credentials, {})
 
@@ -244,62 +250,6 @@ locals {
   observer_custom_image_id = local.anydb_os.source_image_id
   observer_os              = local.anydb_os
 
-  // Update database information with defaults
-  anydb_database = local.enable_deployment ? merge(local.anydb,
-    { platform = local.anydb_platform },
-    { size = local.anydb_size },
-    { os = merge({ os_type = local.anydb_ostype }, local.anydb_os) },
-    { high_availability = local.anydb_ha },
-    { auth_type = local.sid_auth_type },
-    { dbnodes = local.dbnodes },
-    { loadbalancer = local.loadbalancer }
-  ) : null
-
-
-  dbnodes = local.anydb_ha ? (
-    flatten([for idx, dbnode in try(local.anydb.dbnodes, [{}]) :
-      [
-        {
-          name         = try("${dbnode.name}-0", format("%s%s%s%s", local.prefix, var.naming.separator, local.virtualmachine_names[idx], local.resource_suffixes.vm))
-          computername = try("${dbnode.name}-0", local.computer_names[idx], local.resource_suffixes.vm)
-          role         = try(dbnode.role, "db")
-          admin_nic_ip = lookup(dbnode, "admin_nic_ips", ["false", "false"])[0]
-          db_nic_ip    = lookup(dbnode, "db_nic_ips", ["false", "false"])[0]
-        },
-        {
-          name         = try("${dbnode.name}-1", format("%s%s%s%s", local.prefix, var.naming.separator, local.virtualmachine_names[idx + local.node_count], local.resource_suffixes.vm))
-          computername = try("${dbnode.name}-1", local.computer_names[idx + local.node_count])
-          role         = try(dbnode.role, "db")
-          admin_nic_ip = lookup(dbnode, "admin_nic_ips", ["false", "false"])[1]
-          db_nic_ip    = lookup(dbnode, "db_nic_ips", ["false", "false"])[1]
-        }
-      ]
-    ])) : (
-    flatten([for idx, dbnode in try(local.anydb.dbnodes, [{}]) : {
-      name         = try("${dbnode.name}-0", format("%s%s%s%s", local.prefix, var.naming.separator, local.virtualmachine_names[idx], local.resource_suffixes.vm))
-      computername = try("${dbnode.name}-0", local.computer_names[idx], local.resource_suffixes.vm)
-      role         = try(dbnode.role, "db")
-      admin_nic_ip = lookup(dbnode, "admin_nic_ips", ["false", "false"])[0]
-      db_nic_ip    = lookup(dbnode, "db_nic_ips", ["false", "false"])[0]
-      }]
-    )
-  )
-
-
-  anydb_vms = [
-    for idx, dbnode in local.dbnodes : {
-      platform     = local.anydb_platform,
-      name         = dbnode.name
-      computername = dbnode.computername
-      db_nic_ip    = dbnode.db_nic_ip
-      admin_nic_ip = dbnode.admin_nic_ip
-      size         = local.anydb_sku
-      os           = local.anydb_ostype,
-      auth_type    = local.sid_auth_type,
-      sid          = var.sap_sid
-    }
-  ]
-
   // Subnet IP Offsets
   // Note: First 4 IP addresses in a subnet are reserved by Azure
   anydb_ip_offsets = {
@@ -358,11 +308,11 @@ locals {
   // List of data disks to be created for  DB nodes
   // disk_iops_read_write only apply for ultra
 
-  data_disk_per_dbnode = (length(local.anydb_vms) > 0) ? flatten(
+  data_disk_per_dbnode = (var.database_server_count > 0) ? flatten(
     [
       for storage_type in local.db_sizing : [
         for idx, disk_count in range(storage_type.count) : {
-          suffix                    = format("%s%02d", storage_type.name, disk_count + var.options.resource_offset)
+          suffix                    = format("-%s%02d", storage_type.name, disk_count + var.options.resource_offset)
           storage_account_type      = storage_type.disk_type,
           disk_size_gb              = storage_type.size_gb,
           disk_iops_read_write      = try(storage_type.disk-iops-read-write, null)
@@ -378,11 +328,11 @@ locals {
     ]
   ) : []
 
-  append_data_disk_per_dbnode = (length(local.anydb_vms) > 0) ? flatten(
+  append_data_disk_per_dbnode = (var.database_server_count > 0) ? flatten(
     [
       for storage_type in local.db_sizing : [
         for idx, disk_count in range(storage_type.count) : {
-          suffix                    = format("%s%02d", storage_type.name, storage_type.lun_start + disk_count + var.options.resource_offset)
+          suffix                    = format("-%s%02d", storage_type.name, storage_type.lun_start + disk_count + var.options.resource_offset)
           storage_account_type      = storage_type.disk_type,
           disk_size_gb              = storage_type.size_gb,
           disk_iops_read_write      = try(storage_type.disk-iops-read-write, null)
@@ -401,9 +351,9 @@ locals {
   all_data_disk_per_dbnode = distinct(concat(local.data_disk_per_dbnode, local.append_data_disk_per_dbnode))
 
   anydb_disks = flatten([
-    for vm_counter, anydb_vm in local.anydb_vms : [
+    for vm_counter in range(var.database_server_count) : [
       for datadisk in local.all_data_disk_per_dbnode : {
-        name                      = format("%s-%s", anydb_vm.name, datadisk.suffix)
+        suffix                    = datadisk.suffix
         vm_index                  = vm_counter
         caching                   = datadisk.caching
         storage_account_type      = datadisk.storage_account_type
@@ -420,9 +370,9 @@ locals {
   //Disks for Ansible
   // host: xxx, LUN: #, type: sapusr, size: #
 
-  db_disks_ansible = distinct(flatten([for idx, vm in local.anydb_vms : [
+  db_disks_ansible = distinct(flatten([for vm in range(var.database_server_count) : [
     for idx, datadisk in local.anydb_disks :
-    format("{ host: '%s', LUN: %d, type: '%s' }", vm.computername, datadisk.lun, datadisk.type)
+    format("{ host: '%s', LUN: %d, type: '%s' }", var.naming.virtualmachine_names.ANYDB_COMPUTERNAME[vm], datadisk.lun, datadisk.type)
   ]]))
 
   enable_ultradisk = try(
@@ -442,9 +392,9 @@ locals {
   zonal_deployment = local.db_zone_count > 0 || local.enable_ultradisk ? true : false
 
   //If we deploy more than one server in zone put them in an availability set
-  use_avset = local.db_server_count > 0 && try(!local.anydb.no_avset, false) ? !local.zonal_deployment || (local.db_server_count != local.db_zone_count) : false
+  use_avset = var.database_server_count > 0 && try(!local.anydb.no_avset, false) ? !local.zonal_deployment || (var.database_server_count != local.db_zone_count) : false
 
-  full_observer_names = flatten([for vm in local.observer_virtualmachine_names :
+  full_observer_names = flatten([for vm in var.naming.virtualmachine_names.OBSERVER_VMNAME :
     format("%s%s%s%s", local.prefix, var.naming.separator, vm, local.resource_suffixes.vm)]
   )
 

@@ -99,37 +99,22 @@ locals {
   db_sid         = length(local.hana-databases) > 0 ? local.hanadb_sid : local.anydb_sid
   sap_sid        = upper(try(local.application.sid, local.db_sid))
 
-  app_ostype            = try(local.application.os.os_type, "LINUX")
-  db_ostype             = try(local.databases[0].os.os_type, "LINUX")
-  db_server_count       = try(length(local.databases[0].dbnodes), 1)
-  app_server_count      = try(local.application.application_server_count, 0)
-  webdispatcher_count   = try(local.application.webdispatcher_count, 0)
-  scs_high_availability = try(local.application.scs_high_availability, false)
-  scs_server_count      = try(local.application.scs_server_count, 0) * (local.scs_high_availability ? 2 : 1)
-
-  db_zones  = try(local.databases[0].zones, [])
-  app_zones = try(local.application.app_zones, [])
-  scs_zones = try(local.application.scs_zones, [])
-  web_zones = try(local.application.web_zones, [])
-
-  anchor        = try(local.infrastructure.anchor_vms, {})
-  anchor_ostype = upper(try(local.anchor.os.os_type, "LINUX"))
-
   // Locate the tfstate storage account
   saplib_subscription_id       = split("/", var.tfstate_resource_id)[2]
   saplib_resource_group_name   = split("/", var.tfstate_resource_id)[4]
   tfstate_storage_account_name = split("/", var.tfstate_resource_id)[8]
   tfstate_container_name       = module.sap_namegenerator.naming.resource_suffixes.tfstate
-  deployer_tfstate_key         = try(var.deployer_tfstate_key, "")
-  landscape_tfstate_key        = var.landscape_tfstate_key
 
   // Retrieve the arm_id of deployer's Key Vault from deployer's terraform.tfstate
-  spn_key_vault_arm_id = coalesce(try(local.key_vault.kv_spn_id, ""), try(data.terraform_remote_state.landscape.outputs.landscape_key_vault_spn_arm_id, ""), try(data.terraform_remote_state.deployer[0].outputs.deployer_kv_user_arm_id, ""))
+  spn_key_vault_arm_id = coalesce(
+    try(local.key_vault.kv_spn_id, ""),
+    try(data.terraform_remote_state.landscape.outputs.landscape_key_vault_spn_arm_id, ""),
+    try(data.terraform_remote_state.deployer[0].outputs.deployer_kv_user_arm_id, "")
+  )
 
   deployer_subscription_id = length(local.spn_key_vault_arm_id) > 0 ? split("/", local.spn_key_vault_arm_id)[2] : ""
 
   use_spn = !try(var.options.no_spn, false)
-
 
   spn = {
     subscription_id = data.azurerm_key_vault_secret.subscription_id.value,
