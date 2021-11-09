@@ -125,8 +125,8 @@ locals {
 
     scs_server_count      = max(var.scs_server_count, try(var.application.scs_server_count, 1))
     scs_high_availability = var.scs_high_availability || try(var.application.scs_high_availability, false)
-    scs_instance_number   = try(coalesce(var.scs_instance_number, var.application.scs_instance_number), "00")
-    ers_instance_number   = try(coalesce(var.ers_instance_number, var.application.ers_instance_number), "02")
+    scs_instance_number   = coalesce(var.scs_instance_number, try(var.application.scs_instance_number, "00"))
+    ers_instance_number   = coalesce(var.ers_instance_number, try(var.application.ers_instance_number, "02"))
 
     scs_sku      = try(coalesce(var.scs_server_sku, var.application.scs_sku), "")
     scs_no_ppg   = var.scs_server_no_ppg || try(var.application.scs_no_ppg, false)
