@@ -6,7 +6,6 @@
 # - a download basket manifest (*.json)
 # The script discovers the filenames based on the file extension.
 # NOTE: Exactly one of each file is allowed!
-#
 # Limitations of generated BoM:
 # - Hard-coded HANA2 dependency which will need editing
 #
@@ -42,11 +41,18 @@ if [[ ${#JSON_FILE[*]} -ne 1 ]]; then
   ERR=1
 fi
 
+declare -a PARAMS_FILE=($(ls *.params 2>/dev/null))
+if [[ ${#PARAMS_FILE[*]} -ne 1 ]]; then
+  echo "Error: Exactly one .txt file is required. I have found ${PARAMS_FILE[*]:-none}"
+  ERR=1
+fi
+
 if [[ ${ERR} -eq 1 ]]; then
   exit 1
 fi
 
-awk -v excelfile="${XLS_FILE[0]}" -v downloadmanifestfile="${JSON_FILE[0]}" '
+
+awk -v excelfile="${XLS_FILE[0]}" -v downloadmanifestfile="${JSON_FILE[0]}"  -v valuesfile="${PARAMS_FILE[0]}" '
 BEGIN {
   sequence["SP_B"] = "AA";  # download_basket
   sequence["CD"] = "BB";    # DVD exports
@@ -54,9 +60,19 @@ BEGIN {
   RScopy = RS;
   RS = "},{";
 
+  printf("%s\n", valuesfile );
+  a = "0010000000910122021|SPAT"
+  split(a, result1, "|");
+  printf("\n%s",result1[0]);
+
+  
+
   count = 0;
-  while ( getline < downloadmanifestfile ) {
+  printf("\n%s\n", downloadmanifestfile);
+
+  while ( getline line < downloadmanifestfile ) {
     if ( match($0, /USERID|USERNAME1|USERNAME2|OBJCNT/ ) == 0) {
+      printf ("%s\n", "in if loop")
       id = gensub(/^.*"Value":"/, "", "1");  #"
       id = gensub(/^(.*)\|(.+)\|.+\|(.+)\|.+\|.+\|.+$/, "\\1,\\2,\\3", "1", id);
       split(id, result, ",");
@@ -67,6 +83,7 @@ BEGIN {
       }
       references[result[3]] = sprintf("%-6s,%s", seq, result[1]);
     }
+    printf ("%s\n", "in while loop")  
   }
   close(downloadmanifestfile);
   RS = RScopy;
@@ -85,19 +102,21 @@ END {
       filename = basketresults[1];
       component = basketresults[2];
       componentref = basketresults[3];
-
+      
       if ( references[componentref] != "" ) {
         split(references[componentref], referenceresults, ",");
       } else {
         split(references[filename], referenceresults, ",");
       }
-
+      
+      sapurl = referenceresults[1];
       seq = referenceresults[1];
-      sapurl = referenceresults[2];
-
       if ( sapurl == "" ) seq = "CC";
+      printf("%-6s%04d,%s,%s,%s\n", seq, count, sapurl, filename, component) | "sort >tempworkfile1";
+
       if ( component == "File on DVD" ) seq = "BB";
       printf("%-6s%04d,%s,%s,%s\n", seq, count, sapurl, filename, component) | "sort >tempworkfile";
+      printf("%s\n", references[0]) | "sort >tempworkfile1";
     }
   }
   close (excelfile);
@@ -172,4 +191,4 @@ END {
 }
 '
 
-rm -f tempworkfile
+
