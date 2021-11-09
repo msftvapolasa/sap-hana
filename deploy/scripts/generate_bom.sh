@@ -6,7 +6,6 @@
 # - a download basket manifest (*.json)
 # The script discovers the filenames based on the file extension.
 # NOTE: Exactly one of each file is allowed!
-#
 # Limitations of generated BoM:
 # - Hard-coded HANA2 dependency which will need editing
 #
@@ -42,31 +41,51 @@ if [[ ${#JSON_FILE[*]} -ne 1 ]]; then
   ERR=1
 fi
 
+jq '.d.results[].Value' ${JSON_FILE[0]}  > values.params
+
+declare -a PARAMS_FILE=($(ls *.params 2>/dev/null))
+if [[ ${#PARAMS_FILE[*]} -ne 1 ]]; then
+  echo "Error: Exactly one .params file is required. I have found ${PARAMS_FILE[*]:-none}"
+  ERR=1
+fi
+
 if [[ ${ERR} -eq 1 ]]; then
   exit 1
 fi
 
-awk -v excelfile="${XLS_FILE[0]}" -v downloadmanifestfile="${JSON_FILE[0]}" '
+
+
+awk -v excelfile="${XLS_FILE[0]}" -v downloadmanifestfile="${JSON_FILE[0]}"  -v valuesfile="${PARAMS_FILE[0]}" '
 BEGIN {
   sequence["SP_B"] = "AA";  # download_basket
   sequence["CD"] = "BB";    # DVD exports
   sequence["SPAT"] = "CC";  # others
   RScopy = RS;
-  RS = "},{";
-
+  RS = "\n";
+    
   count = 0;
-  while ( getline < downloadmanifestfile ) {
-    if ( match($0, /USERID|USERNAME1|USERNAME2|OBJCNT/ ) == 0) {
-      id = gensub(/^.*"Value":"/, "", "1");  #"
-      id = gensub(/^(.*)\|(.+)\|.+\|(.+)\|.+\|.+\|.+$/, "\\1,\\2,\\3", "1", id);
-      split(id, result, ",");
+  #printf("\n%s\n", downloadmanifestfile);
+
+  while ( getline line < valuesfile ) {
+   
+    if ( match($0, /"Value":/ ) == 0) {
+      split(line, value_split, /"/);
+      #printf("\n%s", "value split:" value_split[2]);
+      id = gensub(/^(.+)\|(.+)$/, "\\1 \\2 \\3", "g", value_split[2]);
+      #printf("\n%s", "value of id:" id);
+      split(id, result, "|");
+      #printf("\n%s", "value of result[1]" result[1]);
+      #printf("\n%s", "value of result[2]" result[2]);
+      #printf("\n%s", "value of result[3]" result[3]);
       if ( sequence[result[2]] != "" ) {
         seq = sequence[result[2]];
       } else {
         seq = ("ZZ" result[2]);  # Unknown flag
       }
       references[result[3]] = sprintf("%-6s,%s", seq, result[1]);
+      
     }
+    
   }
   close(downloadmanifestfile);
   RS = RScopy;
@@ -85,19 +104,26 @@ END {
       filename = basketresults[1];
       component = basketresults[2];
       componentref = basketresults[3];
-
+      #printf("\n%s", "value of basketresults[1]" basketresults[1]);
+      #printf("\n%s", "value of basketresults[2]" basketresults[2]);
+      #printf("\n%s", "value of basketresults[3]" basketresults[3]);
+      
       if ( references[componentref] != "" ) {
         split(references[componentref], referenceresults, ",");
+      } else if ( references[component] != "" ) {
+         split(references[component], referenceresults, ",");
       } else {
         split(references[filename], referenceresults, ",");
       }
-
-      seq = referenceresults[1];
+      
       sapurl = referenceresults[2];
-
+      seq = referenceresults[1];
       if ( sapurl == "" ) seq = "CC";
+      printf("%-6s%04d,%s,%s,%s\n", seq, count, sapurl, filename, component) | "sort >tempworkfile1";
+
       if ( component == "File on DVD" ) seq = "BB";
       printf("%-6s%04d,%s,%s,%s\n", seq, count, sapurl, filename, component) | "sort >tempworkfile";
+      printf("%s\n", references[0]) | "sort >tempworkfile1";
     }
   }
   close (excelfile);
@@ -155,7 +181,10 @@ END {
     if ( overridedir != "") printf("      override_target_location: \"%s\"\n", overridedir);
     if (match(filename, /SAPCAR_.*\.EXE/ ) != 0) printf("      override_target_filename: \"SAPCAR.EXE\"\n");
     if (match(filename, /SWPM.*\.SAR/ ) != 0) printf("      override_target_filename: \"SWPM.SAR\"\n");
-    if ( sapurl != "" ) printf("      sapurl: \"https://softwaredownloads.sap.com/file/%s\"\n", sapurl);
+    if ( sapurl != "" ) printf("      url: \"https://softwaredownloads.sap.com/file/%s\"\n", sapurl);
+    if ( current == "CC" ) printf("      download: false\n");
+    
+
   }
 
   stackfileid = gensub(/^MP_Excel_([0-9]+_[0-9]+).*/, "\\1", "g", xlsfile);
@@ -172,4 +201,4 @@ END {
 }
 '
 
-rm -f tempworkfile
+
