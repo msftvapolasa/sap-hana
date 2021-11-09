@@ -106,11 +106,11 @@ materials:
       url:          https://softwaredownloads.sap.com/file/0030000000635142016
 
     # MISC
-    - name:         "Patch 5 for SOFTWARE UPDATE MANAGER 2.0 SP11"
-      archive:      SUM20SP12_1-80002456.SAR
-      checksum:     d1cd94cd503766a334116b7303770cc1409ea2f5f98448186d11aff64fb7459a
+    - name:         "Patch 2 for SOFTWARE UPDATE MANAGER 2.0 SP12"
+      archive:      SUM20SP12_2-80002456.SAR
+      checksum:     00cf1206d313590d4152289269417e0e27a1484f09695f98a0c62824aa429c7e
       download:     false
-      url:          https://softwaredownloads.sap.com/file/0020000001513902021
+      url:          https://softwaredownloads.sap.com/file/0020000001606782021
     # SPAM
     - name:         "SPAM/SAINT Update - Version 750/0077"
       archive:      KD75077.SAR
@@ -696,6 +696,7 @@ materials:
 
     - name:         "SAP_UI 754: SP 0004"
       archive:      K-75404INSAPUI.SAR
+      checksum:     260318324bf29dff72a59cac8ce4d607803ba27abfcfd30e999b9b0bc373bb9c
       checksum:     260318324bf29dff72a59cac8ce4d607803ba27abfcfd30e999b9b0bc373bb9c
       download:     false
       url:          https://softwaredownloads.sap.com/file/0010000000876572020
