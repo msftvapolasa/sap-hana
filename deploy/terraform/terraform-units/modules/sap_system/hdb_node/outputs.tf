@@ -26,7 +26,7 @@ output "dns_info_vms" {
     zipmap(
       concat(
         (
-          var.hana_dual_nics ? var.naming.virtualmachine_names.HANA_VMNAME : [""]
+          slice(var.hana_dual_nics ? var.naming.virtualmachine_names.HANA_VMNAME : [""], 0, var.database_server_count)
         ),
         (
           slice(var.naming.virtualmachine_names.HANA_SECONDARY_DNSNAME, 0, var.database_server_count)
