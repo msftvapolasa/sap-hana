@@ -120,7 +120,7 @@ then
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
-    exit -1
+    exit 64
 fi
 
 if [ ! -n "${region}" ]
@@ -133,7 +133,7 @@ then
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
-    exit -1
+    exit 64
 fi
 
 #Persisting the parameters across executions
@@ -246,22 +246,43 @@ echo "#                                                                         
 echo "#########################################################################################"
 echo ""
 
-terraform -chdir="${terraform_module_directory}"  plan -var-file="${var_file}" $extra_vars > plan_output.log 2>&1
-str1=$(grep "Error: KeyVault " plan_output.log)
+terraform -chdir="${terraform_module_directory}"  plan  -detailed-exitcode -var-file="${var_file}" $extra_vars > plan_output.log 2>&1
 
-if [ -n "${str1}" ]; then
+return_value=$?
+if [ 1 == $return_value ]
+then
     echo ""
     echo "#########################################################################################"
     echo "#                                                                                       #"
-    echo "#                           Errors during the plan phase                                #"
+    echo -e "#                             $boldreduscoreErrors during the plan phase$resetformatting                              #"
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
-    echo $str1
-    rm plan_output.log
+    if [ -f plan_output.log ]
+    then
+        cat plan_output.log
+        rm plan_output.log
+    fi
     unset TF_DATA_DIR
-    exit -1
+    exit $return_value
 fi
+
+if [ 0 == $return_value ] ; then
+    echo ""
+    echo "#########################################################################################"
+    echo "#                                                                                       #"
+    echo -e "#                          $cyan Infrastructure is up to date $resetformatting                               #"
+    echo "#                                                                                       #"
+    echo "#########################################################################################"
+    echo ""
+    if [ -f plan_output.log ]
+    then
+        rm plan_output.log
+    fi
+    unset TF_DATA_DIR
+    exit $return_value
+fi
+
 
 if [ -f plan_output.log ]; then
     rm plan_output.log

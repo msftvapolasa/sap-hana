@@ -120,7 +120,7 @@ then
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
-    exit -1
+    exit 64
 fi
 
 if [ ! -n "${location}" ]
@@ -133,7 +133,7 @@ then
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
-    exit -1
+    exit 64
 fi
 
 if [ true == "$use_deployer" ]
@@ -226,7 +226,7 @@ then
     echo "#########################################################################################"
     echo ""
     unset TF_DATA_DIR
-    exit -1
+    exit 64
 fi
 
 reinitialized=0
@@ -379,7 +379,7 @@ if [ 1 == $return_value ] ; then
     echo "#########################################################################################"
     echo ""
     unset TF_DATA_DIR
-    exit -1
+    exit $return_value
 fi
 REMOTE_STATE_SA=$(terraform -chdir="${terraform_module_directory}" output remote_state_storage_account_name| tr -d \")
 temp=$(echo "${REMOTE_STATE_SA}" | grep -m1 "Warning")
