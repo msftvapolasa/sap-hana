@@ -351,7 +351,7 @@ load_config_vars "${deployer_config_information}" "step"
 
 
 if [ $recover == 1 ]; then
-    if [ -n $REMOTE_STATE_SA ]; then
+    if [ -n "$REMOTE_STATE_SA" ]; then
         save_config_var "REMOTE_STATE_SA" "${deployer_config_information}"
         get_and_store_sa_details ${REMOTE_STATE_SA} "${deployer_config_information}"
         #Support running prepare_region on new host when the resources are already deployed
