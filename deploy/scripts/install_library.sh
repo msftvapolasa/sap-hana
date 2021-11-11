@@ -69,6 +69,7 @@ do
 done
 
 deployment_system=sap_library
+use_deployer=true
 
 if [ ! -f "${parameterfile}" ]
 then
@@ -105,17 +106,9 @@ else
     
     load_config_vars "${param_dirname}"/"${parameterfile}" "environment"
     load_config_vars "${param_dirname}"/"${parameterfile}" "location"
-
-    load_config_vars "${param_dirname}"/"${parameterfile}" "deployer_use"
-    use_deployer=$deployer_use
 fi
 
 key=$(echo "${parameterfile}" | cut -d. -f1)
-
-
-if [ "${use_deployer}" == "null" ]; then
-    use_deployer=false
-fi
 
 if [ ! -n "${environment}" ]
 then
@@ -143,7 +136,7 @@ then
     exit -1
 fi
 
-if [ false != "$use_deployer" ]
+if [ true == "$use_deployer" ]
 then
     if [ ! -d "${deployer_statefile_foldername}" ]
     then

@@ -142,7 +142,7 @@
     #   var:                           hana_pcs_cluster_resource_check
 # the leading spaces are irrelevant here as we are looking for *<space>Started:
     - name:                            Ensure Cluster resources are started
-      ansible.builtin.shell:           pcs resource status | grep '^Started '
+      ansible.builtin.shell:           pcs resource show | grep '    Started:'
       register:                        hana_cluster_resource_check
       retries:                         12
       delay:                           10
