@@ -82,7 +82,7 @@ function missing {
     echo "#      -d or deployer_tfstate_key            Deployer terraform state file name         #"
     echo "#      -e or deployer_environment            Deployer environment, i.e. MGMT            #"
     echo "#      -k or --state_subscription            subscription of keyvault with SPN details  #"
-    echo "#      -v or --vault                         Name of Azure keyvault with SPN details    #"
+    echo "#      -v or --keyvault                      Name of Azure keyvault with SPN details    #"
     echo "#      -s or --subscription                  subscription                               #"
     echo "#      -c or --spn_id                        SPN application id                         #"
     echo "#      -o or --storageaccountname            Storage account for terraform state files  #"
@@ -96,7 +96,7 @@ function missing {
 
 show_help=false
 force=0
-INPUT_ARGUMENTS=$(getopt -n install_workloadzone -o p:d:e:k:o:s:c:p:t:v:aifh --longoptions parameterfile:,deployer_tfstate_key:,deployer_environment:,subscription:,spn_id:,spn_secret:,tenant_id:,state_subscription:,vault:,storageaccountname:,ado,auto-approve,force,help -- "$@")
+INPUT_ARGUMENTS=$(getopt -n install_workloadzone -o p:d:e:k:o:s:c:p:t:v:aifh --longoptions parameterfile:,deployer_tfstate_key:,deployer_environment:,subscription:,spn_id:,spn_secret:,tenant_id:,state_subscription:,keyvault:,storageaccountname:,ado,auto-approve,force,help -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   showhelp

@@ -340,6 +340,11 @@ then
 fi
 
 #setting the user environment variables
+
+if [ $step -gt 1 ]; then
+  spn_secret="none"
+fi
+
 set_executing_user_environment_variables "${spn_secret}"
 
 load_config_vars "${deployer_config_information}" "step"
@@ -502,6 +507,10 @@ if [ 1 == $step ]; then
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
+
+    if [ ! -n "$keyvault" ]; then
+        read -r -p "Deployer keyvault name: " keyvault
+    fi
     
     az keyvault secret show --name "$secretname" --vault "$keyvault" --only-show-errors 2>error.log
     if [ -s error.log ]; then

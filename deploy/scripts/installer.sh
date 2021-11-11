@@ -495,18 +495,6 @@ else
         echo "#                                                                                       #"
         echo "#########################################################################################"
         echo ""
-        if [ ! -n ${approve} ]
-        then
-            read -p "Do you want to redeploy Y/N?"  ans
-            answer=${ans^^}
-            if [ $answer == 'Y' ]; then
-                ok_to_proceed=true
-            else
-                exit 1
-            fi
-        else
-            ok_to_proceed=true
-        fi
         
         check_output=1
         terraform -chdir="${terraform_module_directory}" init -upgrade=true -reconfigure  \

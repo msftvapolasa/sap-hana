@@ -212,31 +212,23 @@ if [ ! -d ./.terraform/ ]; then
     echo "#########################################################################################"
     terraform -chdir="${terraform_module_directory}" init -backend-config "path=${param_dirname}/terraform.tfstate"
 else
-    echo "#########################################################################################"
-    echo "#                                                                                       #"
-    echo "#                          .terraform directory already exists!                         #"
-    echo "#                                                                                       #"
-    echo "#########################################################################################"
-    read -p "Do you want to redeploy Y/N?"  ans
-    answer=${ans^^}
-    if [ $answer == 'Y' ]; then
-        
-        if [ -f ./.terraform/terraform.tfstate ]; then
-            if grep "azurerm" ./.terraform/terraform.tfstate ; then
-                echo "#########################################################################################"
-                echo "#                                                                                       #"
-                echo "#                     The state is already migrated to Azure!!!                         #"
-                echo "#                                                                                       #"
-                echo "#########################################################################################"
-                return 0
+    if [ -f ./.terraform/terraform.tfstate ]; then
+        if grep "azurerm" ./.terraform/terraform.tfstate ; then
+            echo "#########################################################################################"
+            echo "#                                                                                       #"
+            echo "#                     The state is already migrated to Azure!!!                         #"
+            echo "#                                                                                       #"
+            echo "#########################################################################################"
+            read -p "Do you want to bootstrap the deployer again Y/N?"  ans
+            answer=${ans^^}
+            if [ $answer == 'Y' ]; then
+                terraform -chdir="${terraform_module_directory}" init -upgrade=true  -backend-config "path=${param_dirname}/terraform.tfstate"
+                terraform -chdir="${terraform_module_directory}" refresh -var-file="${var_file}" 
+            else
+                unset TF_DATA_DIR
+                exit 0
             fi
         fi
-        
-        terraform -chdir="${terraform_module_directory}" init -upgrade=true  -backend-config "path=${param_dirname}/terraform.tfstate"
-        terraform -chdir="${terraform_module_directory}" refresh -var-file="${var_file}" 
-    else
-        unset TF_DATA_DIR
-        exit 0
     fi
 fi
 
@@ -245,7 +237,6 @@ extra_vars=""
 if [ -f terraform.tfvars ]; then
     extra_vars=" -var-file=${param_dirname}/terraform.tfvars "
 fi
-
 
 echo ""
 echo "#########################################################################################"
@@ -310,8 +301,6 @@ then
     if [ -z "${temp}" ]
     then
         touch "${deployer_config_information}"
-        printf -v val %-.20s "$keyvault"            
-
         printf -v val %-.20s "$keyvault"            
 
         echo ""
