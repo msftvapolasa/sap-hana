@@ -204,6 +204,7 @@ export TF_DATA_DIR="${param_dirname}"/.terraform
 ok_to_proceed=false
 new_deployment=false
 
+
 if [ ! -d ./.terraform/ ]; then
     echo "#########################################################################################"
     echo "#                                                                                       #"
@@ -228,7 +229,11 @@ else
                 unset TF_DATA_DIR
                 exit 0
             fi
+        else
+            terraform -chdir="${terraform_module_directory}" init -backend-config "path=${param_dirname}/terraform.tfstate"
         fi
+    else
+        terraform -chdir="${terraform_module_directory}" init -backend-config "path=${param_dirname}/terraform.tfstate"
     fi
 fi
 
