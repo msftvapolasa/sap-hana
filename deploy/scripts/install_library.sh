@@ -283,7 +283,11 @@ else
                 unset TF_DATA_DIR
                 exit 0
             fi
+        else
+            terraform -chdir="${terraform_module_directory}" init -upgrade=true -backend-config "path=${param_dirname}/terraform.tfstate"
         fi
+    else
+        terraform -chdir="${terraform_module_directory}" init -upgrade=true -backend-config "path=${param_dirname}/terraform.tfstate"
     fi
 fi
 
