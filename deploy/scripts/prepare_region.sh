@@ -236,7 +236,6 @@ if [ $force == 1 ]; then
     if [ -f "${deployer_config_information}" ]; then
         rm "${deployer_config_information}"
     fi
-    rm -Rf .terraform terraform.tfstate*
     
 fi
 
@@ -340,13 +339,18 @@ then
 fi
 
 #setting the user environment variables
+
+if [ $step -gt 1 ]; then
+  spn_secret="none"
+fi
+
 set_executing_user_environment_variables "${spn_secret}"
 
 load_config_vars "${deployer_config_information}" "step"
 
 
 if [ $recover == 1 ]; then
-    if [ -n $REMOTE_STATE_SA ]; then
+    if [ -n "$REMOTE_STATE_SA" ]; then
         save_config_var "REMOTE_STATE_SA" "${deployer_config_information}"
         get_and_store_sa_details ${REMOTE_STATE_SA} "${deployer_config_information}"
         #Support running prepare_region on new host when the resources are already deployed
@@ -368,7 +372,11 @@ if [ 0 == $step ]; then
     allParams=$(printf " -p %s %s" "${deployer_file_parametername}" "${approveparam}")
     
     cd "${deployer_dirname}" || exit
-    
+
+    if [ $force == 1 ]; then
+        rm -Rf .terraform terraform.tfstate*
+    fi
+
     "${DEPLOYMENT_REPO_PATH}"/deploy/scripts/install_deployer.sh $allParams
     if (($? > 0)); then
         exit $?
@@ -502,6 +510,10 @@ if [ 1 == $step ]; then
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
+
+    if [ ! -n "$keyvault" ]; then
+        read -r -p "Deployer keyvault name: " keyvault
+    fi
     
     az keyvault secret show --name "$secretname" --vault "$keyvault" --only-show-errors 2>error.log
     if [ -s error.log ]; then

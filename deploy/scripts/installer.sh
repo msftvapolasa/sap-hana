@@ -352,7 +352,7 @@ if [ ! -n "${REMOTE_STATE_SA}" ]; then
     
     if [ ! -z "${STATE_SUBSCRIPTION}" ]
     then
-        if [ $account_set==0 ]
+        if [ $account_set == 0 ]
         then
             $(az account set --sub "${STATE_SUBSCRIPTION}")
             account_set=1
@@ -375,7 +375,7 @@ if [ -z "${REMOTE_STATE_RG}" ]; then
     
     if [ ! -z "${STATE_SUBSCRIPTION}" ]
     then
-        if [ $account_set==0 ]
+        if [ $account_set == 0 ]
         then
             $(az account set --sub "${STATE_SUBSCRIPTION}")
             account_set=1
@@ -453,7 +453,7 @@ new_deployment=false
 
 check_output=0
 
-if [ $account_set==0 ]
+if [ $account_set == 0 ]
 then
     $(az account set --sub "${STATE_SUBSCRIPTION}")
     account_set=1
@@ -495,18 +495,6 @@ else
         echo "#                                                                                       #"
         echo "#########################################################################################"
         echo ""
-        if [ ! -n ${approve} ]
-        then
-            read -p "Do you want to redeploy Y/N?"  ans
-            answer=${ans^^}
-            if [ $answer == 'Y' ]; then
-                ok_to_proceed=true
-            else
-                exit 1
-            fi
-        else
-            ok_to_proceed=true
-        fi
         
         check_output=1
         terraform -chdir="${terraform_module_directory}" init -upgrade=true -reconfigure  \

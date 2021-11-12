@@ -82,11 +82,11 @@ function missing {
     echo "#      -d or deployer_tfstate_key            Deployer terraform state file name         #"
     echo "#      -e or deployer_environment            Deployer environment, i.e. MGMT            #"
     echo "#      -k or --state_subscription            subscription of keyvault with SPN details  #"
-    echo "#      -v or --vault                         Name of Azure keyvault with SPN details    #"
+    echo "#      -v or --keyvault                      Name of Azure keyvault with SPN details    #"
     echo "#      -s or --subscription                  subscription                               #"
     echo "#      -c or --spn_id                        SPN application id                         #"
     echo "#      -o or --storageaccountname            Storage account for terraform state files  #"
-    echo "#      -p or --spn_secret                    SPN password                               #"
+    echo "#      -n or --spn_secret                    SPN password                               #"
     echo "#      -t or --tenant_id                     SPN Tenant id                              #"
     echo "#      -f or --force                         Clean up the local Terraform files.        #"
     echo "#      -i or --auto-approve                  Silent install                             #"
@@ -96,7 +96,7 @@ function missing {
 
 show_help=false
 force=0
-INPUT_ARGUMENTS=$(getopt -n install_workloadzone -o p:d:e:k:o:s:c:p:t:v:aifh --longoptions parameterfile:,deployer_tfstate_key:,deployer_environment:,subscription:,spn_id:,spn_secret:,tenant_id:,state_subscription:,vault:,storageaccountname:,ado,auto-approve,force,help -- "$@")
+INPUT_ARGUMENTS=$(getopt -n install_workloadzone -o p:d:e:k:o:s:c:n:t:v:aifh --longoptions parameterfile:,deployer_tfstate_key:,deployer_environment:,subscription:,spn_id:,spn_secret:,tenant_id:,state_subscription:,keyvault:,storageaccountname:,ado,auto-approve,force,help -- "$@")
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
   showhelp
@@ -114,7 +114,7 @@ do
     -s | --subscription)                       subscription="$2"                ; shift 2 ;;
     -c | --spn_id)                             client_id="$2"                   ; shift 2 ;;
     -v | --keyvault)                           keyvault="$2"                    ; shift 2 ;;
-    -p | --spn_secret)                         spn_secret="$2"                  ; shift 2 ;;
+    -n | --spn_secret)                         spn_secret="$2"                  ; shift 2 ;;
     -a | --ado)                                called_from_ado=1                ; shift ;;
     -t | --tenant_id)                          tenant_id="$2"                   ; shift 2 ;;
     -f | --force)                              force=1                          ; shift ;;
@@ -145,7 +145,7 @@ param_dirname=$(dirname "${parameterfile}")
 
 export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
 
-if [ $param_dirname != '.' ]; then
+if [ "$param_dirname" != '.' ]; then
     echo ""
     echo "#########################################################################################"
     echo "#                                                                                       #"
@@ -167,7 +167,7 @@ then
     exit 3
 fi
 
-ext=$(echo ${workload_file_parametername} | cut -d. -f2)
+ext=$(echo "${workload_file_parametername}" | cut -d. -f2)
 
 private_link_used=false
 
@@ -218,9 +218,9 @@ workload_config_information="${automation_config_directory}""${environment}""${r
 
 if [ "${force}" == 1 ]
 then
-    if [ -f $workload_config_information ]
+    if [ -f "${workload_config_information}" ]
     then
-        rm $workload_config_information
+        rm "${workload_config_information}"
     fi
     rm -Rf .terraform terraform.tfstate*
 fi
@@ -425,7 +425,7 @@ then
     
     tfstate_parameter=" -var tfstate_resource_id=${tfstate_resource_id}"
 
-    if [ -n $STATE_SUBSCRIPTION ]
+    if [ -n "$STATE_SUBSCRIPTION" ]
     then
         if [ ${account_set} == 0 ]
         then
@@ -445,7 +445,7 @@ else
     fi
 
 fi
-if [ -n $keyvault ]
+if [ -n "$keyvault" ]
 then
     secretname="${environment}"-client-id
 
@@ -518,7 +518,7 @@ fi
 if [ -z "${DEPLOYMENT_REPO_PATH}" ]; then
     option="DEPLOYMENT_REPO_PATH"
     missing
-    exit -1
+    exit 1
 fi
 
 if [ -z "${REMOTE_STATE_SA}" ]; then
@@ -532,7 +532,7 @@ if [ -z "${REMOTE_STATE_SA}" ]; then
 
     if [ ! -z "${STATE_SUBSCRIPTION}" ]
     then
-        if [ $account_set==0 ]
+        if [ $account_set == 0 ]
         then
             $(az account set --sub "${STATE_SUBSCRIPTION}")
             account_set=1
@@ -598,7 +598,7 @@ root_dirname=$(pwd)
 
 check_output=0
 
-if [ $account_set==0 ]
+if [ $account_set == 0 ]
 then
     $(az account set --sub "${STATE_SUBSCRIPTION}")
     account_set=1
@@ -766,11 +766,9 @@ if [ 0 == $return_value ] ; then
     exit $return_value
 fi
 
-
-if [ ! $new_deployment ]
-then
-    if [ grep "0 to change, 0 to destroy" plan_output.log ]
-    then
+if [ 2 == $return_value ] ; then
+    test=$(grep kv_user plan_output.log | grep -m1 replaced)
+    if [ ! -z "${test}" ] ; then
         echo ""
         echo "#########################################################################################"
         echo "#                                                                                       #"
@@ -794,7 +792,7 @@ then
         else
             unset TF_DATA_DIR
 
-            exit -1
+            exit 0
         fi
     else
         ok_to_proceed=true

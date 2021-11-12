@@ -120,7 +120,7 @@ then
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
-    exit -1
+    exit 64
 fi
 
 if [ ! -n "${location}" ]
@@ -133,7 +133,7 @@ then
     echo "#                                                                                       #"
     echo "#########################################################################################"
     echo ""
-    exit -1
+    exit 64
 fi
 
 if [ true == "$use_deployer" ]
@@ -226,7 +226,7 @@ then
     echo "#########################################################################################"
     echo ""
     unset TF_DATA_DIR
-    exit -1
+    exit 64
 fi
 
 reinitialized=0
@@ -256,43 +256,38 @@ if [ ! -d ./.terraform/ ]; then
     sed -i /tfstate_resource_id/d  "${library_config_information}"
     
 else
-    if [ $reinitialized -eq 0 ]
-    then
-        echo "#########################################################################################"
-        echo "#                                                                                       #"
-        echo "#                          .terraform directory already exists!                         #"
-        echo "#                                                                                       #"
-        echo "#########################################################################################"
-        read -p "Do you want to redeploy Y/N?"  ans
-        answer=${ans^^}
-        if [ $answer == 'Y' ]; then
-            if [ -f ./.terraform/terraform.tfstate ]; then
-                if grep "azurerm" ./.terraform/terraform.tfstate ; then
+    if [ -f ./.terraform/terraform.tfstate ]; then
+        if grep "azurerm" ./.terraform/terraform.tfstate ; then
+            echo "#########################################################################################"
+            echo "#                                                                                       #"
+            echo "#                     The state is already migrated to Azure!!!                         #"
+            echo "#                                                                                       #"
+            echo "#########################################################################################"
+            read -p "Do you want to red bootstrap the SAP library Y/N?"  ans
+            answer=${ans^^}
+            if [ $answer == 'Y' ]; then
+                terraform -chdir="${terraform_module_directory}" init -upgrade=true -reconfigure -backend-config "path=${param_dirname}/terraform.tfstate"
+                return_value=$?
+                if [ 0 != $return_value ] ; then
+                    echo ""
                     echo "#########################################################################################"
                     echo "#                                                                                       #"
-                    echo "#                     The state is already migrated to Azure!!!                         #"
+                    echo -e "#                          $boldreduscore Errors during the init phase $resetformatting                               #"    
                     echo "#                                                                                       #"
                     echo "#########################################################################################"
-                    exit 0
+                    echo ""
+                    unset TF_DATA_DIR
+                    exit $return_value
                 fi
-            fi
-            terraform -chdir="${terraform_module_directory}" init -upgrade=true -reconfigure -backend-config "path=${param_dirname}/terraform.tfstate"
-            return_value=$?
-            if [ 0 != $return_value ] ; then
-                echo ""
-                echo "#########################################################################################"
-                echo "#                                                                                       #"
-                echo -e "#                          $boldreduscore Errors during the init phase $resetformatting                               #"    
-                echo "#                                                                                       #"
-                echo "#########################################################################################"
-                echo ""
+            else
                 unset TF_DATA_DIR
-                exit $return_value
+                exit 0
             fi
         else
-            unset TF_DATA_DIR
-            exit 0
+            terraform -chdir="${terraform_module_directory}" init -upgrade=true -backend-config "path=${param_dirname}/terraform.tfstate"
         fi
+    else
+        terraform -chdir="${terraform_module_directory}" init -upgrade=true -backend-config "path=${param_dirname}/terraform.tfstate"
     fi
 fi
 
@@ -388,7 +383,7 @@ if [ 1 == $return_value ] ; then
     echo "#########################################################################################"
     echo ""
     unset TF_DATA_DIR
-    exit -1
+    exit $return_value
 fi
 REMOTE_STATE_SA=$(terraform -chdir="${terraform_module_directory}" output remote_state_storage_account_name| tr -d \")
 temp=$(echo "${REMOTE_STATE_SA}" | grep -m1 "Warning")

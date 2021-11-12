@@ -56,6 +56,7 @@ resource "azurerm_lb_rule" "anydb" {
   frontend_ip_configuration_name = format("%s%s%s", local.prefix, var.naming.separator, local.resource_suffixes.db_alb_feip)
   probe_id                       = azurerm_lb_probe.anydb[0].id
   enable_floating_ip             = true
+  idle_timeout_in_minutes        = 30
 }
 
 
