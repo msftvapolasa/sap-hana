@@ -150,7 +150,7 @@ END {
 
   printf("---\n\nname: \"%s\"\ntarget: \"%s\"\n", product, targetname);
   printf("\ndefaults:\n  target_location: \"{{ target_media_location }}/download_basket\"\n");
-  printf("\nproduct_ids:\n  scs:\n  db:\n  pas:\n  aas:\n  web:\n");
+  printf("\nproduct_ids:\n  scs:\n  scs_ha:\n  dbl:\n  pas:\n  pas_ha:\n  app:\n  app_ha:\n  web:\n  ers:\n  ers_ha:\n");
   printf("\nmaterials:\n  dependencies:\n    - name: \"HANA2\"  # <- edit as needed\n\n  media:\n");
 
   while ( getline < "tempworkfile" ) {
@@ -181,8 +181,12 @@ END {
     if ( overridedir != "") printf("      override_target_location: \"%s\"\n", overridedir);
     if (match(filename, /SAPCAR_.*\.EXE/ ) != 0) printf("      override_target_filename: \"SAPCAR.EXE\"\n");
     if (match(filename, /SWPM.*\.SAR/ ) != 0) printf("      override_target_filename: \"SWPM.SAR\"\n");
+    if (match(filename, /SWPM.*\.SAR/ ) != 0) printf("      extract: true\n");
+    if (match(filename, /SWPM.*\.SAR/ ) != 0) printf("      extractDir: SWPM\n");
     if ( sapurl != "" ) printf("      url: \"https://softwaredownloads.sap.com/file/%s\"\n", sapurl);
     if ( current == "CC" ) printf("      download: false\n");
+    if ( current != "CC" ) printf("      path: download_basket\n");
+
     
 
   }
