@@ -3,7 +3,7 @@
 # Installation service 'SAP S/4HANA Server 1909 > SAP HANA Database > Installation > Additional SAP System Instances > Additional Application Server Instance', product id 'NW_DI:S4HANA1909.CORE.HDB.PD' #
 #                                                                                                                                                                                                         #
 ###########################################################################################################################################################################################################
-# IMPORTANT DO NOT DELETE!!! SAPInstDes25Hash=$5b/dpzXsN/5D$ptbkXFnVi+zx4+cODA6mK6+GN/erM3z19WEqi2iVEATVDboCOwcF3QhVmUxcB549G1To3YgsiNJrT6iKN1zFtd/L0YByZKhG
+
 
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 # DiagnosticsAgent.dasidAdmPassword = 
@@ -21,7 +21,7 @@
 HDB_Schema_Check_Dialogs.schemaName = SAPHANADB
 
 # The password of the database schema.
-HDB_Schema_Check_Dialogs.schemaPassword = des25(ZPn3ThDtgsxDUCZB82Y0BhERsaA=)
+HDB_Schema_Check_Dialogs.schemaPassword = 
 
 # Specify whether Software Provisioning Manager is to validate the schema name. The schema name must only contain numbers and capital letters. It  must not start with '_' . It cannot be 'SYS' or 'SYSTEM'.
 # HDB_Schema_Check_Dialogs.validateSchemaName = true
@@ -54,7 +54,7 @@ NW_DI_Instance.virtualHostname = x01app01ld09
 NW_Delete_Sapinst_Users.removeUsers = true
 
 # Master password
-NW_GetMasterPassword.masterPwd = des25(FQsPzMvEHau/LujYZ0q5vv8rV4M=)
+NW_GetMasterPassword.masterPwd = 
 
 # Skip checking if creating a HANA user store is needed. Default value is 'true'. If set to 'false', a valid HANA userstore must exists.
 # NW_HDB_DBClient.checkCreateUserstore = true
@@ -165,7 +165,7 @@ nwUsers.sapsysGID = 2000
 nwUsers.sidAdmUID = 2000
 
 # The password of the '<sapsid>adm' user
-nwUsers.sidadmPassword = des25(fG7v2MxOmClFZar132erKnWRhWw=)
+nwUsers.sidadmPassword = 
 
 # ABAP schema password
 # storageBasedCopy.abapSchemaPassword = 

@@ -3,7 +3,7 @@
 # Installation service 'SAP BW/4HANA 2021 > SAP BW/4HANA Server > SAP HANA Database > Installation > Application Server ABAP > Distributed System > Primary Application Server Instance', product id 'NW_ABAP_CI:BW4HANA2021.CORE.HDB.ABAP' #
 #                                                                                                                                                                                                                                           #
 #############################################################################################################################################################################################################################################
-# IMPORTANT DO NOT DELETE!!! SAPInstDes25Hash=$sgBJKpgxjZ+B$8YqboXbCeGtC+zn1kTmvCJl9q7Q2SIh57Ryt1/X/OzibMCBcG4g39nK/oQl/pooi6vl5ouCjOQh/cqU4YkrNDzBb5OSMHjTQ
+# 
 
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 # DiagnosticsAgent.dasidAdmPassword =
@@ -21,7 +21,7 @@
 HDB_Schema_Check_Dialogs.schemaName = SAPHANADB
 
 # The password of the database schema.
-HDB_Schema_Check_Dialogs.schemaPassword = des25(lhTR81Z0f2Y7VHt43RDGexVB)
+HDB_Schema_Check_Dialogs.schemaPassword = 
 
 # Specify whether Software Provisioning Manager is to validate the schema name. The schema name must only contain numbers and capital letters. It  must not start with '_' . It cannot be 'SYS' or 'SYSTEM'.
 # HDB_Schema_Check_Dialogs.validateSchemaName = true
@@ -116,7 +116,7 @@ NW_DDIC_Password.needDDICPasswords = false
 NW_Delete_Sapinst_Users.removeUsers = true
 
 # Master password
-NW_GetMasterPassword.masterPwd = des25(M2iex5Q31pigTuHa+ZNbBFvu)
+NW_GetMasterPassword.masterPwd = 
 
 # Skip checking if creating a HANA user store is needed. Default value is 'true'. If set to 'false', a valid HANA userstore must exists.
 # NW_HDB_DBClient.checkCreateUserstore = true

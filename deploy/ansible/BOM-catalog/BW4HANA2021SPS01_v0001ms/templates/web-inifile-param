@@ -3,7 +3,6 @@
 # Installation service 'Generic Options > SAP Web Dispatcher > SAP Web Dispatcher (Unicode)', product id 'NW_Webdispatcher:NW750.IND.PD' #
 #                                                                                                                                        #
 ##########################################################################################################################################
-# IMPORTANT DO NOT DELETE!!! SAPInstDes25Hash=$kv/pYwvoWdpL$9SppJFwn55PLVTGt5jAg8e1qOR+YA55LJEKdo44VI2vKsV3PC6u1iM/wYerlw5fPdhgXjJ0h8f8CeJtUK7mmCJRhyvkaakvY
 
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 # DiagnosticsAgent.dasidAdmPassword =
@@ -18,7 +17,7 @@
 NW_Delete_Sapinst_Users.removeUsers = true
 
 # Master password
-NW_GetMasterPassword.masterPwd = des25(WDFiIrBpJnGpfCAxtYZpnqn5yOU=)
+NW_GetMasterPassword.masterPwd = 
 
 # Human readable form of the default login language to be preselected in SAPGUI. This Parameter is potentialy prompted in addition in the screen that also asks for the <SAPSID>. It is only prompted in systems that have an ABAP stack. It is prompted for installation but not for system copy. It is asked in those installations, that perform the ABAP load. That could be the database load installation in case of a distributed system szenario, or in case of a standard system installation with all instances on one host. This Parameter is saved in the 'DEFAULT' profile. It is has no influence on language settings in a Java stack. Valid names are stored in a table of subcomponent 'NW_languagesInLoadChecks'. The available languages must be declaired in the 'LANGUAGES_IN_LOAD' parameter of the 'product.xml' file . In this file, the one-character representation of the languages is used. Check the same table in subcomponent 'NW_languagesInLoadChecks'.
 # NW_GetSidNoProfiles.SAP_GUI_DEFAULT_LANGUAGE =
@@ -160,4 +159,4 @@ nwUsers.sapsysGID = 2000
 # nwUsers.sidAdmUID =
 
 # The password of the '<sapsid>adm' user
-nwUsers.sidadmPassword = des25(hNCIdyahoJqVcRJjikyka11SJRw=)
+nwUsers.sidadmPassword = 
