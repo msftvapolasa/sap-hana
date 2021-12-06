@@ -21,11 +21,11 @@ archives.downloadBasket                                              = /usr/sap/
 NW_readProfileDir.profilesAvailable                                  = false
 nwUsers.sapadmUID                                                    = {{ sapadm_uid }}
 nwUsers.sapsysGID                                                    = {{ sapsys_gid }}
-nwUsers.sidAdmUID                                                    = {{ ora_msids.item.siduid }}
+nwUsers.sidAdmUID                                                    = {{ item.sidadm_uid }}
 
 NW_Delete_Sapinst_Users.removeUsers                                  = true
 NW_GetMasterPassword.masterPwd                                       = {{ main_password }}
-NW_GetSidNoProfiles.sid                                              = {{ ora_msids.item.sid|upper }}
+NW_GetSidNoProfiles.sid                                              = {{ item.sid|upper }}
 NW_getFQDN.FQDN                                                      = {{ sap_fqdn }}
 hostAgent.sapAdmPassword                                             = {{ main_password }}
 nwUsers.sidadmPassword                                               = {{ main_password }}
@@ -38,21 +38,22 @@ nwUsers.sidadmPassword                                               = {{ main_p
 NW_ABAP_Import_Dialog.migmonJobNum                                   = 10
 NW_ABAP_Import_Dialog.migmonLoadArgs                                 = -stop_on_error -loadprocedure fast
 NW_getDBInfoGeneric.dbhost                                         = {{ sap_db_hostname }}
-NW_getDBInfoGeneric.dbsid                                            = {{ ora_msids.item.sid|upper }}
+NW_getDBInfoGeneric.dbsid                                            = {{ item.sid|upper }}
 NW_getLoadType.loadType                                              = SAP
 ora.SysPassword                                                      = {{ main_password }}
 ora.SystemPassword                                                   = {{ main_password }}
 ora.createStatisticsCodeABAP                                         = CREATE
-ora.dbhome                                                           = /oracle/{{ ora_msids.item|upper }}/19
+ora.dbhome                                                           = /oracle/{{ item.sid|upper }}/19
 #ora.oraclePassword                                                  = {{ main_password }}
 # ora.orasidPassword                                                 = {{ main_password }}
 storageBasedCopy.abapSchemaPassword                                  = {{ main_password }}
 storageBasedCopy.javaSchemaPassword                                  = {{ main_password }}
 # ora.hasTDE                                                         = false
 ora.multitenant.installMT                                            = FALSE
-ora.multitenant.pdbsid                                               = {{ ora_msids.item.sid|upper }}
+ora.multitenant.pdbsid                                               = {{ item.sid|upper }}
 storageBasedCopy.ora.ABAPSchema                                     = SAPSR3
-
+ora.InstallSW                                                       = false
+ora.SharedOracleHome                                                = /oracle/RDBMS
 # possible values are
 #         isSingle:  Database on filesystem exist.
 #         isSHOH:    Database installation with SHared Oracle Home.
@@ -102,7 +103,7 @@ storageBasedCopy.ora.clientVersion                                   = 19
 # ora.origlogDrive = 
 
 # Radio button for database creation. Possible values are: 'CREATEDB', 'MCOD', 'PDBINST'
-# ora.rbDatabase = 
+ora.rbDatabase = CREATEDB
 
 # Oracle sapdata drive.
 # ora.sapdataDrive = 

@@ -51,7 +51,7 @@
     path:                              "{{ item.path }}"
     fstype:                            "{{ item.type }}"
     opts:                              defaults
-    state:                             remounted
+    state:                             mounted
   loop:
     - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
     - { type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install'            }                # Special Install Structure; Destroy on Completion

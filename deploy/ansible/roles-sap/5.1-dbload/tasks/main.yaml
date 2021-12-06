@@ -11,6 +11,15 @@
   ansible.builtin.set_fact:
     sap_inifile:                       "{{ bom_base_name }}-dbload-{{ ansible_hostname }}.params"
     sap_inifile_template:              "{{ bom_base_name }}-dbload-inifile-param.j2"
+  when:                                 node_tier != "oracle-msid"
+
+
+- name:                                Set dbload facts for oracle multi-sid
+  ansible.builtin.set_fact:
+    sap_inifile:                       "{{ bom_base_name }}-{{ item.sid }}-dbload-{{ ansible_hostname }}.params"
+    sap_inifile_template:              "{{ bom_base_name }}-dbload-inifile-param.j2"
+  when:                                 node_tier == "oracle-msid"
+  loop:                                 "{{ ora_msids }}"
 
 
 # Returns bom object
@@ -68,22 +77,46 @@
     msg:
       - "{{ sap_inifile }}"
       - "{{ bom.product_ids.dbl }}"
+      - "{{ bom_base_name }}"
+      - "{{ ansible_hostname }}"
+      - "{{ ora_msids }}"
     verbosity:                         2
 
 - name:                                "SAP DBLOAD Install"
   ansible.builtin.shell: |
                                        set -o errexit
                                        export TMPDIR=/usr/sap/install
-                                       ./sapinst SAPINST_INPUT_PARAMETERS_URL=/usr/sap/install/downloads/{{ sap_inifile }}     \
+                                       ./sapinst SAPINST_INPUT_PARAMETERS_URL=/usr/sap/install/downloads/{{ bom_base_name }}-{{ item.sid }}-dbload-{{ ansible_hostname }}.params \
                                                  SAPINST_EXECUTE_PRODUCT_ID={{ bom.product_ids.dbl }}                          \
                                                  SAPINST_SKIP_DIALOGS=true                                                     \
-                                                 SAPINST_START_GUISERVER=false
-                                       touch /etc/sap_deployment_automation/sap_deployment_dbload.txt
+                                                 SAPINST_START_GUISERVER=false                                                 \
+                                                 SAPINST_ACCEPT_INTERNAL_SIGNATURE=true
+                                       touch /etc/sap_deployment_automation/sap_deployment_dbload_{{ item.sid }}.txt
   args:
     chdir:                             /usr/sap/install/SWPM
-    creates:                           /etc/sap_deployment_automation/sap_deployment_dbload.txt
+    creates:                           /etc/sap_deployment_automation/sap_deployment_dbload_{{ item.sid }}.txt
+  when:       node_tier == "oracle-msid"
+  loop:       "{{ ora_msids }}"
   tags:
     - skip_ansible_lint
+
+# - block:
+#   - name:                                "SAP DBLOAD Install"
+#   ansible.builtin.shell: |
+#                                        set -o errexit
+#                                        export TMPDIR=/usr/sap/install
+#                                        ./sapinst SAPINST_INPUT_PARAMETERS_URL=/usr/sap/install/downloads/{{ bom_base_name }}-{{ item.sid }}-dbload-{{ ansible_hostname }}.params     \
+#                                                  SAPINST_EXECUTE_PRODUCT_ID={{ bom.product_ids.dbl }}                          \
+#                                                  SAPINST_SKIP_DIALOGS=true                                                     \
+#                                                  SAPINST_START_GUISERVER=false
+#                                        touch /etc/sap_deployment_automation/sap_deployment_dbload.txt
+#   args:
+#     chdir:                             /usr/sap/install/SWPM
+#     creates:                           /etc/sap_deployment_automation/sap_deployment_dbload.txt
+#   tags:
+#     - skip_ansible_lint
+#   when:       node_tier == "oracle-msid"
+#   loop:       "{{ oracle-msids }}"
 
 ...
 # /*---------------------------------------------------------------------------8

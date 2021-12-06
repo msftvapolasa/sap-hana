@@ -1,0 +1,470 @@
+---
+
+name: "S42021SPS00_v0001ms.yaml"
+target: "ABAP PLATFORM 2021"
+
+defaults:
+  target_location: "{{ target_media_location }}/download_basket"
+
+product_ids:
+  scs:
+  scs_ha:
+  dbl:
+  pas:
+  pas_ha:
+  app:
+  app_ha:
+  web:
+  ers:
+  ers_ha:
+
+materials:
+  dependencies:
+    - name: HANA_2_00_055_v0004ms    # <- edit as needed
+
+  media:
+
+    # kernel components
+
+    - name: "SP12 Patch5 for UMML4HANA 1"
+      archive: "HANAUMML12_5-70001054.ZIP"
+      url: "https://softwaredownloads.sap.com/file/0020000001558912021"
+      path: download_basket
+
+    - name: "SAP HANA CLIENT Version 2.10"
+      archive: "IMDB_CLIENT20_010_20-80002082.SAR"
+      url: "https://softwaredownloads.sap.com/file/0020000001646892021"
+      path: download_basket
+
+    - name: "Revision 2.00.060.0 (SPS06) for HANA DB 2.0"
+      archive: "IMDB_SERVER20_060_0-80002031.SAR"
+      url: "https://softwaredownloads.sap.com/file/0020000001739942021"
+      path: download_basket
+
+    - name: "Kernel Part II (785)"
+      archive: "SAPEXEDB_50-80005373.SAR"
+      url: "https://softwaredownloads.sap.com/file/0020000001450532021"
+      path: download_basket
+
+    - name: "Kernel Part I (785)"
+      archive: "SAPEXE_50-80005374.SAR"
+      url: "https://softwaredownloads.sap.com/file/0020000001450632021"
+      path: download_basket
+
+    - name: "SAP HOST AGENT 7.22 SP54"
+      archive: "SAPHOSTAGENT54_54-80004822.SAR"
+      url: "https://softwaredownloads.sap.com/file/0020000001542872021"
+      path: download_basket
+
+    - name: "Predi. Analy. APL 2008 for SAP HANA 2.0 SPS03 and beyond"
+      archive: "SAPPAAPL4_2008_0-80004547.ZIP"
+      url: "https://softwaredownloads.sap.com/file/0020000000410162020"
+      path: download_basket
+
+    - name: "Patch 4 for SOFTWARE UPDATE MANAGER 2.0 SP12"
+      archive: "SUM20SP12_4-80002456.SAR"
+      url: "https://softwaredownloads.sap.com/file/0020000001731572021"
+      path: download_basket
+
+    - name: "SWPM20SP10"
+      archive: "SWPM20SP10_2-80003424.SAR"
+      override_target_filename: "SWPM.SAR"
+      extract: true
+      extractDir: SWPM
+      url: "https://softwaredownloads.sap.com/file/0020000001662762021"
+      path: download_basket
+
+    - name: "Installation for SAP IGS integrated in SAP Kernel"
+      archive: "igsexe_1-70005417.sar"
+      url: "https://softwaredownloads.sap.com/file/0020000000535042021"
+      path: download_basket
+
+    - name: "SAP IGS Fonts and Textures"
+      archive: "igshelper_17-10010245.sar"
+      url: "https://softwaredownloads.sap.com/file/0020000000703122018"
+      path: download_basket
+
+    # db export components
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_1.zip"
+      archive: "S4CORE106_INST_EXPORT_1.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440322021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_10.zip"
+      archive: "S4CORE106_INST_EXPORT_10.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440332021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_11.zip"
+      archive: "S4CORE106_INST_EXPORT_11.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440352021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_12.zip"
+      archive: "S4CORE106_INST_EXPORT_12.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440382021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_13.zip"
+      archive: "S4CORE106_INST_EXPORT_13.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440392021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_14.zip"
+      archive: "S4CORE106_INST_EXPORT_14.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440402021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_15.zip"
+      archive: "S4CORE106_INST_EXPORT_15.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440412021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_16.zip"
+      archive: "S4CORE106_INST_EXPORT_16.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440422021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_17.zip"
+      archive: "S4CORE106_INST_EXPORT_17.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440442021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_18.zip"
+      archive: "S4CORE106_INST_EXPORT_18.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440452021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_19.zip"
+      archive: "S4CORE106_INST_EXPORT_19.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440472021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_2.zip"
+      archive: "S4CORE106_INST_EXPORT_2.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440482021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_20.zip"
+      archive: "S4CORE106_INST_EXPORT_20.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440492021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_21.zip"
+      archive: "S4CORE106_INST_EXPORT_21.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440502021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_22.zip"
+      archive: "S4CORE106_INST_EXPORT_22.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440512021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_23.zip"
+      archive: "S4CORE106_INST_EXPORT_23.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440532021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_24.zip"
+      archive: "S4CORE106_INST_EXPORT_24.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440542021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_25.zip"
+      archive: "S4CORE106_INST_EXPORT_25.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440562021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_26.zip"
+      archive: "S4CORE106_INST_EXPORT_26.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440572021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_27.zip"
+      archive: "S4CORE106_INST_EXPORT_27.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440582021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_28.zip"
+      archive: "S4CORE106_INST_EXPORT_28.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440592021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_3.zip"
+      archive: "S4CORE106_INST_EXPORT_3.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440602021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_4.zip"
+      archive: "S4CORE106_INST_EXPORT_4.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440612021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_5.zip"
+      archive: "S4CORE106_INST_EXPORT_5.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440622021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_6.zip"
+      archive: "S4CORE106_INST_EXPORT_6.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440632021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_7.zip"
+      archive: "S4CORE106_INST_EXPORT_7.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440642021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_8.zip"
+      archive: "S4CORE106_INST_EXPORT_8.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440662021"
+      path: download_basket
+
+    - name: "File on DVD - S4CORE106_INST_EXPORT_9.zip"
+      archive: "S4CORE106_INST_EXPORT_9.zip"
+      url: "https://softwaredownloads.sap.com/file/0030000001440672021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_AR.SAR"
+      archive: "S4HANAOP106_ERP_LANG_AR.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437382021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_BG.SAR"
+      archive: "S4HANAOP106_ERP_LANG_BG.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437392021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_CA.SAR"
+      archive: "S4HANAOP106_ERP_LANG_CA.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437402021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_CS.SAR"
+      archive: "S4HANAOP106_ERP_LANG_CS.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437412021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_DA.SAR"
+      archive: "S4HANAOP106_ERP_LANG_DA.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437422021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_DE.SAR"
+      archive: "S4HANAOP106_ERP_LANG_DE.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437352021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_EL.SAR"
+      archive: "S4HANAOP106_ERP_LANG_EL.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437432021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_EN.SAR"
+      archive: "S4HANAOP106_ERP_LANG_EN.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437362021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_ES.SAR"
+      archive: "S4HANAOP106_ERP_LANG_ES.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437452021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_ET.SAR"
+      archive: "S4HANAOP106_ERP_LANG_ET.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437472021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_FI.SAR"
+      archive: "S4HANAOP106_ERP_LANG_FI.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437482021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_FR.SAR"
+      archive: "S4HANAOP106_ERP_LANG_FR.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437492021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_HE.SAR"
+      archive: "S4HANAOP106_ERP_LANG_HE.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437512021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_HI.SAR"
+      archive: "S4HANAOP106_ERP_LANG_HI.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437532021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_HR.SAR"
+      archive: "S4HANAOP106_ERP_LANG_HR.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437582021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_HU.SAR"
+      archive: "S4HANAOP106_ERP_LANG_HU.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437642021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_IT.SAR"
+      archive: "S4HANAOP106_ERP_LANG_IT.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437702021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_JA.SAR"
+      archive: "S4HANAOP106_ERP_LANG_JA.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437732021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_KK.SAR"
+      archive: "S4HANAOP106_ERP_LANG_KK.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437752021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_KO.SAR"
+      archive: "S4HANAOP106_ERP_LANG_KO.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437782021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_LT.SAR"
+      archive: "S4HANAOP106_ERP_LANG_LT.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437792021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_LV.SAR"
+      archive: "S4HANAOP106_ERP_LANG_LV.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437812021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_MS.SAR"
+      archive: "S4HANAOP106_ERP_LANG_MS.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437832021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_NL.SAR"
+      archive: "S4HANAOP106_ERP_LANG_NL.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437842021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_NO.SAR"
+      archive: "S4HANAOP106_ERP_LANG_NO.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437862021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_PL.SAR"
+      archive: "S4HANAOP106_ERP_LANG_PL.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437882021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_PT.SAR"
+      archive: "S4HANAOP106_ERP_LANG_PT.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437892021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_RO.SAR"
+      archive: "S4HANAOP106_ERP_LANG_RO.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437922021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_RU.SAR"
+      archive: "S4HANAOP106_ERP_LANG_RU.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437932021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_SH.SAR"
+      archive: "S4HANAOP106_ERP_LANG_SH.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437942021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_SK.SAR"
+      archive: "S4HANAOP106_ERP_LANG_SK.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437952021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_SL.SAR"
+      archive: "S4HANAOP106_ERP_LANG_SL.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001437972021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_SV.SAR"
+      archive: "S4HANAOP106_ERP_LANG_SV.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001438012021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_TH.SAR"
+      archive: "S4HANAOP106_ERP_LANG_TH.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001438042021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_TR.SAR"
+      archive: "S4HANAOP106_ERP_LANG_TR.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001438072021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_UK.SAR"
+      archive: "S4HANAOP106_ERP_LANG_UK.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001438112021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_VI.SAR"
+      archive: "S4HANAOP106_ERP_LANG_VI.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001438162021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_ZF.SAR"
+      archive: "S4HANAOP106_ERP_LANG_ZF.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001438202021"
+      path: download_basket
+
+    - name: "File on DVD - S4HANAOP106_ERP_LANG_ZH.SAR"
+      archive: "S4HANAOP106_ERP_LANG_ZH.SAR"
+      url: "https://softwaredownloads.sap.com/file/0030000001438252021"
+      path: download_basket
+
+    # other components
+
+    - name: "ST-PI 740: SP 0016"
+      archive: "K-74016INSTPI.SAR"
+      url: "https://softwaredownloads.sap.com/file/0010000001454472021"
+      download: false
+
+    - name: "SPAM/SAINT Update - Version 756/0079"
+      archive: "KD75679.SAR"
+      url: "https://softwaredownloads.sap.com/file/0010000001277492021"
+      download: false
+
+  templates:
+    - name: "SAP_S4HANA_2021 ini file"
+      file: "SAP_S4HANA_2021.inifile.params"
+      override_target_location: "{{ target_media_location }}/config"
+
+  stackfiles:
+    - name: "Download Basket JSON Manifest"
+      file: "download.json"
+      override_target_location: "{{ target_media_location }}/config"
+
+    - name: "Download Basket Spreadsheet"
+      file: "MP_Excel_2001240265_2021126_SWC.xls"
+      override_target_location: "{{ target_media_location }}/config"
+
+    - name: "Download Basket Plan"
+      file: "MP_Plan_2001240265_2021126_.pdf"
+      override_target_location: "{{ target_media_location }}/config"
+
+    - name: "Download Basket Stack text"
+      file: "MP_Stack_2001240265_2021126_.txt"
+      override_target_location: "{{ target_media_location }}/config"
+
+    - name: "Download Basket Stack text"
+      file: "MP_Stack_2001240265_2021126_.txt"
+      override_target_location: "{{ target_media_location }}/config"
+
+    - name: "Download Basket Stack XML"
+      file: "MP_Stack_2001240265_2021126_.xml"
+      override_target_location: "{{ target_media_location }}/config"
+
+    - name: "Download Basket permalinks"
+      file: "myDownloadBasketFiles.txt"
+      override_target_location: "{{ target_media_location }}/config"
+
+...

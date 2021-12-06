@@ -78,7 +78,7 @@
     path:   "{{ item.path }}"
     fstype: "{{ item.type }}"
     opts:   defaults
-    state:  mounted
+    state:  remounted
   vars:
     # Get all the hostnames in <SID>_SCS group and return only the first hostname
     nfs_server:   "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"

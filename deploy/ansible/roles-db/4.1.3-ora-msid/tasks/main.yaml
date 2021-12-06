@@ -39,12 +39,13 @@
                       setenv DB_SID "{{anydb_sid}}"
                       setenv CV_ASSUME_DISTID  OL7
                       ./RUNINSTALLER -shared -create_link no -orabasetab no -silent |tee /etc/sap_deployment_automation/rdbms.log
+                      touch /etc/sap_deployment_automation/shareddbinstalled.txt
   register:           orainstall_results
   failed_when:        orainstall_results.rc >= 2
   args:
     executable:       /bin/csh        
     chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
-    creates:          /etc/sap_deployment_automation/precheck.txt
+    creates:          /etc/sap_deployment_automation/shareddbinstalled.txt
 
 
 
@@ -66,7 +67,7 @@
                       ./RUNINSTALLER -shared -ohsapcfg |tee -a /etc/sap_deployment_automation/"{{ item.sid }}"_install.log
   register:           orainstaller_results
   failed_when:        orainstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
-  loop:    "{{ora_msids }}"
+  loop:    "{{ ora_msids }}"
   args:
     executable:       /bin/csh        
     chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"
