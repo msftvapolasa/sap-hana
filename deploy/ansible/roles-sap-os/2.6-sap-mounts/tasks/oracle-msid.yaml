@@ -67,7 +67,8 @@
               #- item.tier == "ora"
               - item.node_tier == "oracle-msid" 
               - item.lv in  lvexists
-              - item.lv != 'lv_usrsap' or item.lv != 'lv_oracle'
+              - item.lv != 'lv_usrsap'
+              - item.lv != 'lv_oracle'
   register:  oraclefilesystemmounts
 
 
@@ -78,23 +79,49 @@
     path:   "{{ item.path }}"
     fstype: "{{ item.type }}"
     opts:   defaults
-    state:  remounted
+    state:  mounted
   vars:
     # Get all the hostnames in <SID>_SCS group and return only the first hostname
     nfs_server:   "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"
   loop:
     - { tier: 'sapos',          type: 'xfs',   src: '/dev/vg_sap/lv_usrsap',                             path: '/usr/sap' }
     - { tier: 'ora',            type: 'nfs4',    src: '{{ nfs_server }}:/usr/sap/install',               path: '/usr/sap/install' }                # Special Install Structure; Destroy on Completion
-    - { tier: 'ora',            type: 'nfs4',    src: '{{ nfs_server }}:/sapmnt/{{ anydb_sid|upper }}',  path: '/sapmnt/{{ anydb_sid|upper }}' }
-  
   when:         
                 item.tier == "sapos" or 
                 item.tier == "ora"
 
+
+- name:     "Mount SAP Filesystems on Database for installation"
+  mount:
+    src: '{{ nfs_server }}:/sapmnt/{{ item.sid|upper }}'
+    path: '/sapmnt/{{ item.sid|upper }}'
+    fstype: 'nfs4'
+    opts:   defaults
+    state:  mounted
+  vars:
+    # Get all the hostnames in <SID>_SCS group and return only the first hostname
+    nfs_server:   "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"
+  loop: "{{ ora_msids }}"
+  when:         
+    - node_tier == "oracle-msid"
+
+
+# Create Run Flag Directory
+- name:     "Create run flag directory"
+  become:         yes
+  become_user:    root
+  ansible.builtin.file:
+    path:   /etc/sap_deployment_automation
+    state:  directory
+    mode:   0755
+    owner:  oracle
+    group:  oinstall
+
+
 # ORACLE should be the owner of the file systems /oracle directories. 
 #.PARAMS folder is not required for oracle install as we are not passing any parameters files.
 
-- name:              "Make orasid:dba as owners"          
+- name:              "Make oracle:oinstall as owners"          
   ansible.builtin.shell: | 
                       chown -R oracle:oinstall /oracle
                       chmod -R 777 /usr/sap/install/

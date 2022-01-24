@@ -126,14 +126,7 @@
           
       tags:
         - 2.3-sap-exports
-
-    - block:
-        - name:                        Include 1.16-services role
-          ansible.builtin.include_role:
-            name:                      roles-os/1.16-services
-      tags:
-        - 1.16-services
-
+    
     - block:
         - name:                        Include 2.6-sap-mounts role
           ansible.builtin.include_role:
@@ -141,6 +134,13 @@
           when:       node_tier != "oracle-asm"
       tags:
         - 2.6-sap-mounts
+
+    - block:
+        - name:                        Include 1.16-services role
+          ansible.builtin.include_role:
+            name:                      roles-os/1.16-services
+      tags:
+        - 1.16-services
 
     - block:
         - name:                        Include 2.10-sap-notes role

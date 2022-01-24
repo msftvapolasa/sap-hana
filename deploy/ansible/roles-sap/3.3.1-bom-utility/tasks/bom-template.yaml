@@ -103,6 +103,7 @@
   when:                                
        - microsoft_supplied_bom_template.stat.exists or microsoft_supplied_bom_template_archive.stat.exists
        - node_tier != "oracle-msid"
+       - ora_msids is undefined
 
 # If Microsoft supplied BOM template found for Oracle Mult-SID Deployment.
 - name:                                "SAP : deploy Parameter file install template"
@@ -115,6 +116,32 @@
        - microsoft_supplied_bom_template.stat.exists or microsoft_supplied_bom_template_archive.stat.exists
        - node_tier == "oracle-msid"
   loop:                                "{{ ora_msids }}"
+
+# # If Microsoft supplied BOM template found for Oracle Mult-SID Deployment SCS.
+# - name:                                "SAP SCS : deploy Parameter file install template"
+#   ansible.builtin.template:
+#     src:                               "{% if microsoft_supplied_bom_template.stat.exists %}{{ microsoft_supplied_bom_template.stat.path }}{% else %}{{ microsoft_supplied_bom_template_archive.stat.path }}{% endif %}" 
+#     dest:                              "/usr/sap/install/downloads/{{ bom_base_name }}-{{ item.sid }}-scs-{{ ansible_hostname }}.params"
+#     mode:                              0644
+#     force:                             true
+#   when:                                
+#        - microsoft_supplied_bom_template.stat.exists or microsoft_supplied_bom_template_archive.stat.exists
+#        - ora_msids is defined
+#   loop:                                "{{ ora_msids }}"
+
+# If Microsoft supplied BOM template found for Oracle Mult-SID Deployment PAS.
+- name:                                "SAP PAS : deploy Parameter file install template"
+  ansible.builtin.template:
+    src:                               "{% if microsoft_supplied_bom_template.stat.exists %}{{ microsoft_supplied_bom_template.stat.path }}{% else %}{{ microsoft_supplied_bom_template_archive.stat.path }}{% endif %}" 
+    dest:                              "/usr/sap/install/downloads/{{ bom_base_name }}-{{ item.sid }}-{{ node_tier }}-{{ ansible_hostname }}.params"
+    mode:                              0644
+    force:                             true
+  when:                                
+       - microsoft_supplied_bom_template.stat.exists or microsoft_supplied_bom_template_archive.stat.exists
+       - ora_msids is defined
+  loop:                                "{{ ora_msids }}"
+
+
 
 # If Microsoft supplied BOM template not found
 - name:                                Retrieve BOM ({{ bom_base_name }}) template from Storage Account
@@ -139,7 +166,9 @@
         mode:                          0644
         force:                         true
   when:                                microsoft_supplied_bom_template.stat.exists != true
-  
+
+
+
 # -------------------------------------+---------------------------------------8
 
 ...

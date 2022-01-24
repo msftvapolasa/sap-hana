@@ -8,7 +8,9 @@ disktypes: >-
       map(attribute='type') | sort | unique |
       list }}
 
-  
+multisids: >-
+  {{ ora_msids |map(attribute='sid') | sort | unique |list }}
+      
 # Mapping table from disk type to volume group name suffix
 disk_type_to_name_map:
   # sapdata1_sid1:  sapdata1_{{ ora_sid1 | lower }}

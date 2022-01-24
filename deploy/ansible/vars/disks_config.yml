@@ -105,8 +105,10 @@ logical_volumes:
     node_tier:  'scs'
     vg:         'vg_sap'
     lv:         'lv_sapmnt'
-    size:       '128g'
+    size:       '64g'
     fstype:     'xfs'
+  
+  
 
   - tier:       'sapos'
     node_tier:  'scs'

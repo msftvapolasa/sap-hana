@@ -6,18 +6,6 @@
 # |                                                                            |
 # +------------------------------------4--------------------------------------*/
 
-# Import this task only if the tier is ora.
-- import_tasks:                        "oracle.yaml"
-  when: 
-    - node_tier == "oracle"
-    - node_tier != "oracle-asm"
-
-- import_tasks:                        "oracle-msid.yaml"
-  when: 
-    - node_tier == "oracle-msid"
-    - node_tier != "oracle-asm"
-
-
 # Mount Filesystems
 - name:                                Mount Filesystems
   ansible.builtin.mount:
@@ -36,63 +24,14 @@
     - { node_tier: 'hana', type: 'xfs',   src: '/dev/vg_hana_data/lv_hana_data',        path: '/hana/data'       }
     - { node_tier: 'hana', type: 'xfs',   src: '/dev/vg_hana_log/lv_hana_log',          path: '/hana/log'        }
     - { node_tier: 'hana', type: 'xfs',   src: '/dev/vg_hana_backup/lv_hana_backup',    path: '/hana/backup'     }
-  when:         
-    -  (item.node_tier == "all" or item.node_tier == node_tier )
-    
+  when:         (item.node_tier == "all" or item.node_tier == node_tier)
 
 - name:                                Set the NFS Server name
   ansible.builtin.set_fact:
     nfs_server:                        "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"
 
-# Mount Filesystems
-- name:                                Mount Filesystems when not using ANF (app & pas)
-  ansible.builtin.mount:
-    src:                               "{{ item.src }}"
-    path:                              "{{ item.path }}"
-    fstype:                            "{{ item.type }}"
-    opts:                              defaults
-    state:                             mounted
-  loop:
-    - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
-    - { type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install'            }                # Special Install Structure; Destroy on Completion
-  when:
-    - tier == 'sapos'
-    - node_tier == 'pas' or node_tier =='app'
-    - sap_mnt is undefined
-
-# Mount Filesystems
-- name:                                Mount Filesystems when not using ANF (app & pas)
-  ansible.builtin.mount:
-    src:                               "{{ item.src }}"
-    path:                              "{{ item.path }}"
-    fstype:                            "{{ item.type }}"
-    opts:                              defaults
-    state:                             mounted
-  loop:
-    - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
-  when:
-    - tier == 'dbload' or tier == 'app' or tier == 'pas' 
-    - node_tier == 'pas' or node_tier =='app'
-    - sap_mnt is undefined
-
-
-# Mount Filesystems
-- name:                                Mount Filesystems when not using ANF (hana)
-  ansible.builtin.mount:
-    src:                               "{{ item.src }}"
-    path:                              "{{ item.path }}"
-    fstype:                            "{{ item.type }}"
-    opts:                              defaults
-    state:                             mounted
-  loop:
-    - { type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install'  }
-  when:
-    - tier == 'sapos'
-    - sap_mnt is undefined
-    - node_tier == 'hana'
-
-# Mount Filesystems
-- name:                                Mount Filesystems when not using ANF (scs)
+# Mount Filesystems for SCS server
+- name:                                Mount local sapmnt (scs)
   ansible.builtin.mount:
     src:                               "{{ item.src }}"
     path:                              "{{ item.path }}"
@@ -105,6 +44,110 @@
     - tier == 'sapos'
     - sap_mnt is undefined
     - node_tier == 'scs'
+    - ora_msids is undefined
+
+
+# Mount Filesystems for SCS server
+- name:                                Mount local sapmnt (scs) for oracle multisid installation
+  ansible.builtin.mount:
+    src:                               "{{ item.src }}"
+    path:                              "{{ item.path }}"
+    fstype:                            "{{ item.type }}"
+    opts:                              defaults
+    state:                             mounted
+  loop:
+    - { type: 'xfs',  src: '/dev/vg_sap/lv_sapmnt',  path: '/sapmnt' }
+  when:
+    - tier == 'sapos'
+    - sap_mnt is undefined
+    - node_tier == 'scs'
+    - ora_msids is defined
+
+
+# Create Folders under sapmnt whilist using Local disk for Multi-SID installation.
+- name:                                Create Filesystems under sapmnt
+  block:
+    - name:                            Create Filesystems for multi-sid installation
+      ansible.builtin.file:
+        path:                          /sapmnt/{{ item.sid }}
+        state:                         directory
+        mode:                          '0644'
+      when:
+         - node_tier == 'scs'
+         - ora_msids is defined
+      loop: "{{ ora_msids }}"
+      
+
+
+# Mount Filesystems
+- name:                                Mount Filesystems block
+  block:
+    - name:                            Mount Filesystems when not using ANF (all app tier)
+      ansible.builtin.mount:
+        src:                           "{{ item.src }}"
+        path:                          "{{ item.path }}"
+        fstype:                        "{{ item.type }}"
+        opts:                          defaults
+        state:                         mounted
+      loop:
+        - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
+      when:
+        - tier == 'sapos'
+        - node_tier in ['pas', 'app', 'ers']
+        - sap_mnt is undefined
+        - ora_msids is undefined
+  rescue:
+    - name:                            Re-mount Filesystems when not using ANF (app & pas)
+      ansible.builtin.debug:
+        msg:                           "Trying to remount"
+    - name:                            Re-mount Filesystems when not using ANF (app & pas)
+      ansible.builtin.mount:
+        src:                           "{{ item.src }}"
+        path:                          "{{ item.path }}"
+        fstype:                        "{{ item.type }}"
+        opts:                          defaults
+        state:                         remounted
+      loop:
+        - { type: 'nfs4',  src: '{{ nfs_server }}:/sapmnt/{{ sap_sid|upper }}',  path: '/sapmnt/{{ sap_sid|upper }}' }
+      when:
+        - tier == 'sapos'
+        - node_tier in ['pas', 'app', 'ers']
+        - sap_mnt is undefined
+        - ora_msids is undefined
+
+
+# Mount Filesystems
+- name:                                Mount Install folder
+  ansible.builtin.mount:
+    src:                               "{{ item.src }}"
+    path:                              "{{ item.path }}"
+    fstype:                            "{{ item.type }}"
+    opts:                              defaults
+    state:                             mounted
+  loop:
+    - { type: 'nfs4',  src: '{{ nfs_server }}:/usr/sap/install',             path: '/usr/sap/install'  }
+  when:
+    - tier == 'sapos'
+    - node_tier != 'scs'
+
+#Mount Filesystems for Oracle Multi-SID on DB and APP servers
+
+- name:     "Mount SAP Filesystems for installation"
+  mount:
+    src: '{{ nfs_server }}:/sapmnt/{{ item.sid|upper }}'
+    path: '/sapmnt/{{ item.sid|upper }}'
+    fstype: 'nfs4'
+    opts:   defaults
+    state:  mounted
+  vars:
+    # Get all the hostnames in <SID>_SCS group and return only the first hostname
+    nfs_server:   "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"
+  loop: "{{ ora_msids }}"
+  when:         
+    - tier == 'sapos'
+    - ora_msids is defined
+    - node_tier != 'scs'
+
 
 # Import this task only if the sap_mnt is defined, i.e. ANF is used
 - name:                                Show sap_mnt
@@ -120,3 +163,15 @@
     - sap_mnt | trim | length != 0
     - tier == 'sapos'
 
+
+# Import this task only if the tier is ora.
+- import_tasks:                        "oracle.yaml"
+  when: 
+    - node_tier == "oracle"
+    - node_tier != "oracle-asm"
+
+- import_tasks:                        "oracle-msid.yaml"
+  when: 
+    - node_tier == "oracle-msid"
+    - node_tier != "oracle-asm"
+...
