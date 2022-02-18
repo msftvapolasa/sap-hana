@@ -68,13 +68,13 @@ ora_sid2:                     "QAS"
 ora_sid3:                     ""
 ora_sid4:                     ""
 ora_sid5:                     ""
-#ora_msids:  ['DEV','QAS']
+#MULTI_SID:  ['DEV','QAS']
 hdbadm_uid:                   2200
 scs_lb_ip:                    ""                                                        # SAP HA
 db_lb_ip:                     ""                                                        # SAP HA
 reinstall:                    false                                                     # Provide a way to override the idempotency flags for SAP tasks
-ora_release:                  19
-ora_version:                  19.0.0
+anydb_release:                  19
+anydb_version:                  19.0.0
 ora_compatible:               19.0.0.0.0
 orchestration_ansible_user:   azureadm
 
@@ -102,7 +102,7 @@ sap_swap:
   - { tier: 'hana', swap_size_mb: '2048' }
   - { tier: 'oracle', swap_size_mb: '20480' }
   - { tier: 'oracle-asm', swap_size_mb: '20480' }
-  - { tier: 'oracle-msid', swap_size_mb: '20480' }
+  - { tier: 'oracle-multi-sid', swap_size_mb: '20480' }
 
 
 ...

@@ -78,7 +78,7 @@
                       ./RUNINSTALLER -shared -ohsapcfg |tee -a /etc/sap_deployment_automation/"{{ item.sid }}"_install.log
   register:           orainstaller_results
   failed_when:        orainstaller_results.rc >= 2              #installer returns rc=1 (exited with warning) by default when run is silent mode as the oratab file is created only after running the root.sh
-  loop:    "{{ ora_msids }}"
+  loop:    "{{ MULTI_SID }}"
   args:
     executable:       /bin/csh        
     chdir:            "/usr/sap/install/oraserver/LINUX_X86_64/db_home/SAP"

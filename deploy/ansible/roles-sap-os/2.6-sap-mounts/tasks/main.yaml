@@ -44,7 +44,7 @@
     - tier == 'sapos'
     - sap_mnt is undefined
     - node_tier == 'scs'
-    - ora_msids is undefined
+    - MULTI_SID is undefined
 
 
 # Mount Filesystems for SCS server
@@ -61,7 +61,7 @@
     - tier == 'sapos'
     - sap_mnt is undefined
     - node_tier == 'scs'
-    - ora_msids is defined
+    - MULTI_SID is defined
 
 
 # Create Folders under sapmnt whilist using Local disk for Multi-SID installation.
@@ -74,8 +74,8 @@
         mode:                          '0644'
       when:
          - node_tier == 'scs'
-         - ora_msids is defined
-      loop: "{{ ora_msids }}"
+         - MULTI_SID is defined
+      loop: "{{ MULTI_SID }}"
       
 
 
@@ -95,7 +95,7 @@
         - tier == 'sapos'
         - node_tier in ['pas', 'app', 'ers']
         - sap_mnt is undefined
-        - ora_msids is undefined
+        - MULTI_SID is undefined
   rescue:
     - name:                            Re-mount Filesystems when not using ANF (app & pas)
       ansible.builtin.debug:
@@ -113,7 +113,7 @@
         - tier == 'sapos'
         - node_tier in ['pas', 'app', 'ers']
         - sap_mnt is undefined
-        - ora_msids is undefined
+        - MULTI_SID is undefined
 
 
 # Mount Filesystems
@@ -142,10 +142,10 @@
   vars:
     # Get all the hostnames in <SID>_SCS group and return only the first hostname
     nfs_server:   "{{ query('inventory_hostnames', '{{ sap_sid|upper }}_SCS') | first }}"
-  loop: "{{ ora_msids }}"
+  loop: "{{ MULTI_SID }}"
   when:         
     - tier == 'sapos'
-    - ora_msids is defined
+    - MULTI_SID is defined
     - node_tier != 'scs'
 
 
@@ -170,8 +170,8 @@
     - node_tier == "oracle"
     - node_tier != "oracle-asm"
 
-- import_tasks:                        "oracle-msid.yaml"
+- import_tasks:                        "oracle-multi-sid.yaml"
   when: 
-    - node_tier == "oracle-msid"
+    - node_tier == "oracle-multi-sid"
     - node_tier != "oracle-asm"
 ...

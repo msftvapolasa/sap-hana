@@ -88,42 +88,42 @@ admin_groups:
     state:        present
     tier:         ora
     enabled:      true
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
   
   - name:         oper
     gid:          "{{ oper_gid }}"
     state:        present
     tier:         ora
     enabled:      true
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
   
   - name:         asmoper
     gid:          "{{ asmoper_gid }}"
     state:        present
     tier:         ora
     enabled:      true
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
   
   - name:         asmadmin
     gid:          "{{ asmadmin_gid }}"
     state:        present
     tier:         ora
     enabled:      true
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
   
   - name:         asmdba
     gid:          "{{ asmdba_gid }}"
     state:        present
     tier:         ora
     enabled:      true
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
   
   - name:         oinstall
     gid:          "{{ oinstall_gid }}"
     state:        present
     tier:         ora
     enabled:      true
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
   
 
 # Admin groups for Oracle-ASM
@@ -257,7 +257,7 @@ admin_users:
     shell:        /bin/csh
     state:        present
     tier:         ora
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
     enabled:      true
 
   - name:         "ora{{ ora_sid2|lower }}"
@@ -270,7 +270,7 @@ admin_users:
     shell:        /bin/csh
     state:        present
     tier:         ora
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
     enabled:      true
   
   - name:         "ora{{ ora_sid3|lower }}"
@@ -283,7 +283,7 @@ admin_users:
     shell:        /bin/csh
     state:        present
     tier:         ora
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
     enabled:      true
 
   - name:         "ora{{ ora_sid4|lower }}"
@@ -296,7 +296,7 @@ admin_users:
     shell:        /bin/csh
     state:        present
     tier:         ora
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
     enabled:      true  
 
 
@@ -310,7 +310,7 @@ admin_users:
     shell:        /bin/csh
     state:        present
     tier:         ora
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
     enabled:      true
 
   - name:         "oracle"
@@ -323,7 +323,7 @@ admin_users:
     shell:        /bin/csh
     state:        present
     tier:         ora
-    node_tier:    oracle-msid
+    node_tier:    oracle-multi-sid
     enabled:      true
 
 

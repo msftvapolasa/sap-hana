@@ -90,7 +90,7 @@
         - name:                        Include 1.5-disk-setup role
           ansible.builtin.include_role:
             name:                      roles-os/1.5-disk-setup
-          when:       ( node_tier != "oracle-msid" or node_tier != "oracle-asm" )
+          when:       ( node_tier != "oracle-multi-sid" or node_tier != "oracle-asm" )
             
       tags:
         - 1.5-disk-setup
@@ -100,7 +100,7 @@
           ansible.builtin.include_role:
             name:                      roles-os/1.5.2-disk-setup-ora-msid
           when:
-            node_tier == "oracle-msid"
+            node_tier == "oracle-multi-sid"
       tags:
         - 1.5.2-disk-setup-ora-msid
 

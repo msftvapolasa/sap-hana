@@ -11,15 +11,15 @@
   ansible.builtin.set_fact:
     sap_inifile:                       "{{ bom_base_name }}-dbload-{{ ansible_hostname }}.params"
     sap_inifile_template:              "{{ bom_base_name }}-dbload-inifile-param.j2"
-  when:                                 node_tier != "oracle-msid"
+  when:                                 node_tier != "oracle-multi-sid"
 
 
 - name:                                Set dbload facts for oracle multi-sid
   ansible.builtin.set_fact:
     sap_inifile:                       "{{ bom_base_name }}-{{ item.sid }}-dbload-{{ ansible_hostname }}.params"
     sap_inifile_template:              "{{ bom_base_name }}-dbload-inifile-param.j2"
-  when:                                 node_tier == "oracle-msid"
-  loop:                                 "{{ ora_msids }}"
+  when:                                 node_tier == "oracle-multi-sid"
+  loop:                                 "{{ MULTI_SID }}"
 
 
 # Returns bom object
@@ -79,7 +79,7 @@
       - "{{ bom.product_ids.dbl }}"
       - "{{ bom_base_name }}"
       - "{{ ansible_hostname }}"
-      - "{{ ora_msids }}"
+      - "{{ MULTI_SID }}"
     verbosity:                         2
 
 - name:                                "SAP DBLOAD Install"
@@ -95,8 +95,8 @@
   args:
     chdir:                             /usr/sap/install/SWPM
     creates:                           /etc/sap_deployment_automation/sap_deployment_dbload_{{ item.sid }}.txt
-  when:       node_tier == "oracle-msid"
-  loop:       "{{ ora_msids }}"
+  when:       node_tier == "oracle-multi-sid"
+  loop:       "{{ MULTI_SID }}"
   tags:
     - skip_ansible_lint
 
@@ -115,8 +115,8 @@
 #     creates:                           /etc/sap_deployment_automation/sap_deployment_dbload.txt
 #   tags:
 #     - skip_ansible_lint
-#   when:       node_tier == "oracle-msid"
-#   loop:       "{{ oracle-msids }}"
+#   when:       node_tier == "oracle-multi-sid"
+#   loop:       "{{ oracle-multi-sids }}"
 
 ...
 # /*---------------------------------------------------------------------------8

@@ -12,14 +12,14 @@
     sap_inifile:                       "{{ bom_base_name }}-pas-{{ ansible_hostname }}.params"
     sap_inifile_template:              "{{ bom_base_name }}-pas-inifile-param.j2"
   when: 
-    ora_msids is undefined
+    MULTI_SID is undefined
 
 - name:                                Set facts for oracle multi-sid PAS
   ansible.builtin.set_fact:
     sap_inifile:                       "{{ bom_base_name }}-{{ item.sid }}-pas-{{ ansible_hostname }}.params"
     sap_inifile_template:              "{{ bom_base_name }}-pas-inifile-param.j2"
-  when:                                 ora_msids is defined
-  loop:                                 "{{ ora_msids }}"
+  when:                                 MULTI_SID is defined
+  loop:                                 "{{ MULTI_SID }}"
 
 
 
@@ -93,8 +93,8 @@
   args:
     chdir:                             /usr/sap/install/SWPM
     creates:                           /etc/sap_deployment_automation/sap_deployment_pas_{{ item.sid }}.txt
-  when:       ora_msids is defined
-  loop:       "{{ ora_msids }}"
+  when:       MULTI_SID is defined
+  loop:       "{{ MULTI_SID }}"
   tags:
     - skip_ansible_lint
 
@@ -112,7 +112,7 @@
   args:
     chdir:                             /usr/sap/install/SWPM
     creates:                           /etc/sap_deployment_automation/sap_deployment_pas.txt
-  when:       ora_msids is undefined
+  when:       MULTI_SID is undefined
   tags:
     - skip_ansible_lint
   # Skip when TRUE (test mode)

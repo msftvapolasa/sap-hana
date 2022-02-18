@@ -102,8 +102,8 @@
     force:                             true
   when:                                
        - microsoft_supplied_bom_template.stat.exists or microsoft_supplied_bom_template_archive.stat.exists
-       - node_tier != "oracle-msid"
-       - ora_msids is undefined
+       - node_tier != "oracle-multi-sid"
+       - MULTI_SID is undefined
 
 # If Microsoft supplied BOM template found for Oracle Mult-SID Deployment.
 - name:                                "SAP : deploy Parameter file install template"
@@ -114,8 +114,8 @@
     force:                             true
   when:                                
        - microsoft_supplied_bom_template.stat.exists or microsoft_supplied_bom_template_archive.stat.exists
-       - node_tier == "oracle-msid"
-  loop:                                "{{ ora_msids }}"
+       - node_tier == "oracle-multi-sid"
+  loop:                                "{{ MULTI_SID }}"
 
 # # If Microsoft supplied BOM template found for Oracle Mult-SID Deployment SCS.
 # - name:                                "SAP SCS : deploy Parameter file install template"
@@ -126,8 +126,8 @@
 #     force:                             true
 #   when:                                
 #        - microsoft_supplied_bom_template.stat.exists or microsoft_supplied_bom_template_archive.stat.exists
-#        - ora_msids is defined
-#   loop:                                "{{ ora_msids }}"
+#        - MULTI_SID is defined
+#   loop:                                "{{ MULTI_SID }}"
 
 # If Microsoft supplied BOM template found for Oracle Mult-SID Deployment PAS.
 - name:                                "SAP PAS : deploy Parameter file install template"
@@ -138,8 +138,8 @@
     force:                             true
   when:                                
        - microsoft_supplied_bom_template.stat.exists or microsoft_supplied_bom_template_archive.stat.exists
-       - ora_msids is defined
-  loop:                                "{{ ora_msids }}"
+       - MULTI_SID is defined
+  loop:                                "{{ MULTI_SID }}"
 
 
 
